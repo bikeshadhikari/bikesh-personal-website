@@ -1,0 +1,17 @@
+# Live credentials never belong in the repository.
+config/config.php
+
+# Local SQLite database used for testing.
+database/*.sqlite
+database/*.sqlite3
+
+# Uploaded media: keep the folders and their guards, ignore the files.
+uploads/*/*
+!uploads/*/.gitkeep
+
+# OS and editor noise.
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/
