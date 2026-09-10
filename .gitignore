@@ -1,17 +1,29 @@
-# Live credentials never belong in the repository.
-config/config.php
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
 
-# Local SQLite database used for testing.
-database/*.sqlite
-database/*.sqlite3
+# Next.js build output
+.next/
+out/
+build/
+next-env.d.ts
 
-# Uploaded media: keep the folders and their guards, ignore the files.
-uploads/*/*
-!uploads/*/.gitkeep
+# Environment files — never commit credentials
+.env
+.env.local
+.env*.local
 
-# OS and editor noise.
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+
+# Logs and OS noise
+*.log
+npm-debug.log*
 .DS_Store
 Thumbs.db
-*.log
 .idea/
 .vscode/

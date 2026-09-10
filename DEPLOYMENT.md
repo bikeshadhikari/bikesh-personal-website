@@ -1,127 +1,151 @@
-# Putting the site live
+# Putting the site live on Vercel
 
-Two routes are covered: **Hostinger** (or any cPanel host — this is the one you want,
-because the site needs PHP) and **Cloudflare**, which cannot run PHP but is worth
-putting in front of the site.
+About twenty minutes end to end. You need a GitHub account and a Vercel account,
+both free. No terminal required.
 
 ---
 
-## Part 1 — Hostinger
+## 1. Push the code to GitHub
 
-### 1. Create the database
+The code already lives on the branch `claude/bike-shadhikari-portfolio-52iwad`
+in your repository. Merge it into `main` when you are ready, or point Vercel
+straight at that branch in step 2.
 
-In hPanel go to **Databases → Management**.
+---
 
-- Database name: `bikesh_site`
-- Username: `bikesh_admin`
-- Password: use the generator and copy it somewhere safe
+## 2. Import the project into Vercel
 
-Hostinger prefixes both with your account number, so the real values look like
-`u123456789_bikesh_site`. Note down the three values exactly as shown.
+1. Sign in at [vercel.com](https://vercel.com) with your GitHub account.
+2. **Add New → Project**, then **Import** your `bikesh-personal-website` repository.
+3. Vercel detects Next.js on its own. Leave the build settings untouched.
+4. **Do not deploy yet.** Add the environment variables first (step 4), or the
+   first build will succeed but the site will not be able to reach a database.
 
-### 2. Upload the files
+---
 
-**File Manager:** open **Files → File Manager**, go into `public_html`, upload a ZIP
-of this project and extract it there. Make sure the files land *directly* in
-`public_html`, not inside a nested folder.
+## 3. Create the database
 
-**FTP:** host `ftp.yourdomain.com`, port 21, using the FTP account from hPanel.
-Upload the contents of the project folder into `public_html`.
+In your Vercel project open **Storage → Create Database → Neon** (Postgres).
+Choose the free plan and a region close to Nepal — Singapore is the nearest.
 
-### 3. Add your credentials
+Connect it to the project when prompted. Vercel writes `DATABASE_URL` into your
+environment variables automatically. Use the pooled connection string, the one
+whose host contains `-pooler`; Vercel picks it by default.
 
-Copy `config/config.sample.php` to `config/config.php` and edit it:
+Supabase or any other Postgres works too. Paste its pooled connection string as
+`DATABASE_URL` by hand instead.
 
-```php
-'db' => [
-    'driver'   => 'mysql',
-    'host'     => 'localhost',
-    'database' => 'u123456789_bikesh_site',
-    'username' => 'u123456789_bikesh_admin',
-    'password' => 'the password you generated',
-],
-'debug' => false,
-'app_key' => 'paste-a-long-random-string-here',
-```
+---
 
-`localhost` is correct on Hostinger — do not put your domain there.
+## 4. Add file storage
 
-### 4. Set permissions
+Still under **Storage**, create a **Blob** store and connect it to the project.
+Vercel sets `BLOB_READ_WRITE_TOKEN` for you.
 
-In File Manager, right-click `uploads` → **Permissions** → set to **755** and tick
-*apply to subdirectories*. Files should be 644, folders 755. Nothing needs 777.
+Without this the site still runs, and image fields accept a pasted link to a
+picture hosted elsewhere. With it, you upload files directly in the dashboard.
 
-### 5. Run the installer
+---
 
-Open `https://yourdomain.com/install.php`. It checks the server, creates the tables,
-loads the starting content and asks for your admin name, email and password.
+## 5. Set the environment variables
 
-### 6. Delete install.php
+**Settings → Environment Variables.** Add these three, ticked for Production,
+Preview and Development:
 
-In File Manager, delete `install.php`. This is not optional — anyone who finds it
-could otherwise interfere with the site. The dashboard footer nags you until it is gone.
+| Name | Value |
+| --- | --- |
+| `AUTH_SECRET` | A long random string. Generate one at [generate-secret.vercel.app/32](https://generate-secret.vercel.app/32) |
+| `SETUP_SECRET` | Any password you invent. You type it once during setup |
+| `NEXT_PUBLIC_SITE_URL` | `https://bikeshadhikari.com.np` — your live address, no trailing slash |
 
-### 7. Turn on SSL
+`DATABASE_URL` and `BLOB_READ_WRITE_TOKEN` are already there from steps 3 and 4.
 
-**Websites → SSL → Install SSL** (free, automatic). Once the padlock shows, open
-`.htaccess` and uncomment the three "Force HTTPS" lines near the top:
+Then **Deployments → Redeploy** so the new variables take effect.
 
-```apache
-RewriteCond %{HTTPS} !=on
-RewriteCond %{HTTP:X-Forwarded-Proto} !https
-RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-```
+---
 
-### 8. Set the PHP version
+## 6. Run the one-time setup
 
-**Advanced → PHP Configuration**: choose PHP 8.2 or newer. In the **PHP options**
-tab, set `upload_max_filesize` and `post_max_size` to at least 8M.
+Open `https://your-project.vercel.app/setup`.
 
-### 9. Make it yours
+The page checks that each variable is present, then asks for your name, email,
+a password and the `SETUP_SECRET` you chose. It creates the tables, loads the
+starting content and signs you straight into the dashboard.
 
-Sign in at `https://yourdomain.com/admin/` and work through:
+The page refuses to run a second time once an account exists, so there is
+nothing to delete afterwards.
 
-1. **Profile** — your photo, biography and CV.
-2. **Experience pipeline** — correct the roles, organisations and dates. The seeded
-   entries were assembled from your public profiles and are a starting point only.
-3. **Settings** — contact details, social links, favicon and accent colour.
+---
+
+## 7. Point your domain at it
+
+**Settings → Domains → Add**, and enter `bikeshadhikari.com.np`.
+
+Vercel shows you the DNS records to create. In whichever panel manages your
+domain's DNS:
+
+| Type | Name | Value |
+| --- | --- | --- |
+| A | `@` | `76.76.21.21` |
+| CNAME | `www` | `cname.vercel-dns.com` |
+
+Vercel shows the exact values for your project — use those rather than the
+example above if they differ. HTTPS is issued automatically once DNS resolves,
+usually within an hour.
+
+If your domain currently points at your old hosting, changing these two records
+is what moves it. Nothing else needs to change.
+
+---
+
+## 8. Make it yours
+
+Sign in at `https://bikeshadhikari.com.np/admin` and work through, in order:
+
+1. **Profile & bio** — your photo, biography and CV. The photo placeholder in the
+   hero disappears as soon as you upload one.
+2. **Experience pipeline** — correct the roles, organisations and dates. The
+   seeded entries were assembled from your public profiles and are a starting
+   point only, not verified facts.
+3. **Settings** — contact details, social links, favicon, accent colour.
 4. **Menus & sections** — switch off anything you are not ready to show.
-5. **Testimonials** — replace the placeholders with real quotes, then enable the
-   section under Menus & sections. It ships switched off on purpose.
+5. **Testimonials** — replace the two placeholders with real quotes from real
+   people, then enable the Testimonials section under Menus & sections. It ships
+   switched off on purpose so placeholder text never reaches a visitor.
 
 ---
 
-## Part 2 — Cloudflare
+## Everyday use
 
-Cloudflare Pages and Workers **cannot run PHP**, so the site itself must stay on
-Hostinger. What Cloudflare gives you is a free CDN, caching and DNS in front of it.
+**Publishing changes to the code.** Push to your branch. Vercel builds and
+deploys it, usually in under a minute. Every push to a non-production branch
+gets its own preview URL you can check before merging.
 
-1. Add your domain at [dash.cloudflare.com](https://dash.cloudflare.com) and choose
-   the free plan.
-2. Copy the two Cloudflare nameservers it gives you.
-3. In Hostinger, go to **Domains → DNS / Nameservers** and replace the nameservers
-   with Cloudflare's. Propagation takes a few hours.
-4. Back in Cloudflare, confirm there is an **A record** pointing at your Hostinger
-   IP address (hPanel shows it), proxied (orange cloud).
-5. **SSL/TLS → Overview:** set the mode to **Full (strict)**. Anything less will
-   loop or warn.
-6. **Rules → Page Rules** (or Cache Rules), add:
-   - `yourdomain.com/admin*` → **Cache Level: Bypass**
-   - `yourdomain.com/assets/*` → **Cache Level: Cache Everything**, Edge TTL a month
+**Publishing content.** Everything in the dashboard is live the moment you save.
+No deploy, no cache to clear.
 
-Purge the Cloudflare cache after any CSS or JavaScript change. The site adds a
-version string to those files automatically when you save in the dashboard, which
-handles most cases on its own.
+**Backups.** Neon keeps point-in-time recovery on the free plan. For a manual
+copy, open the Neon dashboard from Vercel's Storage tab and use its SQL editor
+to export, or connect any Postgres client with the `DATABASE_URL`.
 
 ---
 
-## Backups
+## Costs
 
-**Database:** hPanel → **Databases → phpMyAdmin** → select the database → **Export**
-→ Quick → Go. Do this before any significant change.
+Everything above sits inside free tiers for a personal site:
 
-**Files:** the only irreplaceable folder is `uploads/`. Download it periodically, or
-use hPanel → **Files → Backups**.
+| Service | Free allowance |
+| --- | --- |
+| Vercel Hobby | 100 GB bandwidth a month |
+| Neon Postgres | 0.5 GB storage |
+| Vercel Blob | 1 GB storage, 10 GB downloads a month |
+
+You pay for the domain, which you already own. A personal site with a blog will
+not come close to these limits.
+
+Note that Vercel's Hobby plan is for non-commercial use. A personal portfolio
+that advertises services sits in a grey area; if you start invoicing clients
+through the site, move to the Pro plan.
 
 ---
 
@@ -129,22 +153,19 @@ use hPanel → **Files → Backups**.
 
 | Symptom | Cause and fix |
 | --- | --- |
-| Blank white page | PHP error with display off. Set `'debug' => true` in `config/config.php`, reload, read the message, then set it back to `false`. |
-| "Cannot reach its database" | Wrong credentials in `config/config.php`, or the database user is not attached to the database in hPanel. |
-| Every page but the home page 404s | `mod_rewrite` is not applying. Confirm `.htaccess` uploaded (it starts with a dot, so enable "show hidden files"). |
-| Uploads fail | `uploads/` is not writable. Set it to 755. |
-| Contact form saves but no email arrives | Expected: mail is off by default. Set `'transport' => 'mail'` in `config/config.php` and fill in **Send new enquiries to** under Settings. Messages are always kept in the dashboard inbox regardless. |
-| Styles look wrong after an update | Browser cache. Hard-reload with Ctrl+Shift+R, and purge Cloudflare if you use it. |
-| Locked out of the dashboard | Six wrong passwords locks it for fifteen minutes. To reset a password, run this in phpMyAdmin's SQL tab after generating a hash with `password_hash('newpassword', PASSWORD_DEFAULT)`: `UPDATE users SET password_hash = '...' WHERE email = 'you@example.com';` |
+| Setup page says the database check failed | `DATABASE_URL` is missing or wrong. Check Storage is connected to this project, then redeploy. |
+| "AUTH_SECRET is missing or too short" | Add `AUTH_SECRET` with at least 16 characters and redeploy. |
+| Setup key rejected | The value you typed does not match `SETUP_SECRET` in Vercel. They are case sensitive. |
+| Uploads say storage is not connected | Create a Blob store under Storage, connect it, and redeploy. |
+| Everything is 500 after a deploy | Open the failing deployment in Vercel and read the runtime logs. They name the exact error. |
+| Locked out of the dashboard | Six wrong passwords locks that address for fifteen minutes. Wait it out, or clear the `login_attempts` table from the Neon SQL editor. |
+| Content edits do not show | Hard reload with Ctrl+Shift+R. Pages are server-rendered per request, so this is almost always the browser cache. |
 
 ---
 
-## Moving the site into a subfolder
+## Moving off Vercel later
 
-If the site lives at `yourdomain.com/portfolio` rather than the domain root, set:
-
-```php
-'base_path' => '/portfolio',
-```
-
-in `config/config.php`. Everything else adjusts itself.
+The only Vercel-specific piece is Blob storage for uploads. Postgres is standard,
+and the app is an ordinary Next.js project, so it runs on Netlify, Railway, Render,
+Fly.io or your own server with `npm run build && npm run start`. Swapping Blob for
+S3 or Cloudflare R2 means rewriting one file, `src/lib/upload.ts`.

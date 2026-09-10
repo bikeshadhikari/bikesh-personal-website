@@ -1,0 +1,111 @@
+import { redirect } from 'next/navigation';
+import { currentUser } from '@/lib/auth';
+import Shell from '@/components/admin/Shell';
+import SettingsForm, { type SettingsGroup } from '@/components/admin/SettingsForm';
+import { getSettings } from '@/lib/settings';
+import { blobConfigured } from '@/lib/upload';
+
+export const dynamic = 'force-dynamic';
+
+export const metadata = { title: 'Settings' };
+
+const GROUPS: SettingsGroup[] = [
+  {
+    key: 'site',
+    title: 'Site identity',
+    fields: {
+      site_name: { type: 'text', label: 'Site name', required: true },
+      site_short_name: { type: 'text', label: 'Short name', hint: 'Used in the dashboard and on phone home screens.' },
+      site_tagline: { type: 'text', label: 'Tagline', full: true },
+      logo_text: { type: 'text', label: 'Logo text', hint: 'Shown when no logo image is set.' },
+      logo_image: { type: 'image', label: 'Logo image', folder: 'site', hint: 'Replaces the text logo. Around 200×60 pixels.' },
+      favicon: { type: 'image', label: 'Favicon', folder: 'site', hint: 'The small browser-tab icon. A square PNG, SVG or .ico, 64×64 or larger. Leave empty to use the built-in one.' },
+      footer_note: { type: 'text', label: 'Footer note', full: true },
+    },
+  },
+  {
+    key: 'contact',
+    title: 'Contact details',
+    fields: {
+      contact_email: { type: 'text', label: 'Public email' },
+      contact_phone: { type: 'text', label: 'Phone', hint: 'Leave empty to hide it everywhere.' },
+      contact_location: { type: 'text', label: 'Location' },
+      contact_hours: { type: 'text', label: 'Usual hours' },
+      contact_intro: { type: 'textarea', label: 'Contact page introduction', rows: 3, full: true },
+      notify_email: { type: 'text', label: 'Forward enquiries to', hint: 'Optional. Messages always stay in the dashboard inbox.' },
+      map_embed: { type: 'textarea', label: 'Map embed code', rows: 3, full: true, hint: 'Paste the iframe from Google Maps. Leave empty to hide the map.' },
+    },
+  },
+  {
+    key: 'social',
+    title: 'Social links',
+    note: 'Only the ones you fill in are shown.',
+    fields: {
+      social_linkedin: { type: 'url', label: 'LinkedIn' },
+      social_facebook: { type: 'url', label: 'Facebook' },
+      social_instagram: { type: 'url', label: 'Instagram' },
+      social_youtube: { type: 'url', label: 'YouTube' },
+      social_github: { type: 'url', label: 'GitHub' },
+      social_twitter: { type: 'url', label: 'X / Twitter' },
+      social_tiktok: { type: 'url', label: 'TikTok' },
+    },
+  },
+  {
+    key: 'seo',
+    title: 'Search engines & sharing',
+    fields: {
+      meta_title: { type: 'text', label: 'Default page title', full: true },
+      meta_description: { type: 'textarea', label: 'Default description', rows: 2, full: true, hint: 'Around 155 characters.' },
+      meta_keywords: { type: 'text', label: 'Keywords', full: true },
+      og_image: { type: 'image', label: 'Share image', folder: 'site', hint: 'Shown when a link is shared. 1200×630 pixels.' },
+      search_indexing: { type: 'checkbox', label: 'Allow search engines to index this site', default: true },
+    },
+  },
+  {
+    key: 'appearance',
+    title: 'Appearance',
+    fields: {
+      theme_accent: { type: 'color', label: 'Accent colour', default: '#2563eb' },
+      theme_accent_alt: { type: 'color', label: 'Secondary colour', default: '#0ea5e9' },
+      default_mode: { type: 'select', label: 'Default theme', options: { light: 'Light', dark: 'Dark', auto: "Follow the visitor's device" } },
+      show_mode_toggle: { type: 'checkbox', label: 'Let visitors switch between light and dark', default: true },
+    },
+  },
+  {
+    key: 'blog',
+    title: 'Blog',
+    fields: {
+      blog_title: { type: 'text', label: 'Blog heading' },
+      posts_per_page: { type: 'number', label: 'Posts per page', default: 6, min: 1, max: 50 },
+      blog_intro: { type: 'textarea', label: 'Blog introduction', rows: 2, full: true },
+      comments_enabled: { type: 'checkbox', label: 'Allow comments on posts', default: true },
+      comments_moderated: { type: 'checkbox', label: 'Hold new comments for my approval', default: true },
+      newsletter_enabled: { type: 'checkbox', label: 'Show the newsletter signup', default: true },
+    },
+  },
+  {
+    key: 'site',
+    title: 'Maintenance mode',
+    note: 'While this is on, visitors see a holding page. You stay able to browse the site while signed in.',
+    fields: {
+      maintenance_mode: { type: 'checkbox', label: 'Take the site offline' },
+      maintenance_text: { type: 'textarea', label: 'Message for visitors', rows: 2, full: true },
+    },
+  },
+];
+
+export default async function SettingsPage() {
+  if ((await currentUser())?.role !== 'admin') redirect('/admin');
+  const values = await getSettings();
+  return (
+    <Shell title="Settings" current="settings">
+      <div className="page-head"><div><h2>Settings</h2></div></div>
+      <SettingsForm
+        groups={GROUPS}
+        values={values}
+        blobReady={blobConfigured()}
+        intro="Site-wide options. Every change takes effect on the public site as soon as you save."
+      />
+    </Shell>
+  );
+}

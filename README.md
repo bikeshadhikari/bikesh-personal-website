@@ -3,8 +3,8 @@
 A database-driven personal website for **Bikesh Adhikari** — IT professional, educator,
 practitioner, speaker and planner.
 
-Plain PHP on the server, plain HTML, CSS and JavaScript in the browser. No Composer,
-no npm, no build step. Upload the folder, run the installer, and it works.
+Next.js and TypeScript, deployed on Vercel. Server-rendered HTML with hand-written CSS,
+no UI framework and no CSS framework, so the markup stays readable and the pages stay fast.
 
 ---
 
@@ -13,106 +13,128 @@ no npm, no build step. Upload the folder, run the installer, and it works.
 **Public site**
 - Home page assembled from switchable blocks: hero, key numbers, about, skills,
   experience pipeline, services, projects, certifications, testimonials, latest
-  writing, contact.
+  writing and contact.
 - Standalone pages for About, Experience, Services, Projects and Contact.
 - A blog with categories, tags, search, pagination, related posts, share buttons,
   reading time, view counts and moderated comments.
-- Contact form and newsletter signup that store to the database.
+- Contact form and newsletter signup that save to the database.
 - Light and dark themes, respecting the visitor's device setting.
 - `sitemap.xml`, `robots.txt`, an RSS feed, Open Graph tags and Person structured data.
 - Favicon, apple-touch icon and web app manifest included.
 
-**Dashboard** (`/admin/`)
+**Dashboard** (`/admin`)
 - **Menus & sections** — one switch per page and per home-page block. Switching
-  something off removes it from the navigation, makes its address return 404 and
-  drops it from the sitemap and feed. Nothing is hard-coded in a template.
+  something off removes it from the navigation, makes its address return the
+  not-found page, and drops it from the sitemap and RSS feed. Nothing is
+  hard-coded in a template.
 - **Blog** — write, edit, schedule, feature and delete posts with a formatting
   toolbar; manage categories; approve or reject comments.
 - **Profile** — name, headline, rotating roles, biography, photo, CV.
-- **Experience pipeline** — roles, organisations, dates, key points, grouped into
-  work, education, volunteer and award tracks.
+- **Experience pipeline** — roles, organisations, dates and key points, grouped
+  into work, education, volunteer and award tracks.
 - **Skills, services, projects, certifications, testimonials, key numbers** — each
   with its own visibility switch and sort order.
 - **Messages** and **subscribers**, with CSV export.
 - **Settings** — site identity, favicon upload, contact details, social links,
-  SEO, analytics, accent colours, blog rules and maintenance mode.
+  SEO, accent colours, blog rules and maintenance mode.
 - **Media library**, **users** with roles, and your own account settings.
 
 ---
 
-## Requirements
+## Stack
 
-| Need | Minimum |
-| --- | --- |
-| PHP | 8.0 or newer (8.2+ recommended) |
-| Database | MySQL 5.7+ / MariaDB 10.3+, or SQLite for local testing |
-| Extensions | `pdo_mysql` (or `pdo_sqlite`), `mbstring`, `gd` optional |
-| Server | Apache or LiteSpeed with `mod_rewrite` — standard on Hostinger and cPanel |
+| Piece | Choice | Why |
+| --- | --- | --- |
+| Framework | Next.js 15, App Router | Native on Vercel, server-rendered HTML |
+| Language | TypeScript | Catches mistakes before they reach the live site |
+| Database | Postgres via `postgres` (postgres.js) | Works with Neon, Supabase or any Postgres |
+| File storage | Vercel Blob | Uploads survive redeploys, unlike a serverless filesystem |
+| Auth | `jose` JWT in an httpOnly cookie, `bcryptjs` hashes | No third-party auth service to configure |
+| Styling | Plain CSS, two stylesheets | No build-time CSS pipeline, easy to edit by hand |
+
+No ORM, no component library, no Tailwind. Mutations go through Server Actions,
+so there are no hand-written API routes for forms and no CSRF tokens to manage.
 
 ---
 
-## Installing
+## Getting it running locally
 
-1. Upload everything to `public_html` (or a subfolder).
-2. Copy `config/config.sample.php` to `config/config.php` and fill in your
-   database name, user and password.
-3. Set `uploads/` to permission **755**.
-4. Open `https://yourdomain.com/install.php` in a browser and create your account.
-5. **Delete `install.php`.** The dashboard will keep warning you until you do.
+```bash
+npm install
+cp .env.example .env.local     # fill in DATABASE_URL and AUTH_SECRET
+npm run db:setup -- --email you@example.com --password "a long password"
+npm run dev
+```
 
-Full step-by-step instructions for Hostinger are in [DEPLOYMENT.md](DEPLOYMENT.md).
+Then open `http://localhost:3000`. The dashboard is at `/admin`.
+
+You can also skip the command line entirely and visit `/setup` in the browser,
+which is what you will do on Vercel. Full instructions are in
+[DEPLOYMENT.md](DEPLOYMENT.md).
+
+### Scripts
+
+| Command | Does |
+| --- | --- |
+| `npm run dev` | Development server with hot reload |
+| `npm run build` | Production build |
+| `npm run start` | Serve the production build |
+| `npm run typecheck` | Type check without emitting |
+| `npm run db:setup` | Create the tables and load the starting content |
 
 ---
 
 ## Layout of the code
 
 ```
-index.php              Front controller for the public site
-install.php            One-time installer — delete after use
-.htaccess              Clean URLs, security headers, caching
-config/config.php      Your database credentials (git-ignored)
-app/                   Database, App, Auth, Csrf, Settings, Menu, Content, Upload, View, Mailer
-database/              Schema definition and first-run content
-views/
-  controllers/         One file per route
-  layout/ partials/    Shared page chrome and reusable blocks
-  pages/               One template per page
-admin/
-  index.php            Dashboard front controller
-  Resource.php         Every content type described in one place
-  Crud.php             Generic create / read / update / delete
-  pages/ views/        Dashboard screens
-assets/css assets/js   One stylesheet and one script per side of the site
-uploads/               Everything uploaded through the dashboard
+src/
+  app/
+    page.tsx              Home, assembled from enabled sections
+    about|experience|services|projects|contact|blog|search/
+    actions.ts            Public form handlers (contact, comments, newsletter)
+    setup/                One-time installer
+    admin/
+      actions.ts          Every dashboard mutation
+      [resource]/         Generic list and form for all nine content types
+      menus|profile|settings|messages|comments|subscribers|media|users|account/
+    sitemap.ts robots.ts manifest.ts feed.xml/
+  components/
+    site/                 Header, footer, hero, blocks, forms
+    admin/                Shell, resource list, resource form, field, editor
+  lib/
+    db.ts                 Postgres client
+    schema.ts             Table definitions
+    seed.ts               First-run content
+    resources.ts          Every content type described once
+    crud.ts               Generic create / read / update / delete
+    auth.ts settings.ts menu.ts content.ts upload.ts utils.ts
+  styles/                 site.css and admin.css
+  middleware.ts           Guards /admin
 ```
 
-**Adding a field** to any content type is one line in `admin/Resource.php` plus a
-column in `database/Schema.php`. The list screen, the form, validation, uploads
-and saving all follow automatically.
+**Adding a field** to any content type is one entry in `src/lib/resources.ts`
+plus a column in `src/lib/schema.ts`. The list screen, the form, validation,
+uploads and saving all follow automatically.
 
 ---
 
 ## Security
 
-- Passwords hashed with `password_hash()`, rehashed on algorithm changes.
-- Every database call uses prepared statements.
-- CSRF token on every state-changing form.
-- All output escaped; post bodies passed through an HTML allow-list that strips
-  scripts, inline event handlers and `javascript:` URLs.
-- Uploads validated by extension and image type, renamed, and served from a
-  directory where script execution is blocked.
-- Login throttled: six failed attempts locks the form for fifteen minutes.
-- Honeypot fields and a rate limit on the public contact and comment forms.
-- Session cookies are HTTP-only, `SameSite=Lax`, and secure over HTTPS.
-- `config/`, `app/`, `database/` and `views/` are unreachable over the web.
-
----
-
-## Local development
-
-```bash
-cp config/config.sample.php config/config.php   # set driver to 'sqlite'
-php -S localhost:8000 router.php                # router.php mimics .htaccess
-```
-
-Then open `http://localhost:8000/install.php`.
+- Passwords hashed with bcrypt; sessions are signed JWTs in httpOnly,
+  SameSite=Lax cookies, secure in production.
+- Login throttled: six failed attempts locks that address for fifteen minutes.
+- Every query is parameterised. Table and column names come from a fixed map,
+  never from user input.
+- Post bodies pass through an allow-list sanitiser that strips scripts, event
+  handlers, `javascript:` and `data:` URLs, and unknown tags.
+- The map embed accepts a single `iframe` with an https source and a short list
+  of attributes; everything else is discarded.
+- Accent colours are validated as hex before being written into a `<style>` block,
+  and structured data is escaped before entering a `<script>` block.
+- Uploads are checked by MIME type and size, renamed, and stored on Blob rather
+  than the application filesystem.
+- Menus, profile, settings and users are administrator-only; editors get content,
+  comments, messages and media.
+- Server Actions verify the request origin, so form posts cannot be forged from
+  another site.
+- `/admin` is guarded by middleware before any page renders.

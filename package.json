@@ -1,0 +1,35 @@
+{
+  "name": "bikesh-personal-website",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Personal website and dashboard for Bikesh Adhikari — IT professional, educator and speaker.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "db:setup": "tsx --conditions=react-server scripts/setup-db.ts"
+  },
+  "dependencies": {
+    "@vercel/blob": "^0.27.3",
+    "bcryptjs": "^2.4.3",
+    "jose": "^5.9.6",
+    "next": "^15.1.6",
+    "postgres": "^3.4.5",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^22.10.7",
+    "@types/react": "^19.0.7",
+    "@types/react-dom": "^19.0.3",
+    "tsx": "^4.23.13",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
