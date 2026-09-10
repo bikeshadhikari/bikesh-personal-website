@@ -190,6 +190,16 @@ export async function createSchema(): Promise<void> {
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
+    CREATE TABLE IF NOT EXISTS media (
+      id         TEXT PRIMARY KEY,
+      filename   VARCHAR(255) NOT NULL,
+      folder     VARCHAR(60)  NOT NULL DEFAULT 'media',
+      mime       VARCHAR(120) NOT NULL,
+      size       INTEGER      NOT NULL,
+      bytes      BYTEA        NOT NULL,
+      created_at TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+    );
+
     CREATE TABLE IF NOT EXISTS login_attempts (
       id         SERIAL PRIMARY KEY,
       identifier VARCHAR(190) NOT NULL,
@@ -201,5 +211,6 @@ export async function createSchema(): Promise<void> {
     CREATE INDEX IF NOT EXISTS idx_comments_post  ON comments (post_id, status);
     CREATE INDEX IF NOT EXISTS idx_exp_track      ON experiences (track, enabled);
     CREATE INDEX IF NOT EXISTS idx_attempts       ON login_attempts (identifier, created_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_media_created  ON media (created_at DESC);
   `);
 }

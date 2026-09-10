@@ -37,20 +37,7 @@ Supabase or any other Postgres works too. Paste its pooled connection string as
 
 ---
 
-## 4. Add file storage
-
-Still under **Storage**, create a **Blob** store and connect it to the project.
-Vercel sets `BLOB_READ_WRITE_TOKEN` for you.
-
-Without this the site still runs, and image fields accept a pasted link to a
-picture hosted elsewhere. With it, you upload files directly in the dashboard.
-
-Files go straight from your browser to Blob rather than through the site, so a
-full-size phone photo uploads without trouble. The ceiling is 10 MB per file.
-
----
-
-## 5. Set the environment variables
+## 4. Set the environment variables
 
 **Settings → Environment Variables.** Add these three, ticked for Production,
 Preview and Development:
@@ -61,13 +48,13 @@ Preview and Development:
 | `SETUP_SECRET` | Any password you invent. You type it once during setup |
 | `NEXT_PUBLIC_SITE_URL` | `https://bikeshadhikari.com.np` — your live address, no trailing slash |
 
-`DATABASE_URL` and `BLOB_READ_WRITE_TOKEN` are already there from steps 3 and 4.
+`DATABASE_URL` is already there from step 3.
 
 Then **Deployments → Redeploy** so the new variables take effect.
 
 ---
 
-## 6. Run the one-time setup
+## 5. Run the one-time setup
 
 Open `https://your-project.vercel.app/setup`.
 
@@ -80,7 +67,7 @@ nothing to delete afterwards.
 
 ---
 
-## 7. Point your domain at it
+## 6. Point your domain at it
 
 **Settings → Domains → Add**, and enter `bikeshadhikari.com.np`.
 
@@ -101,7 +88,7 @@ is what moves it. Nothing else needs to change.
 
 ---
 
-## 8. Make it yours
+## 7. Make it yours
 
 Sign in at `https://bikeshadhikari.com.np/admin` and work through, in order:
 
@@ -140,7 +127,7 @@ Everything above sits inside free tiers for a personal site:
 | Service | Free allowance |
 | --- | --- |
 | Vercel Hobby | 100 GB bandwidth a month |
-| Neon Postgres | 0.5 GB storage |
+| Neon Postgres | 0.5 GB storage, which holds your content and your images |
 | Vercel Blob | 1 GB storage, 10 GB downloads a month |
 
 You pay for the domain, which you already own. A personal site with a blog will
@@ -159,9 +146,8 @@ through the site, move to the Pro plan.
 | Setup page says the database check failed | `DATABASE_URL` is missing or wrong. Check Storage is connected to this project, then redeploy. |
 | "AUTH_SECRET is missing or too short" | Add `AUTH_SECRET` with at least 16 characters and redeploy. |
 | Setup key rejected | The value you typed does not match `SETUP_SECRET` in Vercel. They are case sensitive. |
-| Uploads say storage is not connected | Create a Blob store under Storage, connect it, and redeploy. |
-| An upload sits at 0%, then says it stopped responding | The Blob store is not reachable with the current token. Confirm it is connected to *this* project under Storage, then redeploy. |
 | Maintenance mode looks like it is not working | It is working. You are signed in, so you see the real site with an amber banner across the top. Open the site in a private window to see what a visitor sees. |
+| An upload is refused as too large | Images are resized in the browser automatically. A PDF cannot be, so keep documents under 4 MB. |
 | Everything is 500 after a deploy | Open the failing deployment in Vercel and read the runtime logs. They name the exact error. |
 | Locked out of the dashboard | Six wrong passwords locks that address for fifteen minutes. Wait it out, or clear the `login_attempts` table from the Neon SQL editor. |
 | Content edits do not show | Hard reload with Ctrl+Shift+R. Pages are server-rendered per request, so this is almost always the browser cache. |
@@ -170,7 +156,7 @@ through the site, move to the Pro plan.
 
 ## Moving off Vercel later
 
-The only Vercel-specific piece is Blob storage for uploads. Postgres is standard,
-and the app is an ordinary Next.js project, so it runs on Netlify, Railway, Render,
-Fly.io or your own server with `npm run build && npm run start`. Swapping Blob for
-S3 or Cloudflare R2 means rewriting one file, `src/lib/upload.ts`.
+Nothing in the app is Vercel-specific. Postgres is standard and it is an ordinary
+Next.js project, so it runs on Netlify, Railway, Render, Fly.io or your own server
+with `npm run build && npm run start`. Moving means pointing `DATABASE_URL` at the
+same database; your images travel with it, because they are in it.

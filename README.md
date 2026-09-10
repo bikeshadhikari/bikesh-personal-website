@@ -39,7 +39,10 @@ no UI framework and no CSS framework, so the markup stays readable and the pages
   SEO, accent colours, blog rules and maintenance mode. While maintenance mode
   is on you keep browsing the real site, with a banner across the top reminding
   you that visitors do not.
-- **Media library**, **users** with roles, and your own account settings.
+- **Media library** — files live in the database, so uploads work as soon as the
+  site does. Photos are resized in the browser before they are sent, which keeps
+  a phone picture well under the request limit and makes pages load faster.
+- **Users** with roles, and your own account settings.
 
 ---
 
@@ -50,7 +53,7 @@ no UI framework and no CSS framework, so the markup stays readable and the pages
 | Framework | Next.js 15, App Router | Native on Vercel, server-rendered HTML |
 | Language | TypeScript | Catches mistakes before they reach the live site |
 | Database | Postgres via `postgres` (postgres.js) | Works with Neon, Supabase or any Postgres |
-| File storage | Vercel Blob, uploaded direct from the browser | Uploads survive redeploys, and skip the 1 MB Server Action body limit |
+| File storage | The same Postgres database | No second service to set up, and uploads work locally too |
 | Auth | `jose` JWT in an httpOnly cookie, `bcryptjs` hashes | No third-party auth service to configure |
 | Styling | Plain CSS, two stylesheets | No build-time CSS pipeline, easy to edit by hand |
 
@@ -133,9 +136,8 @@ uploads and saving all follow automatically.
   of attributes; everything else is discarded.
 - Accent colours are validated as hex before being written into a `<style>` block,
   and structured data is escaped before entering a `<script>` block.
-- Uploads go straight from the browser to Blob using a short-lived token that is
-  only issued to a signed-in user, with the allowed types and a 10 MB ceiling
-  enforced when the token is minted.
+- Uploads are accepted only from a signed-in user, checked by content type and
+  size, and served back with `nosniff` and an immutable cache header.
 - Menus, profile, settings and users are administrator-only; editors get content,
   comments, messages and media.
 - Server Actions verify the request origin, so form posts cannot be forged from

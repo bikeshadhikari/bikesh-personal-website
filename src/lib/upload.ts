@@ -1,5 +1,16 @@
 import 'server-only';
-import { del, list } from '@vercel/blob';
+import { randomBytes } from 'node:crypto';
+import { sql } from './db';
+
+/**
+ * Media is stored in Postgres alongside everything else.
+ *
+ * That means uploads work the moment the database does — no second storage
+ * service to create, no extra token, no redeploy to pick one up, and the same
+ * behaviour locally as in production. Images are downscaled in the browser
+ * before they are sent, so what lands here is web-sized rather than the
+ * multi-megabyte original off a phone camera.
+ */
 
 export const IMAGE_TYPES = [
   'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
@@ -12,78 +23,107 @@ export const DOC_TYPES = [
 ];
 export const ALLOWED_TYPES = [...IMAGE_TYPES, ...DOC_TYPES];
 
-/** 10 MB. Files go straight from the browser to Blob, so no server limit applies. */
-export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+/** Vercel refuses a request body over 4.5 MB, so stop short of it with a clear message. */
+export const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
 
-export function blobConfigured(): boolean {
-  return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+export const MEDIA_PREFIX = '/api/media/';
+
+export type MediaItem = {
+  id: string;
+  url: string;
+  filename: string;
+  folder: string;
+  mime: string;
+  size: number;
+  createdAt: string;
+};
+
+export type StoredMedia = { mime: string; size: number; bytes: Buffer; filename: string };
+
+function newId(): string {
+  return randomBytes(12).toString('hex');
 }
 
-const BLOB_HOST = '.public.blob.vercel-storage.com';
+export async function storeMedia(
+  file: File, folder: string,
+): Promise<{ id: string; url: string }> {
+  const bytes = Buffer.from(await file.arrayBuffer());
+  const id = newId();
+  const safeFolder = (folder || 'media').replace(/[^a-z0-9_-]/gi, '').slice(0, 60) || 'media';
+  const filename = file.name.replace(/[^\w.\- ]+/g, '').slice(0, 255) || 'file';
+
+  await sql`
+    INSERT INTO media (id, filename, folder, mime, size, bytes)
+    VALUES (${id}, ${filename}, ${safeFolder}, ${file.type}, ${bytes.length}, ${bytes})`;
+
+  return { id, url: `${MEDIA_PREFIX}${id}` };
+}
+
+export async function readMedia(id: string): Promise<StoredMedia | null> {
+  if (!/^[0-9a-f]{1,64}$/i.test(id)) return null;
+  const rows = await sql<{ mime: string; size: number; bytes: Buffer; filename: string }[]>`
+    SELECT mime, size, bytes, filename FROM media WHERE id = ${id} LIMIT 1`;
+  return rows[0] ?? null;
+}
+
+/** Everything in the library, newest first. Never throws. */
+export async function listMedia(): Promise<{ items: MediaItem[]; error: string | null }> {
+  try {
+    const rows = await sql<
+      { id: string; filename: string; folder: string; mime: string; size: number; created_at: string }[]
+    >`SELECT id, filename, folder, mime, size, created_at
+      FROM media ORDER BY created_at DESC LIMIT 500`;
+
+    return {
+      items: rows.map((r) => ({
+        id: r.id,
+        url: `${MEDIA_PREFIX}${r.id}`,
+        filename: r.filename,
+        folder: r.folder,
+        mime: r.mime,
+        size: r.size,
+        createdAt: new Date(r.created_at).toISOString(),
+      })),
+      error: null,
+    };
+  } catch (error) {
+    return {
+      items: [],
+      error: error instanceof Error ? error.message : 'Could not read the media library.',
+    };
+  }
+}
+
+export function isOwnMedia(url: string | null | undefined): boolean {
+  return Boolean(url && url.startsWith(MEDIA_PREFIX));
+}
+
+/** Delete a file we own. Links to pictures hosted elsewhere are left alone. */
+export async function deleteUpload(url: string | null | undefined): Promise<void> {
+  if (!isOwnMedia(url)) return;
+  const id = (url as string).slice(MEDIA_PREFIX.length).split(/[?#]/)[0];
+  try {
+    await sql`DELETE FROM media WHERE id = ${id}`;
+  } catch {
+    // A row that is already gone is not an error worth surfacing.
+  }
+}
 
 /**
- * Accept a URL for an image or document field.
- *
- * Uploads arrive as a Blob URL the browser already wrote; a person may also
- * paste a link to a file hosted elsewhere. Anything that is not an https URL
- * is discarded rather than stored.
+ * Accept a value for an image or document field: either something we stored,
+ * or an https link to a file hosted elsewhere. Anything else is discarded.
  */
 export function acceptMediaUrl(value: string): string {
   const trimmed = value.trim();
   if (trimmed === '') return '';
+  if (trimmed.startsWith(MEDIA_PREFIX)) {
+    return /^\/api\/media\/[0-9a-f]{1,64}$/i.test(trimmed) ? trimmed : '';
+  }
   try {
     const url = new URL(trimmed);
     return url.protocol === 'https:' ? url.toString() : '';
   } catch {
     return '';
-  }
-}
-
-export function isBlobUrl(url: string | null | undefined): boolean {
-  return Boolean(url && url.includes(BLOB_HOST));
-}
-
-/** Remove a file we own. External links are left alone. */
-export async function deleteUpload(url: string | null | undefined): Promise<void> {
-  if (!isBlobUrl(url) || !blobConfigured()) return;
-  try {
-    await del(url as string);
-  } catch {
-    // A file that is already gone is not an error worth surfacing.
-  }
-}
-
-export type MediaItem = { url: string; pathname: string; size: number; uploadedAt: string };
-
-/**
- * Everything in the Blob store, newest first.
- *
- * Never throws and never hangs: the Blob client retries with backoff, so a bad
- * or revoked token would otherwise leave the page loading for a long time.
- */
-export async function listMedia(): Promise<{ items: MediaItem[]; error: string | null }> {
-  if (!blobConfigured()) return { items: [], error: null };
-
-  const timeout = new Promise<never>((_, reject) =>
-    setTimeout(() => reject(new Error('File storage did not respond in time.')), 8000),
-  );
-
-  try {
-    const { blobs } = await Promise.race([list({ limit: 500 }), timeout]);
-    const items = blobs
-      .map((b) => ({
-        url: b.url,
-        pathname: b.pathname,
-        size: b.size,
-        uploadedAt: new Date(b.uploadedAt).toISOString(),
-      }))
-      .sort((a, b) => b.uploadedAt.localeCompare(a.uploadedAt));
-    return { items, error: null };
-  } catch (error) {
-    return {
-      items: [],
-      error: error instanceof Error ? error.message : 'Could not reach file storage.',
-    };
   }
 }
 
@@ -95,6 +135,6 @@ export function humanSize(bytes: number): string {
   return `${i === 0 ? Math.round(value) : value.toFixed(1)} ${units[i]}`;
 }
 
-export function isImageUrl(url: string): boolean {
-  return /\.(jpe?g|png|gif|webp|svg|avif|ico)(\?|$)/i.test(url);
+export function isImageMime(mime: string): boolean {
+  return mime.startsWith('image/');
 }

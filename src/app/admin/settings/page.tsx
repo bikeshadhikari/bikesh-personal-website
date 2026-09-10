@@ -3,7 +3,6 @@ import { currentUser } from '@/lib/auth';
 import Shell from '@/components/admin/Shell';
 import SettingsForm, { type SettingsGroup } from '@/components/admin/SettingsForm';
 import { getSettings } from '@/lib/settings';
-import { blobConfigured } from '@/lib/upload';
 
 export const dynamic = 'force-dynamic';
 
@@ -103,7 +102,6 @@ export default async function SettingsPage() {
       <SettingsForm
         groups={GROUPS}
         values={values}
-        blobReady={blobConfigured()}
         intro="Site-wide options. Every change takes effect on the public site as soon as you save."
       />
     </Shell>

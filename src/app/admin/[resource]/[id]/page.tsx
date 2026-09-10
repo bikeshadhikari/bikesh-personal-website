@@ -3,7 +3,6 @@ import Shell from '@/components/admin/Shell';
 import ResourceForm from '@/components/admin/ResourceForm';
 import { getResource } from '@/lib/resources';
 import { findRow } from '@/lib/crud';
-import { blobConfigured } from '@/lib/upload';
 import { getCategories } from '@/lib/content';
 
 export const dynamic = 'force-dynamic';
@@ -42,7 +41,6 @@ export default async function EditResourcePage({ params, searchParams }: Props) 
         isEdit
         viewHref={viewHref}
         saved={saved === '1'}
-        blobReady={blobConfigured()}
         categoryOptions={categories.map((c) => ({ value: String(c.id), label: c.name }))}
       />
     </Shell>

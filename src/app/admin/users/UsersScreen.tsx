@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useActionState } from 'react';
 import { deleteUserAction, saveUserAction, type FormState } from '../actions';
 import { ConfirmButton } from '@/components/admin/ShellClient';
+import { formatDate } from '@/lib/utils';
 import type { UserRow } from '@/lib/types';
 
 export default function UsersScreen({
@@ -96,7 +97,7 @@ export default function UsersScreen({
                     </td>
                     <td>
                       <small className="muted">
-                        {u.last_login_at ? new Date(u.last_login_at).toLocaleDateString('en-GB') : 'never'}
+                        {u.last_login_at ? formatDate(u.last_login_at) : 'never'}
                       </small>
                     </td>
                     <td className="actions-col">

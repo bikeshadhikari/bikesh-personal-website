@@ -10,14 +10,13 @@ export type SelectOption = { value: string; label: string };
 
 /** Renders one dashboard control from a Resource field definition. */
 export default function Field({
-  name, field, value, error, categoryOptions = [], blobReady = true,
+  name, field, value, error, categoryOptions = [],
 }: {
   name: string;
   field: FieldDef;
   value: unknown;
   error?: string;
   categoryOptions?: SelectOption[];
-  blobReady?: boolean;
 }) {
   const id = `f-${name}`;
   const label = field.label;
@@ -67,7 +66,6 @@ export default function Field({
           value={text}
           folder={field.folder}
           isImage={field.type === 'image'}
-          ready={blobReady}
         />
       )}
 

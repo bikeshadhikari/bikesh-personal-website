@@ -27,12 +27,11 @@ function specFor(name: string, field: FieldDef) {
 }
 
 export default function SettingsForm({
-  groups, values, intro, blobReady,
+  groups, values, intro,
 }: {
   groups: SettingsGroup[];
   values: Record<string, string>;
   intro?: string;
-  blobReady: boolean;
 }) {
   const [state, action, pending] = useActionState<FormState, FormData>(saveSettingsGroupAction, null);
   const errors = state?.errors ?? {};
@@ -65,7 +64,6 @@ export default function SettingsForm({
                   field={field}
                   value={values[name] ?? field.default ?? ''}
                   error={errors[name]}
-                  blobReady={blobReady}
                 />
               ))}
             </div>

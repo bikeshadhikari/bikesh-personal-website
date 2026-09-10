@@ -10,14 +10,13 @@ import type { Row } from '@/lib/crud';
 import Icon from '../Icon';
 
 export default function ResourceForm({
-  resource, def, record, isEdit, categoryOptions, blobReady, viewHref, saved,
+  resource, def, record, isEdit, categoryOptions, viewHref, saved,
 }: {
   resource: string;
   def: ResourceDef;
   record: Row;
   isEdit: boolean;
   categoryOptions: SelectOption[];
-  blobReady: boolean;
   viewHref?: string;
   saved?: boolean;
 }) {
@@ -61,7 +60,6 @@ export default function ResourceForm({
                 value={values[name]}
                 error={errors[name]}
                 categoryOptions={categoryOptions}
-                blobReady={blobReady}
               />
             ))}
           </div>

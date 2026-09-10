@@ -3,7 +3,6 @@ import Shell from '@/components/admin/Shell';
 import ResourceForm from '@/components/admin/ResourceForm';
 import { getResource } from '@/lib/resources';
 import { blankRow } from '@/lib/crud';
-import { blobConfigured } from '@/lib/upload';
 import { getCategories } from '@/lib/content';
 
 export const dynamic = 'force-dynamic';
@@ -31,7 +30,6 @@ export default async function NewResourcePage({ params }: Props) {
         def={def}
         record={blankRow(def)}
         isEdit={false}
-        blobReady={blobConfigured()}
         categoryOptions={categories.map((c) => ({ value: String(c.id), label: c.name }))}
       />
     </Shell>

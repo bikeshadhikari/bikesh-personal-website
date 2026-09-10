@@ -3,7 +3,6 @@ import { currentUser } from '@/lib/auth';
 import Shell from '@/components/admin/Shell';
 import SettingsForm, { type SettingsGroup } from '@/components/admin/SettingsForm';
 import { getSettings } from '@/lib/settings';
-import { blobConfigured } from '@/lib/upload';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,7 +36,7 @@ export default async function ProfilePage() {
   return (
     <Shell title="Profile & bio" current="profile">
       <div className="page-head"><div><h2>Profile &amp; bio</h2></div></div>
-      <SettingsForm groups={GROUPS} values={values} blobReady={blobConfigured()} />
+      <SettingsForm groups={GROUPS} values={values} />
     </Shell>
   );
 }
