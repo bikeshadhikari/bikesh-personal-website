@@ -251,8 +251,14 @@ ul, ol { margin: 0 0 1rem; padding-left: 1.2rem; }
 
 .hero-roles { font-size: clamp(1.05rem, 2.4vw, 1.4rem); font-weight: 600; color: var(--text-soft); margin-bottom: 1.1rem; }
 .hero-roles-static { color: var(--text-muted); font-weight: 500; }
-.rotator { color: var(--accent); display: inline-flex; align-items: baseline; }
-.rotator-caret { display: inline-block; width: 2px; height: 1.05em; background: var(--accent); margin-left: 3px; animation: blink 1s steps(2) infinite; }
+/* Flows inline after "I am an", so the roles read as one sentence. */
+.rotator { color: var(--accent); display: inline; }
+.rotator-caret {
+  display: inline-block; width: 2px; height: 1.05em;
+  vertical-align: text-bottom;
+  background: var(--accent); margin-left: 3px;
+  animation: blink 1s steps(2) infinite;
+}
 @keyframes blink { 50% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .rotator-caret { animation: none; } }
 
@@ -783,4 +789,231 @@ a.chip:hover { text-decoration: none; filter: brightness(1.06); }
 .owner-bar-dot {
   width: 9px; height: 9px; border-radius: 50%; flex: none;
   background: #f59e0b; box-shadow: 0 0 0 3px rgba(245, 158, 11, .25);
+}
+
+/* ==========================================================================
+   Floating backdrop — CSS only, composited, and silent under reduced motion
+   ========================================================================== */
+
+.backdrop {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden;
+  contain: strict;
+}
+
+.backdrop-orb {
+  position: absolute; border-radius: 50%;
+  filter: blur(70px); opacity: .5;
+  will-change: transform;
+}
+.backdrop-orb-1 {
+  width: 46vmax; height: 46vmax; top: -14vmax; left: -10vmax;
+  background: radial-gradient(circle at 35% 35%, color-mix(in srgb, var(--accent) 34%, transparent), transparent 70%);
+  animation: drift-a 34s ease-in-out infinite;
+}
+.backdrop-orb-2 {
+  width: 38vmax; height: 38vmax; top: 32vmax; right: -14vmax;
+  background: radial-gradient(circle at 60% 40%, color-mix(in srgb, var(--accent-alt) 30%, transparent), transparent 70%);
+  animation: drift-b 42s ease-in-out infinite;
+}
+.backdrop-orb-3 {
+  width: 30vmax; height: 30vmax; bottom: -12vmax; left: 26vw;
+  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%);
+  animation: drift-c 50s ease-in-out infinite;
+}
+[data-theme="dark"] .backdrop-orb { opacity: .34; filter: blur(84px); }
+
+.backdrop-grid {
+  position: absolute; inset: 0;
+  color: var(--text);
+  opacity: .035;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 20%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 20%, transparent 75%);
+}
+[data-theme="dark"] .backdrop-grid { opacity: .06; }
+
+.backdrop-glyph {
+  position: absolute;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 700;
+  color: var(--accent);
+  opacity: .07;
+  user-select: none;
+  will-change: transform;
+}
+.backdrop-glyph-1 { top: 14vh; right: 8vw;  font-size: clamp(3rem, 9vw, 8rem);   animation: float-a 26s ease-in-out infinite; }
+.backdrop-glyph-2 { top: 62vh; left: 5vw;   font-size: clamp(2.5rem, 7vw, 6rem); animation: float-b 32s ease-in-out infinite; }
+.backdrop-glyph-3 { top: 38vh; right: 22vw; font-size: clamp(2rem, 5vw, 4rem);   animation: float-c 29s ease-in-out infinite; }
+[data-theme="dark"] .backdrop-glyph { opacity: .09; }
+
+@keyframes drift-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(6vw, 5vh, 0) scale(1.12); }
+}
+@keyframes drift-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.06); }
+  50%      { transform: translate3d(-7vw, -6vh, 0) scale(1); }
+}
+@keyframes drift-c {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(4vw, -7vh, 0) scale(1.15); }
+}
+@keyframes float-a {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50%      { transform: translate3d(-18px, 26px, 0) rotate(6deg); }
+}
+@keyframes float-b {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50%      { transform: translate3d(22px, -20px, 0) rotate(-8deg); }
+}
+@keyframes float-c {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50%      { transform: translate3d(-14px, -24px, 0) rotate(5deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop-orb, .backdrop-glyph { animation: none !important; }
+}
+
+/* Sections sit on the page background, so the backdrop reads through the gaps. */
+.section-alt { background: color-mix(in srgb, var(--bg-alt) 88%, transparent); }
+.site-footer, .newsletter { background: color-mix(in srgb, var(--bg-alt) 92%, transparent); }
+
+/* ==========================================================================
+   About clamp, gallery, and the hover language used across the site
+   ========================================================================== */
+
+/* --- home About, trimmed to sit level with the panel beside it ----------- */
+
+.about-clamp {
+  position: relative;
+  max-height: 20rem;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(#000 72%, transparent 100%);
+  mask-image: linear-gradient(#000 72%, transparent 100%);
+}
+.about-clamp p:last-child { margin-bottom: 0; }
+@media (max-width: 860px) { .about-clamp { max-height: 16rem; } }
+
+/* --- gallery ------------------------------------------------------------- */
+
+/* Column packing rather than a row grid: each photo drops into the shortest
+   column, so portrait, landscape and square sit together with no gaps and the
+   whole thing reflows by itself as photos are added. */
+.masonry {
+  column-width: 19rem;
+  column-gap: 1.15rem;
+}
+@media (min-width: 1180px) { .masonry { column-count: 3; } }
+@media (min-width: 1600px) { .masonry { column-count: 4; } }
+
+.masonry-item {
+  position: relative;
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  display: block;
+  margin: 0 0 1.15rem;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  transition: transform .3s cubic-bezier(.22, 1, .36, 1), box-shadow .3s ease, border-color .3s ease;
+}
+.masonry-item img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: transform .5s cubic-bezier(.22, 1, .36, 1), filter .35s ease;
+}
+.masonry-item:hover, .masonry-item:focus-within {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--accent);
+}
+.masonry-item:hover img, .masonry-item:focus-within img { transform: scale(1.06); }
+
+.masonry-item figcaption {
+  position: absolute; inset: auto 0 0 0;
+  display: grid; gap: .15rem;
+  padding: 2.5rem 1.1rem .95rem;
+  color: #fff;
+  background: linear-gradient(transparent, rgba(6, 12, 22, .55) 42%, rgba(6, 12, 22, .88));
+  transform: translateY(101%);
+  opacity: 0;
+  transition: transform .32s cubic-bezier(.22, 1, .36, 1), opacity .28s ease;
+}
+.masonry-item:hover figcaption, .masonry-item:focus-within figcaption {
+  transform: translateY(0); opacity: 1;
+}
+.masonry-item figcaption strong { font-size: .98rem; font-weight: 700; line-height: 1.3; }
+.masonry-item figcaption span { font-size: .84rem; opacity: .85; line-height: 1.4; }
+
+/* Touch devices have no hover, so the caption simply stays put. */
+@media (hover: none) {
+  .masonry-item figcaption { transform: none; opacity: 1; padding-top: 3rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .masonry-item, .masonry-item img, .masonry-item figcaption { transition: none; }
+  .masonry-item:hover { transform: none; }
+  .masonry-item:hover img { transform: none; }
+}
+
+/* --- one hover language, applied to everything that responds ------------- */
+
+.highlight-card, .cert-item, .skill-group, .side-box, .about-facts,
+.contact-form, .process-list li {
+  transition: transform .22s cubic-bezier(.22, 1, .36, 1),
+              box-shadow .22s ease, border-color .22s ease;
+}
+.highlight-card:hover, .cert-item:hover, .skill-group:hover, .side-box:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-strong);
+}
+.highlight-card:hover .highlight-icon { color: var(--accent-alt); }
+.cert-item:hover .cert-icon, .card:hover .card-icon {
+  background: var(--accent); color: #fff;
+  transform: scale(1.06) rotate(-4deg);
+}
+.card-icon, .cert-icon, .contact-icon, .highlight-icon {
+  transition: background .25s ease, color .25s ease, transform .3s cubic-bezier(.22, 1, .36, 1);
+}
+.contact-list li:hover .contact-icon { background: var(--accent); color: #fff; }
+
+.timeline-item:hover .timeline-dot {
+  transform: scale(1.16);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+.timeline-dot { transition: transform .25s cubic-bezier(.22, 1, .36, 1), box-shadow .25s ease; }
+
+.tech-list li, .tag-cloud a, .chip { transition: background .2s ease, color .2s ease, transform .2s ease; }
+.tech-list li:hover { background: var(--accent); color: #fff; }
+
+.process-list li:hover .step-num {
+  transform: scale(1.08) rotate(-5deg);
+  box-shadow: 0 6px 18px -8px var(--accent);
+}
+.step-num { transition: transform .3s cubic-bezier(.22, 1, .36, 1), box-shadow .3s ease; }
+
+.testimonial-card:hover .quote-mark { color: var(--accent); transform: rotate(-6deg) scale(1.08); }
+.quote-mark { transition: color .3s ease, transform .35s cubic-bezier(.22, 1, .36, 1); }
+
+.site-nav a { transition: color .2s ease, background .2s ease; }
+.footer-links a, .footer-contact a { transition: color .2s ease, padding-left .2s ease; }
+.footer-links a:hover, .footer-contact a:hover { padding-left: 4px; }
+
+.stars svg { transition: transform .25s ease; }
+.testimonial-card:hover .stars svg:nth-child(odd) { transform: translateY(-2px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .highlight-card, .cert-item, .skill-group, .side-box,
+  .card-icon, .cert-icon, .contact-icon, .highlight-icon,
+  .timeline-dot, .step-num, .quote-mark, .stars svg,
+  .footer-links a, .footer-contact a, .tech-list li {
+    transition: none;
+  }
+  .highlight-card:hover, .cert-item:hover, .skill-group:hover, .side-box:hover,
+  .card:hover .card-icon, .cert-item:hover .cert-icon,
+  .timeline-item:hover .timeline-dot, .process-list li:hover .step-num,
+  .testimonial-card:hover .quote-mark {
+    transform: none;
+  }
 }

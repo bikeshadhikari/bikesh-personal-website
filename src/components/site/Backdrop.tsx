@@ -1,0 +1,32 @@
+/**
+ * The soft geometry behind the page.
+ *
+ * Pure CSS and one inline SVG, no images and no JavaScript, so it costs
+ * nothing to load and nothing to run. The shapes drift on the compositor via
+ * transform and opacity only, and stop entirely when a visitor has asked for
+ * reduced motion.
+ */
+export default function Backdrop() {
+  return (
+    <div className="backdrop" aria-hidden="true">
+      <span className="backdrop-orb backdrop-orb-1" />
+      <span className="backdrop-orb backdrop-orb-2" />
+      <span className="backdrop-orb backdrop-orb-3" />
+
+      <svg className="backdrop-grid" width="100%" height="100%">
+        <defs>
+          <pattern id="bd-grid" width="46" height="46" patternUnits="userSpaceOnUse">
+            <path d="M46 0H0V46" fill="none" stroke="currentColor" strokeWidth="1" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#bd-grid)" />
+      </svg>
+
+      {/* A few marks from the subject's own world: a bracket, a terminal
+          prompt and a chevron, drifting slowly. */}
+      <span className="backdrop-glyph backdrop-glyph-1">{'{ }'}</span>
+      <span className="backdrop-glyph backdrop-glyph-2">{'</>'}</span>
+      <span className="backdrop-glyph backdrop-glyph-3">{'$_'}</span>
+    </div>
+  );
+}

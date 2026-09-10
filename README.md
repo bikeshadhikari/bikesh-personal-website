@@ -14,12 +14,19 @@ no UI framework and no CSS framework, so the markup stays readable and the pages
 - Home page assembled from switchable blocks: hero, key numbers, about, skills,
   experience pipeline, services, projects, certifications, testimonials, latest
   writing and contact.
-- Standalone pages for About, Experience, Services, Projects and Contact.
+- Standalone pages for About, Experience, Services, Projects, Gallery and Contact.
+- A gallery that arranges photos of any shape into columns, keeping each picture
+  at its own proportions and revealing its title along the bottom on hover.
 - A blog with categories, tags, search, pagination, related posts, share buttons,
   reading time, view counts and moderated comments.
 - Contact form and newsletter signup that save to the database.
 - Light and dark themes, respecting the visitor's device setting.
 - `sitemap.xml`, `robots.txt`, an RSS feed, Open Graph tags and Person structured data.
+- A share picture generated for every blog post, so a link posted to Facebook,
+  LinkedIn, X or WhatsApp arrives as a card with the title on it. A cover image
+  on the post is used when there is one; otherwise the card is drawn on demand.
+- A drifting abstract backdrop behind every page, drawn in CSS rather than
+  loaded as an image, and switched off for anyone who asks for reduced motion.
 - Favicon, apple-touch icon and web app manifest included.
 
 **Dashboard** (`/admin`)
@@ -32,8 +39,14 @@ no UI framework and no CSS framework, so the markup stays readable and the pages
 - **Profile** — name, headline, rotating roles, biography, photo, CV.
 - **Experience pipeline** — roles, organisations, dates and key points, grouped
   into work, education, volunteer and award tracks.
+- **Gallery** — upload a photo, give it a title and a caption, and it takes its
+  place in the arrangement. Any resolution, size or shape works.
 - **Skills, services, projects, certifications, testimonials, key numbers** — each
   with its own visibility switch and sort order.
+- **Search** — one box in the dashboard header, or press `/` from anywhere in it.
+  It looks through posts, projects, experience, services, skills, certifications,
+  testimonials, gallery photos, categories, menus and the settings themselves, so
+  you can find, say, the favicon without remembering which screen it is on.
 - **Messages** and **subscribers**, with CSV export.
 - **Settings** — site identity, favicon upload, contact details, social links,
   SEO, accent colours, blog rules and maintenance mode. While maintenance mode
@@ -95,16 +108,18 @@ which is what you will do on Vercel. Full instructions are in
 src/
   app/
     page.tsx              Home, assembled from enabled sections
-    about|experience|services|projects|contact|blog|search/
+    about|experience|services|projects|gallery|contact|blog|search/
+    blog/[slug]/opengraph-image.tsx  Share picture for a post
     actions.ts            Public form handlers (contact, comments, newsletter)
     setup/                One-time installer
     admin/
       actions.ts          Every dashboard mutation
-      [resource]/         Generic list and form for all nine content types
+      [resource]/         Generic list and form for every content type
       menus|profile|settings|messages|comments|subscribers|media|users|account/
+      search/             Dashboard-wide search
     sitemap.ts robots.ts manifest.ts feed.xml/
   components/
-    site/                 Header, footer, hero, blocks, forms
+    site/                 Header, footer, hero, blocks, backdrop, gallery, forms
     admin/                Shell, resource list, resource form, field, editor
   lib/
     db.ts                 Postgres client
@@ -113,6 +128,8 @@ src/
     resources.ts          Every content type described once
     crud.ts               Generic create / read / update / delete
     auth.ts settings.ts menu.ts content.ts upload.ts utils.ts
+    admin-search.ts       What the dashboard search looks through
+    client-upload.ts      Browser-side resizing before an upload
   styles/                 site.css and admin.css
   middleware.ts           Guards /admin
 ```

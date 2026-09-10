@@ -119,6 +119,11 @@ async function readField(
       return { value: next };
     }
 
+    case 'dimensions': {
+      // Written by the uploader, not by a person.
+      return { value: Math.max(0, Number(formData.get(name) ?? 0) || 0) };
+    }
+
     case 'url': {
       const text = normalizeUrl(String(raw ?? ''));
       if (text && !/^https?:\/\//i.test(text)) {
@@ -165,6 +170,13 @@ export async function saveRow(
     if (field.required && (value === '' || value === null || value === undefined)) {
       errors[name] = `${field.label} is required.`;
     }
+  }
+
+  // A resource with a dimensions field stores the size the uploader measured.
+  if (Object.values(def.fields).some((f) => f.type === 'dimensions')) {
+    data.width = Math.max(0, Number(formData.get('width') ?? 0) || 0);
+    data.height = Math.max(0, Number(formData.get('height') ?? 0) || 0);
+    delete data.dimensions;
   }
 
   // Posts carry author, timestamps and a publish date of their own.

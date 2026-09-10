@@ -63,16 +63,20 @@ export default async function HomePage() {
             />
             <div className="about-layout">
               <div className="about-text">
-                {aboutParagraphs.map((para, i) => <p key={i}>{para}</p>)}
+                {/* Trimmed to sit level with the panel beside it. The rest of
+                    the biography lives on the About page. */}
+                <div className="about-clamp">
+                  {aboutParagraphs.map((para, i) => <p key={i}>{para}</p>)}
+                </div>
                 <div className="about-actions">
                   {aboutPageOn && (
-                    <Link className="btn btn-ghost" href="/about">
-                      Full profile <Icon name="arrow-right" className="icon icon-sm" />
+                    <Link className="btn btn-primary" href="/about">
+                      Read the full profile <Icon name="arrow-right" className="icon icon-sm" />
                     </Link>
                   )}
                   {cv && (
-                    <a className="btn btn-link" href={cv} download>
-                      <Icon name="download" className="icon icon-sm" /> CV
+                    <a className="btn btn-ghost" href={cv} download>
+                      <Icon name="download" className="icon icon-sm" /> Download CV
                     </a>
                   )}
                 </div>

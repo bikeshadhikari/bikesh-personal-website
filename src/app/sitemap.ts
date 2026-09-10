@@ -1,11 +1,12 @@
 import type { MetadataRoute } from 'next';
 import { navItems, menuHref, menuEnabled } from '@/lib/menu';
 import { getCategories, getProjects, getPublishedSlugs } from '@/lib/content';
+import { siteOrigin } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/$/, '');
+  const base = siteOrigin();
   const now = new Date();
 
   const entries: MetadataRoute.Sitemap = [

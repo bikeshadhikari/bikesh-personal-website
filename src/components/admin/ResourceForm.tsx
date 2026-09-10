@@ -23,6 +23,7 @@ export default function ResourceForm({
   const [state, action, pending] = useActionState<FormState, FormData>(saveResourceAction, null);
   const errors = state?.errors ?? {};
 
+  const hasDimensions = Object.values(def.fields).some((f) => f.type === 'dimensions');
   const main = Object.entries(def.fields).filter(([, f]) => f.group !== 'seo');
   const seo = Object.entries(def.fields).filter(([, f]) => f.group === 'seo');
   const values = state?.errors ? { ...record } : record;
@@ -60,6 +61,9 @@ export default function ResourceForm({
                 value={values[name]}
                 error={errors[name]}
                 categoryOptions={categoryOptions}
+                withDimensions={hasDimensions && field.type === 'image'}
+                initialWidth={Number(values.width ?? 0)}
+                initialHeight={Number(values.height ?? 0)}
               />
             ))}
           </div>

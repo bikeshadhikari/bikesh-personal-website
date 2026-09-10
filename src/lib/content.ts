@@ -2,9 +2,10 @@ import 'server-only';
 import { cache } from 'react';
 import { sql } from './db';
 import type {
-  Category, Certification, Comment, Experience, Highlight, Paginated,
-  Post, Project, Service, Skill, Testimonial,
+  Category, Certification, Comment, Experience, GalleryItem, Highlight,
+  Paginated, Post, Project, Service, Skill, Testimonial,
 } from './types';
+import { ensureSchema, isMissingTable } from './schema';
 
 /* -------------------------------------------------------------------------- */
 /* Profile blocks                                                             */
@@ -73,6 +74,20 @@ export const getCertifications = cache(async (): Promise<Certification[]> =>
 
 export const getTestimonials = cache(async (): Promise<Testimonial[]> =>
   sql<Testimonial[]>`SELECT * FROM testimonials WHERE enabled ORDER BY sort_order, id`);
+
+/** Gallery photos, newest first unless a sort order says otherwise. */
+export const getGallery = cache(async (): Promise<GalleryItem[]> => {
+  try {
+    return await sql<GalleryItem[]>`
+      SELECT * FROM gallery WHERE enabled ORDER BY sort_order, id DESC`;
+  } catch (error) {
+    // A site set up before the gallery existed creates the table on first view.
+    if (!isMissingTable(error)) return [];
+    await ensureSchema();
+    return sql<GalleryItem[]>`
+      SELECT * FROM gallery WHERE enabled ORDER BY sort_order, id DESC`;
+  }
+});
 
 /* -------------------------------------------------------------------------- */
 /* Blog                                                                       */

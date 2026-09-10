@@ -223,8 +223,23 @@ export async function createSchema(): Promise<void> {
       folder     VARCHAR(60)  NOT NULL DEFAULT 'media',
       mime       VARCHAR(120) NOT NULL,
       size       INTEGER      NOT NULL,
+      width      INTEGER      NOT NULL DEFAULT 0,
+      height     INTEGER      NOT NULL DEFAULT 0,
       bytes      BYTEA        NOT NULL,
       created_at TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS gallery (
+      id          SERIAL PRIMARY KEY,
+      title       VARCHAR(200) NOT NULL DEFAULT '',
+      caption     VARCHAR(400) DEFAULT '',
+      image       VARCHAR(500) NOT NULL,
+      width       INTEGER NOT NULL DEFAULT 0,
+      height      INTEGER NOT NULL DEFAULT 0,
+      taken_at    DATE,
+      enabled     BOOLEAN NOT NULL DEFAULT TRUE,
+      sort_order  INTEGER NOT NULL DEFAULT 0,
+      created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
     CREATE TABLE IF NOT EXISTS login_attempts (
@@ -239,5 +254,10 @@ export async function createSchema(): Promise<void> {
     CREATE INDEX IF NOT EXISTS idx_exp_track      ON experiences (track, enabled);
     CREATE INDEX IF NOT EXISTS idx_attempts       ON login_attempts (identifier, created_at DESC);
     CREATE INDEX IF NOT EXISTS idx_media_created  ON media (created_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_gallery_order  ON gallery (enabled, sort_order, id DESC);
+
+    ALTER TABLE media   ADD COLUMN IF NOT EXISTS width  INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE media   ADD COLUMN IF NOT EXISTS height INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE gallery ADD COLUMN IF NOT EXISTS caption VARCHAR(400) DEFAULT '';
   `);
 }

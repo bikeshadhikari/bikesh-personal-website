@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Plus_Jakarta_Sans, Source_Serif_4 } from 'next/font/google';
 import { getSettings, setting, settingBool, socialLinks } from '@/lib/settings';
-import { jsonForScript, safeColor } from '@/lib/utils';
+import { jsonForScript, safeColor, siteOrigin } from '@/lib/utils';
 import '@/styles/site.css';
 
 const sans = Plus_Jakarta_Sans({
@@ -19,7 +19,7 @@ const serif = Source_Serif_4({
 
 export async function generateMetadata(): Promise<Metadata> {
   const s = await getSettings();
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const siteUrl = siteOrigin();
   const title = setting(s, 'meta_title', setting(s, 'site_name', 'Portfolio'));
   const description = setting(s, 'meta_description');
   const ogImage = setting(s, 'og_image', '/og-default.png');
@@ -67,7 +67,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // Both land inside a <style> block, so only real hex colours get through.
   const accent = safeColor(setting(s, 'theme_accent', '#2563eb'), '#2563eb');
   const accentAlt = safeColor(setting(s, 'theme_accent_alt', '#0ea5e9'), '#0ea5e9');
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const siteUrl = siteOrigin();
 
   const personSchema = {
     '@context': 'https://schema.org',

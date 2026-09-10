@@ -8,7 +8,7 @@ import ShareBar from '@/components/site/ShareBar';
 import { menuEnabled } from '@/lib/menu';
 import { getSettings, settingBool } from '@/lib/settings';
 import { getComments, getPost, getRelatedPosts, registerView } from '@/lib/content';
-import { csvList, excerptOf, formatDate, isoDate, readingTime, sanitizeHtml } from '@/lib/utils';
+import { csvList, excerptOf, formatDate, isoDate, readingTime, sanitizeHtml, siteOrigin } from '@/lib/utils';
 import Icon from '@/components/Icon';
 
 export const dynamic = 'force-dynamic';
@@ -21,16 +21,34 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!post) return { title: 'Article not found' };
 
   const description = post.meta_description || post.excerpt || excerptOf(post.content, 30);
+
+  // A cover image wins when there is one. When there is none the `images` key
+  // is left out entirely rather than set to undefined, because an explicit
+  // undefined suppresses the opengraph-image.tsx sitting beside this file —
+  // and that generated picture is what makes every share preview correctly.
+  const cover = post.cover_image
+    ? { images: [{ url: post.cover_image, width: 1200, height: 630, alt: post.title }] }
+    : {};
+
   return {
     title: post.meta_title || post.title,
     description,
     alternates: { canonical: `/blog/${post.slug}` },
     openGraph: {
       type: 'article',
+      url: `/blog/${post.slug}`,
+      siteName: post.author_name ?? undefined,
       title: post.title,
       description,
       publishedTime: post.published_at ?? undefined,
-      images: post.cover_image ? [post.cover_image] : undefined,
+      authors: post.author_name ? [post.author_name] : undefined,
+      ...cover,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description,
+      ...cover,
     },
   };
 }
@@ -51,7 +69,7 @@ export default async function PostPage({ params }: Props) {
 
   const tags = csvList(post.tags);
   const commentsOn = settingBool(s, 'comments_enabled', true) && post.allow_comments;
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || '';
+  const siteUrl = siteOrigin();
   const shareUrl = `${siteUrl}/blog/${post.slug}`;
 
   return (

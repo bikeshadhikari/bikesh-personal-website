@@ -71,4 +71,10 @@ export type UserRow = {
   is_active: boolean; last_login_at: string | null; created_at: string;
 };
 
+export type GalleryItem = {
+  id: number; title: string; caption: string; image: string;
+  width: number; height: number; taken_at: string | null;
+  enabled: boolean; sort_order: number; created_at: string;
+};
+
 export type Paginated<T> = { items: T[]; total: number; pages: number; page: number };

@@ -23,6 +23,8 @@ export async function POST(request: Request): Promise<Response> {
 
   const file = form.get('file');
   const folder = String(form.get('folder') ?? 'media');
+  const width = Number(form.get('width') ?? 0) || 0;
+  const height = Number(form.get('height') ?? 0) || 0;
 
   if (!(file instanceof File) || file.size === 0) {
     return Response.json({ error: 'No file was received.' }, { status: 400 });
@@ -41,7 +43,7 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   try {
-    const stored = await storeMedia(file, folder);
+    const stored = await storeMedia(file, folder, width, height);
     return Response.json(stored);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Could not save the file.';

@@ -95,6 +95,7 @@ const MENUS: [string, string, 'page' | 'section', boolean, boolean, boolean, num
   ['services', 'Services', 'page', true, true, false, 40, 'What you offer to clients and institutions.'],
   ['projects', 'Projects', 'page', true, true, false, 50, 'Portfolio of delivered work.'],
   ['blog', 'Blog', 'page', true, true, false, 60, 'Articles listing and single post pages.'],
+  ['gallery', 'Gallery', 'page', true, true, false, 65, 'Photo gallery that arranges itself.'],
   ['contact', 'Contact', 'page', true, true, false, 70, 'Contact form and details.'],
   ['hero', 'Hero banner', 'section', false, true, true, 100, 'Name, roles and call to action.'],
   ['highlights', 'Key numbers', 'section', false, true, false, 110, 'The counter strip under the hero.'],

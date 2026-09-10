@@ -4,6 +4,7 @@ import { currentUser } from '@/lib/auth';
 import { getSettings, setting } from '@/lib/settings';
 import { logoutAction } from '@/app/admin/actions';
 import { SidebarControls, AdminThemeToggle } from './ShellClient';
+import AdminSearchBox from './AdminSearchBox';
 import Icon from '../Icon';
 
 type NavEntry = [slug: string, label: string, icon: string, badge?: number];
@@ -45,6 +46,7 @@ export default async function Shell({
     ['Content', [
       ['services', 'Services', 'layers'],
       ['projects', 'Projects', 'code'],
+      ['gallery', 'Gallery', 'eye'],
       ['testimonials', 'Testimonials', 'quote'],
       ['highlights', 'Key numbers', 'star'],
     ]],
@@ -112,6 +114,7 @@ export default async function Shell({
         <header className="admin-topbar">
           <SidebarControls />
           <h1 className="topbar-title">{title}</h1>
+          <AdminSearchBox compact />
           <div className="topbar-actions">
             <AdminThemeToggle />
             <div className="user-chip">

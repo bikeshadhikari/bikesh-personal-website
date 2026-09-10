@@ -11,13 +11,20 @@ export type SelectOption = { value: string; label: string };
 /** Renders one dashboard control from a Resource field definition. */
 export default function Field({
   name, field, value, error, categoryOptions = [],
+  withDimensions = false, initialWidth = 0, initialHeight = 0,
 }: {
   name: string;
   field: FieldDef;
   value: unknown;
   error?: string;
   categoryOptions?: SelectOption[];
+  withDimensions?: boolean;
+  initialWidth?: number;
+  initialHeight?: number;
 }) {
+  // The uploader writes these itself; there is nothing for a person to fill in.
+  if (field.type === 'dimensions') return null;
+
   const id = `f-${name}`;
   const label = field.label;
   const width = field.full ? 'field-full' : 'field-half';
@@ -66,6 +73,9 @@ export default function Field({
           value={text}
           folder={field.folder}
           isImage={field.type === 'image'}
+          withDimensions={withDimensions}
+          initialWidth={initialWidth}
+          initialHeight={initialHeight}
         />
       )}
 

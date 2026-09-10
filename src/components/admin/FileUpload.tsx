@@ -10,14 +10,19 @@ import Icon from '../Icon';
  * elsewhere can be pasted instead.
  */
 export default function FileUpload({
-  name, value, folder = 'media', isImage = true,
+  name, value, folder = 'media', isImage = true, withDimensions = false,
+  initialWidth = 0, initialHeight = 0,
 }: {
   name: string;
   value: string;
   folder?: string;
   isImage?: boolean;
+  withDimensions?: boolean;
+  initialWidth?: number;
+  initialHeight?: number;
 }) {
   const [url, setUrl] = useState(value);
+  const [size, setSize] = useState({ width: initialWidth, height: initialHeight });
   const [error, setError] = useState('');
   const [progress, setProgress] = useState<number | null>(null);
   const [showLink, setShowLink] = useState(false);
@@ -29,6 +34,7 @@ export default function FileUpload({
     try {
       const result = await uploadMedia(folder, file, setProgress);
       setUrl(result.url);
+      setSize({ width: result.width, height: result.height });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed. Please try again.');
     } finally {
@@ -66,6 +72,12 @@ export default function FileUpload({
         }}
       />
       <input type="hidden" name={`${name}_url`} value={url} />
+      {withDimensions && (
+        <>
+          <input type="hidden" name="width" value={size.width} />
+          <input type="hidden" name="height" value={size.height} />
+        </>
+      )}
 
       {progress !== null && (
         <div className="upload-progress" role="status">

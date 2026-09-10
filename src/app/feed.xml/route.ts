@@ -2,6 +2,7 @@ import { menuEnabled } from '@/lib/menu';
 import { getSettings, setting } from '@/lib/settings';
 import { getPosts } from '@/lib/content';
 import { excerptOf } from '@/lib/utils';
+import { siteOrigin } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,7 +17,7 @@ export async function GET(): Promise<Response> {
     return new Response('Not found', { status: 404 });
   }
 
-  const base = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/$/, '');
+  const base = siteOrigin();
   const s = await getSettings();
   const { items } = await getPosts({ perPage: 20 });
 

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Header from './Header';
 import Footer from './Footer';
 import Reveal from './Reveal';
+import Backdrop from './Backdrop';
 import { currentUser } from '@/lib/auth';
 import { getSettings, setting, settingBool } from '@/lib/settings';
 
@@ -38,6 +39,7 @@ export default async function SiteShell({
 
   return (
     <div className={home ? 'is-home' : 'is-inner'}>
+      <Backdrop />
       {maintenance && owner && (
         <div className="owner-bar" role="status">
           <span className="owner-bar-dot" aria-hidden="true" />

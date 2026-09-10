@@ -98,8 +98,12 @@ Sign in at `https://bikeshadhikari.com.np/admin` and work through, in order:
    seeded entries were assembled from your public profiles and are a starting
    point only, not verified facts.
 3. **Settings** — contact details, social links, favicon, accent colour.
-4. **Menus & sections** — switch off anything you are not ready to show.
-5. **Testimonials** — replace the two placeholders with real quotes from real
+4. **Menus & sections** — switch off anything you are not ready to show. The
+   Gallery ships switched on but empty, so either add photos or switch it off.
+5. **Gallery** — upload your photos. Shape and size do not matter; each one keeps
+   its own proportions and the title you give it shows along the bottom when a
+   visitor hovers over it.
+6. **Testimonials** — replace the two placeholders with real quotes from real
    people, then enable the Testimonials section under Menus & sections. It ships
    switched off on purpose so placeholder text never reaches a visitor.
 
@@ -113,6 +117,17 @@ gets its own preview URL you can check before merging.
 
 **Publishing content.** Everything in the dashboard is live the moment you save.
 No deploy, no cache to clear.
+
+**Finding things in the dashboard.** Use the search box in the header, or press
+`/` from any dashboard screen. It searches your content and your settings
+together, so "favicon" or "maintenance" takes you straight to the right screen.
+
+**Share pictures.** Every published post gets one automatically. Give the post a
+cover image and that is what appears when the link is shared; leave it empty and
+a card with the post title is drawn instead. Facebook and LinkedIn cache what
+they fetched the first time, so if you change a post's cover after sharing it,
+clear the old preview with Facebook's Sharing Debugger or LinkedIn's Post
+Inspector.
 
 **Backups.** Neon keeps point-in-time recovery on the free plan. For a manual
 copy, open the Neon dashboard from Vercel's Storage tab and use its SQL editor

@@ -190,3 +190,20 @@ export function jsonForScript(value: unknown): string {
     .replace(/>/g, '\\u003e')
     .replace(/&/g, '\\u0026');
 }
+
+/**
+ * The site's public origin, with no trailing slash.
+ *
+ * Open Graph and sitemap URLs have to be absolute, so this falls back to the
+ * address Vercel provides when NEXT_PUBLIC_SITE_URL has not been set. Without
+ * the fallback a share preview would point at localhost.
+ */
+export function siteOrigin(): string {
+  const explicit = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (explicit) return explicit.replace(/\/+$/, '');
+
+  const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
+  if (vercel) return `https://${vercel.replace(/^https?:\/\//, '').replace(/\/+$/, '')}`;
+
+  return 'http://localhost:3000';
+}

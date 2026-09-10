@@ -6,7 +6,8 @@
 
 export type FieldType =
   | 'text' | 'textarea' | 'richtext' | 'slug' | 'url' | 'number' | 'range'
-  | 'select' | 'checkbox' | 'date' | 'datetime' | 'color' | 'image' | 'file' | 'icon';
+  | 'select' | 'checkbox' | 'date' | 'datetime' | 'color' | 'image' | 'file'
+  | 'icon' | 'dimensions';
 
 export type Field = {
   type: FieldType;
@@ -27,7 +28,7 @@ export type Field = {
 export type ListColumn = {
   key: string;
   label: string;
-  type?: 'text' | 'chip' | 'status' | 'bool' | 'toggle' | 'meter' | 'date' | 'number' | 'mono';
+  type?: 'text' | 'chip' | 'status' | 'bool' | 'toggle' | 'meter' | 'date' | 'number' | 'mono' | 'thumb';
   primary?: boolean;
   viewPath?: string;
 };
@@ -238,6 +239,31 @@ export const RESOURCES: Record<string, ResourceDef> = {
       rating: { type: 'number', label: 'Stars (0–5)', default: 5, min: 0, max: 5 },
       sort_order: { type: 'number', label: 'Sort order', default: 0 },
       enabled: { type: 'checkbox', label: 'Show on the website', default: false },
+    },
+  },
+
+  gallery: {
+    table: 'gallery', label: 'Gallery', singular: 'Photo',
+    icon: 'eye', group: 'Content', order: 'sort_order ASC, id DESC',
+    search: ['title', 'caption'], toggle: 'enabled',
+    list: [
+      { key: 'title', label: 'Title', primary: true },
+      { key: 'image', label: 'Photo', type: 'thumb' },
+      { key: 'sort_order', label: 'Order', type: 'number' },
+      { key: 'enabled', label: 'Visible', type: 'toggle' },
+    ],
+    fields: {
+      image: { type: 'image', label: 'Photo', folder: 'gallery', required: true, full: true,
+               hint: 'Any size or shape. The gallery arranges itself around whatever you upload.' },
+      dimensions: { type: 'dimensions', label: 'Dimensions' },
+      title: { type: 'text', label: 'Title', full: true,
+               hint: 'Shown across the bottom of the photo when someone hovers over it.' },
+      caption: { type: 'textarea', label: 'Caption', rows: 2, full: true,
+                 hint: 'Optional second line, shown under the title.' },
+      taken_at: { type: 'date', label: 'Date taken' },
+      sort_order: { type: 'number', label: 'Sort order', default: 0,
+                    hint: 'Lower numbers come first. Leave at 0 to keep newest first.' },
+      enabled: { type: 'checkbox', label: 'Show in the gallery', default: true },
     },
   },
 

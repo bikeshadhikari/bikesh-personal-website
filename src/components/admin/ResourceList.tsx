@@ -111,6 +111,11 @@ export default function ResourceList({
                               </div>
                             ) : col.type === 'date' ? (
                               value ? formatDate(String(value)) : <span className="muted">—</span>
+                            ) : col.type === 'thumb' ? (
+                              value
+                                // eslint-disable-next-line @next/next/no-img-element
+                                ? <img className="row-thumb" src={String(value)} alt="" loading="lazy" />
+                                : <span className="muted">—</span>
                             ) : col.type === 'mono' ? (
                               <code>{String(value ?? '')}</code>
                             ) : (

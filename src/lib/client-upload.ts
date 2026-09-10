@@ -22,16 +22,40 @@ const RESIZABLE = ['image/jpeg', 'image/png', 'image/webp'];
  * uploads inside the request limit and makes every page that shows the image
  * load faster afterwards.
  */
-async function downscale(file: File): Promise<File> {
-  if (!RESIZABLE.includes(file.type) || file.size < SKIP_RESIZE_BELOW) return file;
+export type Prepared = { file: File; width: number; height: number };
+
+async function measure(file: File): Promise<{ width: number; height: number }> {
+  try {
+    const bitmap = await createImageBitmap(file);
+    const size = { width: bitmap.width, height: bitmap.height };
+    bitmap.close();
+    return size;
+  } catch {
+    return { width: 0, height: 0 };
+  }
+}
+
+async function downscale(file: File): Promise<Prepared> {
+  if (!RESIZABLE.includes(file.type)) {
+    return { file, ...(file.type.startsWith('image/') ? await measure(file) : { width: 0, height: 0 }) };
+  }
+  if (file.size < SKIP_RESIZE_BELOW) {
+    return { file, ...(await measure(file)) };
+  }
 
   try {
     const bitmap = await createImageBitmap(file);
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
-    if (!context) { bitmap.close(); return file; }
+    if (!context) {
+      const size = { width: bitmap.width, height: bitmap.height };
+      bitmap.close();
+      return { file, ...size };
+    }
 
     let best: Blob | null = null;
+    let bestWidth = 0;
+    let bestHeight = 0;
     for (const [edge, quality] of ATTEMPTS) {
       const scale = Math.min(1, edge / Math.max(bitmap.width, bitmap.height));
       canvas.width = Math.round(bitmap.width * scale);
@@ -43,22 +67,29 @@ async function downscale(file: File): Promise<File> {
       );
       if (!blob) break;
       best = blob;
+      bestWidth = canvas.width;
+      bestHeight = canvas.height;
       if (blob.size <= TARGET_BYTES) break;
     }
+    const original = { width: bitmap.width, height: bitmap.height };
     bitmap.close();
 
-    if (!best || best.size >= file.size) return file;
+    if (!best || best.size >= file.size) return { file, ...original };
 
     const name = file.name.replace(/\.[^.]+$/, '') + '.webp';
-    return new File([best], name, { type: 'image/webp' });
+    return {
+      file: new File([best], name, { type: 'image/webp' }),
+      width: bestWidth,
+      height: bestHeight,
+    };
   } catch {
     // If anything about the resize fails, send the original and let the
     // server's size check decide.
-    return file;
+    return { file, width: 0, height: 0 };
   }
 }
 
-export type UploadResult = { id: string; url: string };
+export type UploadResult = { id: string; url: string; width: number; height: number };
 
 /** Upload one file and return the URL it was stored at. */
 export async function uploadMedia(
@@ -70,8 +101,10 @@ export async function uploadMedia(
   const prepared = await downscale(file);
 
   const form = new FormData();
-  form.append('file', prepared);
+  form.append('file', prepared.file);
   form.append('folder', folder);
+  form.append('width', String(prepared.width));
+  form.append('height', String(prepared.height));
 
   // XMLHttpRequest rather than fetch, because it reports upload progress.
   return new Promise<UploadResult>((resolve, reject) => {
@@ -86,12 +119,17 @@ export async function uploadMedia(
     };
 
     request.onload = () => {
-      let payload: { url?: string; id?: string; error?: string } = {};
+      let payload: { url?: string; id?: string; width?: number; height?: number; error?: string } = {};
       try { payload = JSON.parse(request.responseText); } catch { /* non-JSON error page */ }
 
       if (request.status >= 200 && request.status < 300 && payload.url && payload.id) {
         onProgress(100);
-        resolve({ id: payload.id, url: payload.url });
+        resolve({
+          id: payload.id,
+          url: payload.url,
+          width: payload.width ?? prepared.width,
+          height: payload.height ?? prepared.height,
+        });
         return;
       }
       reject(new Error(

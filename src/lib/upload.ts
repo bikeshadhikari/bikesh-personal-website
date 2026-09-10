@@ -36,6 +36,8 @@ export type MediaItem = {
   folder: string;
   mime: string;
   size: number;
+  width: number;
+  height: number;
   createdAt: string;
 };
 
@@ -61,18 +63,19 @@ async function withTable<T>(run: () => Promise<T>): Promise<T> {
 }
 
 export async function storeMedia(
-  file: File, folder: string,
-): Promise<{ id: string; url: string }> {
+  file: File, folder: string, width = 0, height = 0,
+): Promise<{ id: string; url: string; width: number; height: number }> {
   const bytes = Buffer.from(await file.arrayBuffer());
   const id = newId();
   const safeFolder = (folder || 'media').replace(/[^a-z0-9_-]/gi, '').slice(0, 60) || 'media';
   const filename = file.name.replace(/[^\w.\- ]+/g, '').slice(0, 255) || 'file';
 
   await withTable(() => sql`
-    INSERT INTO media (id, filename, folder, mime, size, bytes)
-    VALUES (${id}, ${filename}, ${safeFolder}, ${file.type}, ${bytes.length}, ${bytes})`);
+    INSERT INTO media (id, filename, folder, mime, size, width, height, bytes)
+    VALUES (${id}, ${filename}, ${safeFolder}, ${file.type}, ${bytes.length},
+            ${Math.max(0, Math.round(width))}, ${Math.max(0, Math.round(height))}, ${bytes})`);
 
-  return { id, url: `${MEDIA_PREFIX}${id}` };
+  return { id, url: `${MEDIA_PREFIX}${id}`, width, height };
 }
 
 export async function readMedia(id: string): Promise<StoredMedia | null> {
@@ -87,8 +90,9 @@ export async function readMedia(id: string): Promise<StoredMedia | null> {
 export async function listMedia(): Promise<{ items: MediaItem[]; error: string | null }> {
   try {
     const rows = await withTable(() => sql<
-      { id: string; filename: string; folder: string; mime: string; size: number; created_at: string }[]
-    >`SELECT id, filename, folder, mime, size, created_at
+      { id: string; filename: string; folder: string; mime: string; size: number;
+        width: number; height: number; created_at: string }[]
+    >`SELECT id, filename, folder, mime, size, width, height, created_at
       FROM media ORDER BY created_at DESC LIMIT 500`);
 
     return {
@@ -99,6 +103,8 @@ export async function listMedia(): Promise<{ items: MediaItem[]; error: string |
         folder: r.folder,
         mime: r.mime,
         size: r.size,
+        width: r.width,
+        height: r.height,
         createdAt: new Date(r.created_at).toISOString(),
       })),
       error: null,
