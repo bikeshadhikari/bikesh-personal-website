@@ -1,6 +1,33 @@
 import 'server-only';
 import { sql } from './db';
 
+let ensuring: Promise<void> | null = null;
+
+/**
+ * Bring an existing database up to the current schema.
+ *
+ * Every statement below is CREATE ... IF NOT EXISTS, so this is harmless on a
+ * database that is already current. It exists because setup only runs once: a
+ * site installed before a table was added would otherwise never get it, and
+ * would fail with "relation does not exist" until someone ran SQL by hand.
+ */
+export async function ensureSchema(): Promise<void> {
+  ensuring ??= createSchema().catch((error) => {
+    ensuring = null;          // let the next caller try again
+    throw error;
+  });
+  return ensuring;
+}
+
+/** Postgres 42P01: the table is not there yet. */
+export function isMissingTable(error: unknown): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    (error as { code?: string }).code === '42P01'
+  );
+}
+
 /**
  * The full schema. Every statement is idempotent, so running setup twice is
  * harmless and adding a table later only needs a new entry here.

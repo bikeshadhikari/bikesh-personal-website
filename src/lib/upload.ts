@@ -1,6 +1,7 @@
 import 'server-only';
 import { randomBytes } from 'node:crypto';
 import { sql } from './db';
+import { ensureSchema, isMissingTable } from './schema';
 
 /**
  * Media is stored in Postgres alongside everything else.
@@ -44,6 +45,21 @@ function newId(): string {
   return randomBytes(12).toString('hex');
 }
 
+/**
+ * Run a query, and if the table is not there yet, create it and try once more.
+ * A site set up before the media table existed heals itself on first use
+ * instead of needing SQL run by hand.
+ */
+async function withTable<T>(run: () => Promise<T>): Promise<T> {
+  try {
+    return await run();
+  } catch (error) {
+    if (!isMissingTable(error)) throw error;
+    await ensureSchema();
+    return run();
+  }
+}
+
 export async function storeMedia(
   file: File, folder: string,
 ): Promise<{ id: string; url: string }> {
@@ -52,27 +68,28 @@ export async function storeMedia(
   const safeFolder = (folder || 'media').replace(/[^a-z0-9_-]/gi, '').slice(0, 60) || 'media';
   const filename = file.name.replace(/[^\w.\- ]+/g, '').slice(0, 255) || 'file';
 
-  await sql`
+  await withTable(() => sql`
     INSERT INTO media (id, filename, folder, mime, size, bytes)
-    VALUES (${id}, ${filename}, ${safeFolder}, ${file.type}, ${bytes.length}, ${bytes})`;
+    VALUES (${id}, ${filename}, ${safeFolder}, ${file.type}, ${bytes.length}, ${bytes})`);
 
   return { id, url: `${MEDIA_PREFIX}${id}` };
 }
 
 export async function readMedia(id: string): Promise<StoredMedia | null> {
   if (!/^[0-9a-f]{1,64}$/i.test(id)) return null;
-  const rows = await sql<{ mime: string; size: number; bytes: Buffer; filename: string }[]>`
-    SELECT mime, size, bytes, filename FROM media WHERE id = ${id} LIMIT 1`;
+  const rows = await withTable(() => sql<
+    { mime: string; size: number; bytes: Buffer; filename: string }[]
+  >`SELECT mime, size, bytes, filename FROM media WHERE id = ${id} LIMIT 1`);
   return rows[0] ?? null;
 }
 
 /** Everything in the library, newest first. Never throws. */
 export async function listMedia(): Promise<{ items: MediaItem[]; error: string | null }> {
   try {
-    const rows = await sql<
+    const rows = await withTable(() => sql<
       { id: string; filename: string; folder: string; mime: string; size: number; created_at: string }[]
     >`SELECT id, filename, folder, mime, size, created_at
-      FROM media ORDER BY created_at DESC LIMIT 500`;
+      FROM media ORDER BY created_at DESC LIMIT 500`);
 
     return {
       items: rows.map((r) => ({
@@ -103,7 +120,7 @@ export async function deleteUpload(url: string | null | undefined): Promise<void
   if (!isOwnMedia(url)) return;
   const id = (url as string).slice(MEDIA_PREFIX.length).split(/[?#]/)[0];
   try {
-    await sql`DELETE FROM media WHERE id = ${id}`;
+    await withTable(() => sql`DELETE FROM media WHERE id = ${id}`);
   } catch {
     // A row that is already gone is not an error worth surfacing.
   }
