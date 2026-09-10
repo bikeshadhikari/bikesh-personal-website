@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Plus_Jakarta_Sans, Source_Serif_4 } from 'next/font/google';
 import { getSettings, setting, settingBool, socialLinks } from '@/lib/settings';
-import { jsonForScript, safeColor, siteOrigin } from '@/lib/utils';
+import { jsonForScript, safeColor, siteOrigin, toneHues } from '@/lib/utils';
 import '@/styles/site.css';
 
 const sans = Plus_Jakarta_Sans({
@@ -85,7 +85,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en" data-default-mode={setting(s, 'default_mode', 'light')} className={`${sans.variable} ${serif.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-        <style dangerouslySetInnerHTML={{ __html: `:root{--accent:${accent};--accent-alt:${accentAlt};}` }} />
+        <style dangerouslySetInnerHTML={{ __html:
+          `:root{--accent:${accent};--accent-alt:${accentAlt};`
+          + toneHues(accent).map((h, i) => `--h${i + 1}:${h};`).join('')
+          + `}` }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonForScript(personSchema) }}

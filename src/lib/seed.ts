@@ -106,7 +106,7 @@ const MENUS: [string, string, 'page' | 'section', boolean, boolean, boolean, num
   ['projects-section', 'Featured projects', 'section', false, true, false, 160, 'Highlighted portfolio items.'],
   ['certifications', 'Certifications', 'section', false, true, false, 170, 'Credentials and awards.'],
   ['testimonials', 'Testimonials', 'section', false, false, false, 180, 'Turn on once you have added real quotes.'],
-  ['blog-section', 'Latest notes', 'section', false, true, false, 190, 'Most recent published posts.'],
+  ['blog-section', 'Blogs and Articles', 'section', false, true, false, 190, 'Most recent published posts.'],
   ['contact-section', 'Let us talk', 'section', false, true, false, 200, 'Contact form on the home page.'],
   ['newsletter', 'Newsletter signup', 'section', false, true, false, 210, 'Email capture above the footer.'],
 ];

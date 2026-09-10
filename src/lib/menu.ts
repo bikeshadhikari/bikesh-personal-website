@@ -33,9 +33,27 @@ const LATER_ADDITIONS: Pick<MenuItem, 'slug' | 'label' | 'kind' | 'description' 
     description: 'Photo gallery that arranges itself.', sort_order: 65 },
 ];
 
+/**
+ * Labels that were renamed after the first release. The old wording is only
+ * replaced when it is still exactly what shipped, so a label the owner has
+ * edited themselves is never overwritten.
+ */
+const RENAMES: { slug: string; from: string; to: string }[] = [
+  { slug: 'blog-section', from: 'Latest notes', to: 'Blogs and Articles' },
+];
+
 export const getMenus = cache(async (): Promise<MenuItem[]> => {
   try {
-    const rows = await sql<MenuItem[]>`SELECT * FROM menus ORDER BY sort_order ASC, id ASC`;
+    let rows = await sql<MenuItem[]>`SELECT * FROM menus ORDER BY sort_order ASC, id ASC`;
+
+    const stale = RENAMES.filter((r) => rows.some((m) => m.slug === r.slug && m.label === r.from));
+    if (stale.length > 0) {
+      for (const r of stale) {
+        await sql`UPDATE menus SET label = ${r.to} WHERE slug = ${r.slug} AND label = ${r.from}`;
+      }
+      rows = await sql<MenuItem[]>`SELECT * FROM menus ORDER BY sort_order ASC, id ASC`;
+    }
+
     const known = new Set(rows.map((m) => m.slug));
     const missing = LATER_ADDITIONS.filter((m) => !known.has(m.slug));
     if (missing.length === 0) return rows;

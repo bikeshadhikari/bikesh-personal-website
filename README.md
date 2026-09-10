@@ -17,10 +17,20 @@ no UI framework and no CSS framework, so the markup stays readable and the pages
 - Standalone pages for About, Experience, Services, Projects, Gallery and Contact.
 - A gallery that arranges photos of any shape into columns, keeping each picture
   at its own proportions and revealing its title along the bottom on hover.
+- Services, projects and posts sit three to a row and keep that width even when
+  there is only one of them.
 - A blog with categories, tags, search, pagination, related posts, share buttons,
   reading time, view counts and moderated comments.
 - Contact form and newsletter signup that save to the database.
 - Light and dark themes, respecting the visitor's device setting.
+- A five-colour palette rotated off the accent chosen in Settings, so each
+  section, card, tag and nav item carries its own colour and the page reads as
+  a palette rather than one colour repeated. Change the accent and all five
+  move with it.
+- Movement that stays out of the way: cards lift and light a coloured edge,
+  grids assemble one item after another as they scroll in, numbers count up,
+  skill bars fill, and the backdrop drifts. All of it stops for a visitor who
+  has asked for reduced motion.
 - `sitemap.xml`, `robots.txt`, an RSS feed, Open Graph tags and Person structured data.
 - A share picture generated for every blog post, so a link posted to Facebook,
   LinkedIn, X or WhatsApp arrives as a card with the title on it. A cover image

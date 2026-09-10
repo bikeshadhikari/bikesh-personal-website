@@ -153,6 +153,52 @@ export function safeColor(value: string, fallback: string): string {
   return /^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(trimmed) ? trimmed : fallback;
 }
 
+/** The hue of a hex colour, 0-359. Grey and black land on a usable blue. */
+export function hueOf(hex: string): number {
+  const raw = hex.replace('#', '');
+  const full = raw.length === 3 ? raw.split('').map((c) => c + c).join('') : raw.slice(0, 6);
+  const r = parseInt(full.slice(0, 2), 16) / 255;
+  const g = parseInt(full.slice(2, 4), 16) / 255;
+  const b = parseInt(full.slice(4, 6), 16) / 255;
+  if ([r, g, b].some(Number.isNaN)) return 222;
+
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const span = max - min;
+  if (span === 0) return 222;
+
+  let h: number;
+  if (max === r) h = ((g - b) / span) % 6;
+  else if (max === g) h = (b - r) / span + 2;
+  else h = (r - g) / span + 4;
+
+  return Math.round(((h * 60) % 360 + 360) % 360);
+}
+
+/**
+ * Five hues that sit in a pleasant relationship with the chosen accent, used
+ * to tint sections, cards and icons so the page reads as a palette rather than
+ * one colour repeated. Rotating the accent's own hue means whatever the owner
+ * picks in Settings, the rest of the page still agrees with it.
+ *
+ * Only the hue travels: saturation and lightness are set in the stylesheet, so
+ * the same five hues can be bright on a dark background and deep on a light one.
+ */
+export function toneHues(accent: string): number[] {
+  const base = hueOf(accent);
+  return [0, 42, 150, 205, 310].map((step) => usableHue((base + step) % 360));
+}
+
+/**
+ * Hues between roughly 45 and 95 are the olive and mustard band: at the
+ * lightness the rest of the ramp uses they read as dirty rather than as a
+ * colour. Anything landing there is nudged to the nearest side of it.
+ */
+function usableHue(h: number): number {
+  if (h < 45 || h > 95) return h;
+  return h < 70 ? 42 : 100;
+}
+
 /**
  * Allow a single map <iframe> and nothing else: no event handlers, no
  * javascript: URLs, and only attributes an embed actually needs.

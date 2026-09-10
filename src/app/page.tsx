@@ -203,7 +203,7 @@ export default async function HomePage() {
           <div className="container">
             <SectionHead
               eyebrow="Writing"
-              heading={await menuLabel('blog-section', 'Latest notes')}
+              heading={await menuLabel('blog-section', 'Blogs and Articles')}
               sub={setting(s, 'blog_intro')}
             />
             <div className="cards-grid posts-grid">
