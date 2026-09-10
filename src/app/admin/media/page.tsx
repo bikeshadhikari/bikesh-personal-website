@@ -7,12 +7,12 @@ export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Media library' };
 
 export default async function MediaPage() {
-  // listMedia never throws: a storage outage shows a message, not an error page.
-  const { items, error } = await listMedia();
+  const ready = blobConfigured();
+  const files = ready ? await listMedia() : [];
 
   return (
     <Shell title="Media library" current="media">
-      <MediaManager files={items} ready={blobConfigured()} error={error} />
+      <MediaManager files={files} ready={ready} />
     </Shell>
   );
 }

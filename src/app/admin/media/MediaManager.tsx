@@ -1,9 +1,7 @@
 'use client';
 
-import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-import { uploadToBlob } from '@/lib/client-upload';
-import { mediaDeleteAction, refreshMediaAction } from '../actions';
+import { useActionState, useState } from 'react';
+import { mediaDeleteAction, mediaUploadAction, type FormState } from '../actions';
 import { ConfirmButton } from '@/components/admin/ShellClient';
 import Icon from '@/components/Icon';
 import type { MediaItem } from '@/lib/upload';
@@ -33,44 +31,9 @@ function CopyButton({ url }: { url: string }) {
   );
 }
 
-export default function MediaManager({
-  files, ready, error,
-}: { files: MediaItem[]; ready: boolean; error: string | null }) {
-  const router = useRouter();
-  const [, startTransition] = useTransition();
-  const [folder, setFolder] = useState('media');
-  const [busy, setBusy] = useState<string | null>(null);
-  const [progress, setProgress] = useState(0);
-  const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
-
+export default function MediaManager({ files, ready }: { files: MediaItem[]; ready: boolean }) {
+  const [state, action, pending] = useActionState<FormState, FormData>(mediaUploadAction, null);
   const total = files.reduce((sum, f) => sum + f.size, 0);
-
-  async function uploadFiles(list: FileList | null) {
-    if (!list || list.length === 0) return;
-    setMessage(null);
-
-    for (const file of Array.from(list)) {
-      setBusy(file.name);
-      setProgress(0);
-      try {
-        await uploadToBlob(folder, file, setProgress);
-      } catch (err) {
-        setBusy(null);
-        setMessage({
-          ok: false,
-          text: err instanceof Error ? err.message : `Could not upload ${file.name}.`,
-        });
-        return;
-      }
-    }
-
-    setBusy(null);
-    setMessage({ ok: true, text: list.length === 1 ? 'File uploaded.' : `${list.length} files uploaded.` });
-    startTransition(async () => {
-      await refreshMediaAction();
-      router.refresh();
-    });
-  }
 
   return (
     <>
@@ -83,12 +46,6 @@ export default function MediaManager({
           </p>
         </div>
       </div>
-
-      {error && (
-        <div className="alert alert-error">
-          Could not reach file storage: {error}
-        </div>
-      )}
 
       {!ready ? (
         <div className="panel panel-notice">
@@ -104,26 +61,18 @@ export default function MediaManager({
         </div>
       ) : (
         <>
-          {message && (
-            <div className={`alert alert-${message.ok ? 'success' : 'error'}`}>{message.text}</div>
-          )}
+          {state && <div className={`alert alert-${state.ok ? 'success' : 'error'}`}>{state.message}</div>}
 
-          <div className="form-panel upload-panel">
+          <form className="form-panel upload-panel" action={action}>
             <div className="field-grid">
               <div className="field field-half">
-                <label htmlFor="m-file">Upload files</label>
-                <input
-                  type="file" id="m-file" multiple disabled={Boolean(busy)}
-                  onChange={(e) => { void uploadFiles(e.target.files); e.target.value = ''; }}
-                />
-                <p className="field-hint">
-                  Images, PDFs and documents up to 10 MB each. They upload as soon as you choose
-                  them — there is no separate button.
-                </p>
+                <label htmlFor="m-file">Upload a file</label>
+                <input type="file" id="m-file" name="file" required />
+                <p className="field-hint">Images, PDFs and documents up to 5 MB.</p>
               </div>
               <div className="field field-half">
-                <label htmlFor="m-folder">Put them in</label>
-                <select id="m-folder" value={folder} onChange={(e) => setFolder(e.target.value)}>
+                <label htmlFor="m-folder">Put it in</label>
+                <select id="m-folder" name="folder" defaultValue="media">
                   <option value="media">General</option>
                   <option value="posts">Blog covers</option>
                   <option value="projects">Project images</option>
@@ -132,14 +81,10 @@ export default function MediaManager({
                 </select>
               </div>
             </div>
-
-            {busy && (
-              <div className="upload-progress" role="status">
-                <span className="upload-bar"><span style={{ width: `${progress}%` }} /></span>
-                <span>{progress}% · {busy}</span>
-              </div>
-            )}
-          </div>
+            <button className="btn btn-primary" type="submit" disabled={pending}>
+              {pending ? 'Uploading…' : 'Upload'}
+            </button>
+          </form>
 
           {files.length === 0 ? (
             <div className="empty-panel">
@@ -160,9 +105,7 @@ export default function MediaManager({
                     </div>
                     <figcaption>
                       <strong title={file.pathname}>{file.pathname.split('/').pop()}</strong>
-                      <small>
-                        {humanSize(file.size)} · {new Date(file.uploadedAt).toLocaleDateString('en-GB')}
-                      </small>
+                      <small>{humanSize(file.size)} · {file.uploadedAt.toLocaleDateString('en-GB')}</small>
                       <div className="media-actions">
                         <CopyButton url={file.url} />
                         <a className="btn btn-ghost btn-xs" href={file.url} target="_blank" rel="noopener noreferrer">Open</a>

@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Plus_Jakarta_Sans, Source_Serif_4 } from 'next/font/google';
-import { getSettings, setting, settingBool, socialLinks } from '@/lib/settings';
+import { getSettings, setting, socialLinks } from '@/lib/settings';
 import { jsonForScript, safeColor } from '@/lib/utils';
 import '@/styles/site.css';
 
@@ -23,8 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const title = setting(s, 'meta_title', setting(s, 'site_name', 'Portfolio'));
   const description = setting(s, 'meta_description');
   const ogImage = setting(s, 'og_image', '/og-default.png');
-  // A holding page must never be indexed as the site's real content.
-  const indexable = setting(s, 'search_indexing', '1') === '1' && !settingBool(s, 'maintenance_mode');
+  const indexable = setting(s, 'search_indexing', '1') === '1';
 
   return {
     metadataBase: new URL(siteUrl),

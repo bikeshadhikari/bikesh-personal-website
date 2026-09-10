@@ -3,11 +3,6 @@ import type { NextConfig } from 'next';
 const config: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
-  // Forms post only text now — files go straight from the browser to Blob —
-  // but a generous limit keeps a long article body from being rejected.
-  experimental: {
-    serverActions: { bodySizeLimit: '4mb' },
-  },
   images: {
     // Uploaded media lives on Vercel Blob; anything else can be pasted as a URL.
     remotePatterns: [{ protocol: 'https', hostname: '**.public.blob.vercel-storage.com' }],
