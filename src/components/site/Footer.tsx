@@ -14,12 +14,23 @@ export default async function Footer() {
     menuEnabled('newsletter'),
   ]);
 
-  const socials = socialLinks(s);
-  const categories = blogOn ? (await getCategories()).slice(0, 5) : [];
+  const socials = settingBool(s, 'footer_show_social', true) ? socialLinks(s) : [];
+  const showTopics = blogOn && settingBool(s, 'footer_show_topics', true);
+  const categories = showTopics ? (await getCategories()).slice(0, 5) : [];
   const email = setting(s, 'contact_email');
   const phone = setting(s, 'contact_phone');
   const location = setting(s, 'contact_location');
   const showNewsletter = newsletterOn && settingBool(s, 'newsletter_enabled', true);
+  const showLinks = settingBool(s, 'footer_show_links', true);
+  const showContact = settingBool(s, 'footer_show_contact', true) && Boolean(email || phone || location);
+  const name = setting(s, 'full_name', setting(s, 'site_name'));
+
+  // The copyright line is a template so it can be rewritten from the dashboard
+  // without losing the year, which has to stay current.
+  const year = String(new Date().getFullYear());
+  const copyright = setting(s, 'footer_copyright')
+    ? setting(s, 'footer_copyright').replace(/\{year\}/g, year).replace(/\{name\}/g, name)
+    : `\u00a9 ${year} ${name}. All rights reserved.`;
 
   return (
     <>
@@ -29,9 +40,9 @@ export default async function Footer() {
         <div className="container footer-grid">
           <div className="footer-about">
             <span className="brand-mark" aria-hidden="true">{setting(s, 'full_name', 'B').charAt(0)}</span>
-            <h3>{setting(s, 'full_name', setting(s, 'site_name'))}</h3>
-            <p>{setting(s, 'site_tagline')}</p>
-            {(socials.length > 0 || blogOn) && (
+            <h3>{name}</h3>
+            <p>{setting(s, 'footer_about') || setting(s, 'site_tagline')}</p>
+            {(socials.length > 0 || (blogOn && settingBool(s, 'footer_show_social', true))) && (
               <ul className="social-list">
                 {socials.map((social) => (
                   <li key={social.key}>
@@ -40,25 +51,27 @@ export default async function Footer() {
                     </a>
                   </li>
                 ))}
-                {blogOn && (
+                {blogOn && settingBool(s, 'footer_show_social', true) && (
                   <li><a href="/feed.xml" aria-label="RSS feed"><Icon name="rss" /></a></li>
                 )}
               </ul>
             )}
           </div>
 
-          <div className="footer-links">
-            <h4>Explore</h4>
-            <ul>
-              {items.map((item) => (
-                <li key={item.id}><Link href={menuHref(item)}>{item.label}</Link></li>
-              ))}
-            </ul>
-          </div>
+          {showLinks && items.length > 0 && (
+            <div className="footer-links">
+              <h4>{setting(s, 'footer_links_title', 'Explore')}</h4>
+              <ul>
+                {items.map((item) => (
+                  <li key={item.id}><Link href={menuHref(item)}>{item.label}</Link></li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {categories.length > 0 && (
             <div className="footer-links">
-              <h4>Topics</h4>
+              <h4>{setting(s, 'footer_topics_title', 'Topics')}</h4>
               <ul>
                 {categories.map((c) => (
                   <li key={c.id}><Link href={`/blog/category/${c.slug}`}>{c.name}</Link></li>
@@ -67,8 +80,9 @@ export default async function Footer() {
             </div>
           )}
 
+          {showContact && (
           <div className="footer-contact">
-            <h4>Reach me</h4>
+            <h4>{setting(s, 'footer_contact_title', 'Reach me')}</h4>
             <ul>
               {email && (
                 <li><Icon name="mail" className="icon icon-sm" /><a href={`mailto:${email}`}>{email}</a></li>
@@ -81,11 +95,14 @@ export default async function Footer() {
               )}
             </ul>
           </div>
+          )}
         </div>
 
         <div className="container footer-bottom">
-          <p>&copy; {new Date().getFullYear()} {setting(s, 'full_name', setting(s, 'site_name'))}. All rights reserved.</p>
-          <p className="footer-note">{setting(s, 'footer_note')}</p>
+          <p>{copyright}</p>
+          {setting(s, 'footer_note') && (
+            <p className="footer-note">{setting(s, 'footer_note')}</p>
+          )}
         </div>
       </footer>
     </>

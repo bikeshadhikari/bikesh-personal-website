@@ -28,16 +28,22 @@ no UI framework and no CSS framework, so the markup stays readable and the pages
   a palette rather than one colour repeated. Change the accent and all five
   move with it.
 - Movement that stays out of the way: cards lift and light a coloured edge,
-  grids assemble one item after another as they scroll in, numbers count up,
-  skill bars fill, and the backdrop drifts. All of it stops for a visitor who
-  has asked for reduced motion.
+  a soft highlight follows the pointer across them, hovering moves an item one
+  place along the palette and the colour glides rather than snaps, grids
+  assemble one item after another as they scroll in, numbers count up, and the
+  backdrop drifts. All of it stops for a visitor who has asked for reduced
+  motion, and the pointer highlight never runs on a touch screen.
+- On a phone the headline sits above the photo, so the page says what it is
+  before anything else.
 - `sitemap.xml`, `robots.txt`, an RSS feed, Open Graph tags and Person structured data.
 - A share picture generated for every blog post, so a link posted to Facebook,
   LinkedIn, X or WhatsApp arrives as a card with the title on it. A cover image
   on the post is used when there is one; otherwise the card is drawn on demand.
 - A drifting abstract backdrop behind every page, drawn in CSS rather than
   loaded as an image, and switched off for anyone who asks for reduced motion.
-- Favicon, apple-touch icon and web app manifest included.
+- The browser-tab icon is drawn on request in the accent colour chosen in
+  Settings, so the tab matches the site. Uploading a favicon replaces it.
+- Apple-touch icon and web app manifest included.
 
 **Dashboard** (`/admin`)
 - **Menus & sections** — one switch per page and per home-page block. Switching
@@ -58,6 +64,9 @@ no UI framework and no CSS framework, so the markup stays readable and the pages
   testimonials, gallery photos, categories, menus and the settings themselves, so
   you can find, say, the favicon without remembering which screen it is on.
 - **Messages** and **subscribers**, with CSV export.
+- **Footer** — the introduction, each column heading, which of the three
+  columns appear, the social icons, and the copyright line, which takes
+  `{year}` and `{name}` so it stays current.
 - **Settings** — site identity, favicon upload, contact details, social links,
   SEO, accent colours, blog rules and maintenance mode. While maintenance mode
   is on you keep browsing the real site, with a banner across the top reminding
@@ -128,6 +137,7 @@ src/
       menus|profile|settings|messages|comments|subscribers|media|users|account/
       search/             Dashboard-wide search
     sitemap.ts robots.ts manifest.ts feed.xml/
+    icon.svg/             Tab icon drawn in the accent colour
   components/
     site/                 Header, footer, hero, blocks, backdrop, gallery, forms
     admin/                Shell, resource list, resource form, field, editor

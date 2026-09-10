@@ -69,6 +69,11 @@ export default async function Hero() {
         </div>
 
         <div className="hero-media">
+          {/* On a narrow screen the picture comes first, so the headline sits
+              above it and says what the page is about before anything else. */}
+          {setting(s, 'headline') && (
+            <p className="hero-tagline">{setting(s, 'headline')}</p>
+          )}
           <div className={`hero-photo${photo ? '' : ' is-placeholder'}`}>
             {photo ? (
               // eslint-disable-next-line @next/next/no-img-element

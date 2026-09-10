@@ -97,7 +97,9 @@ Sign in at `https://bikeshadhikari.com.np/admin` and work through, in order:
 2. **Experience pipeline** — correct the roles, organisations and dates. The
    seeded entries were assembled from your public profiles and are a starting
    point only, not verified facts.
-3. **Settings** — contact details, social links, favicon, accent colour.
+3. **Settings** — contact details, social links, accent colour, and the footer.
+   The browser-tab icon is drawn in your accent colour automatically, so there
+   is nothing to upload unless you want your own.
 4. **Menus & sections** — switch off anything you are not ready to show. The
    Gallery ships switched on but empty, so either add photos or switch it off.
 5. **Gallery** — upload your photos. Shape and size do not matter; each one keeps

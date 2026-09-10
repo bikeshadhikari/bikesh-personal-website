@@ -34,8 +34,10 @@ export async function generateMetadata(): Promise<Metadata> {
     authors: [{ name: setting(s, 'full_name', setting(s, 'site_name')) }],
     robots: indexable ? { index: true, follow: true } : { index: false, follow: false },
     icons: {
-      icon: setting(s, 'favicon') || '/favicon.svg',
-      apple: '/apple-touch-icon.png',
+      // /icon.svg is drawn on the fly in the accent colour; an uploaded
+      // favicon replaces it.
+      icon: setting(s, 'favicon') || '/icon.svg',
+      apple: setting(s, 'favicon') || '/apple-touch-icon.png',
     },
     manifest: '/manifest.webmanifest',
     openGraph: {

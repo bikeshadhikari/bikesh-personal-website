@@ -18,8 +18,30 @@ const GROUPS: SettingsGroup[] = [
       site_tagline: { type: 'text', label: 'Tagline', full: true },
       logo_text: { type: 'text', label: 'Logo text', hint: 'Shown when no logo image is set.' },
       logo_image: { type: 'image', label: 'Logo image', folder: 'site', hint: 'Replaces the text logo. Around 200×60 pixels.' },
-      favicon: { type: 'image', label: 'Favicon', folder: 'site', hint: 'The small browser-tab icon. A square PNG, SVG or .ico, 64×64 or larger. Leave empty to use the built-in one.' },
-      footer_note: { type: 'text', label: 'Footer note', full: true },
+      favicon: { type: 'image', label: 'Favicon', folder: 'site', hint: 'The small browser-tab icon. A square PNG, SVG or .ico, 64×64 or larger. Leave empty for one drawn in your accent colour.' },
+    },
+  },
+  {
+    key: 'footer',
+    title: 'Footer',
+    note: 'Everything along the bottom of every page.',
+    fields: {
+      footer_about: {
+        type: 'textarea', label: 'Footer introduction', rows: 2, full: true,
+        hint: 'The short paragraph under your name. Leave empty to use the site tagline.',
+      },
+      footer_links_title: { type: 'text', label: 'Heading over the page links', default: 'Explore' },
+      footer_topics_title: { type: 'text', label: 'Heading over the blog topics', default: 'Topics' },
+      footer_contact_title: { type: 'text', label: 'Heading over your contact details', default: 'Reach me' },
+      footer_show_links: { type: 'checkbox', label: 'Show the page links', default: true },
+      footer_show_topics: { type: 'checkbox', label: 'Show the blog topics', default: true },
+      footer_show_contact: { type: 'checkbox', label: 'Show your contact details', default: true },
+      footer_show_social: { type: 'checkbox', label: 'Show the social icons', default: true },
+      footer_copyright: {
+        type: 'text', label: 'Copyright line', full: true,
+        hint: 'Write {year} where the current year should go, and {name} for your name. Leave empty for the standard line.',
+      },
+      footer_note: { type: 'text', label: 'Footer note', full: true, hint: 'A last line under the copyright.' },
     },
   },
   {

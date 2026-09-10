@@ -79,6 +79,12 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
+@property --tone {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #2563eb;
+}
+
 /* Declared on every element so each one mixes from the --tone it inherits.
    Set once on :root they would resolve there and inherit already-mixed. */
 *, *::before, *::after {
@@ -400,21 +406,29 @@ ul, ol { margin: 0 0 1rem; padding-left: 1.2rem; }
 
 .hero-media { position: relative; justify-self: center; width: 100%; max-width: 420px; }
 .hero-photo {
+  --tone: var(--tone-1);
   position: relative; border-radius: var(--radius-lg); overflow: hidden;
   border: 1px solid var(--border); background: var(--bg-inset); box-shadow: var(--shadow-lg);
   aspect-ratio: 4 / 5;
+  transition: transform .4s cubic-bezier(.22, 1, .36, 1), box-shadow .4s ease,
+              border-color .4s ease, --tone .55s ease;
 }
-/* A slow band of colour that travels around the frame. */
+/* Pointing at the picture warms it: it lifts, the border moves to the next
+   colour along and a wash of that colour crosses the image. */
+.hero-photo:hover {
+  --tone: var(--tone-3);
+  transform: translateY(-6px) scale(1.012);
+  border-color: var(--tone);
+  box-shadow: var(--shadow-lg), 0 28px 60px -30px var(--tone);
+}
 .hero-photo::after {
-  content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 2px;
-  background: conic-gradient(from 0deg, var(--tone-1), var(--tone-2), var(--tone-3), var(--tone-5), var(--tone-1));
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor; mask-composite: exclude;
-  opacity: .55; animation: frame-turn 18s linear infinite; pointer-events: none;
+  content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background: linear-gradient(150deg, var(--tone-wash), transparent 45%,
+              color-mix(in srgb, var(--tone) 20%, transparent));
+  opacity: 0; transition: opacity .45s ease;
+  z-index: 1;
 }
-@keyframes frame-turn { to { transform: rotate(1turn); } }
-@media (prefers-reduced-motion: reduce) { .hero-photo::after { animation: none; } }
-
+.hero-photo:hover::after { opacity: 1; }
 /* Until a photo is uploaded the frame carries colour of its own rather than
    sitting there as an empty grey box. */
 .hero-photo.is-placeholder {
@@ -433,7 +447,11 @@ ul, ol { margin: 0 0 1rem; padding-left: 1.2rem; }
   -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, #000, transparent 75%);
 }
 .hero-photo.is-placeholder > * { position: relative; }
-.hero-photo img { width: 100%; height: 100%; object-fit: cover; }
+.hero-photo img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform .6s cubic-bezier(.22, 1, .36, 1);
+}
+.hero-photo:hover img { transform: scale(1.05); }
 .hero-photo.is-placeholder { display: grid; place-content: center; gap: .75rem; text-align: center; padding: 2rem; }
 .photo-initial {
   font-size: 5rem; font-weight: 800; line-height: 1;
@@ -447,13 +465,39 @@ ul, ol { margin: 0 0 1rem; padding-left: 1.2rem; }
   background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius);
   padding: .8rem 1.1rem; box-shadow: var(--shadow-lg); text-align: center; min-width: 118px;
 }
-.hero-badge strong { display: block; font-size: 1.5rem; color: var(--accent); line-height: 1.1; }
+.hero-badge strong { display: block; font-size: 1.5rem; color: var(--tone); line-height: 1.1; }
 .hero-badge span { font-size: .74rem; color: var(--text-muted); font-weight: 600; }
+.hero-badge {
+  --tone: var(--tone-1);
+  cursor: default;
+  transition: transform .3s cubic-bezier(.22, 1, .36, 1), box-shadow .3s ease,
+              border-color .3s ease, --tone .5s ease;
+}
+.hero-badge strong { transition: color .45s ease; }
+.hero-badge:hover {
+  --tone: var(--tone-3);
+  transform: translateY(-4px) scale(1.05) rotate(-2deg);
+  border-color: var(--tone);
+  box-shadow: var(--shadow-md), 0 16px 34px -18px var(--tone);
+}
+
+/* The headline belongs to the copy on a wide screen, where it would repeat the
+   rotating roles line, so it only appears once the picture moves to the top. */
+.hero-tagline { display: none; }
 
 @media (max-width: 880px) {
   .hero-inner { grid-template-columns: 1fr; }
-  .hero-media { order: -1; max-width: 300px; }
+  .hero-media { order: -1; max-width: 320px; }
   .hero-badge { right: -8px; bottom: 12px; }
+
+  /* The owner's own wording, so it keeps the capitalisation they typed. */
+  .hero-tagline {
+    display: block; margin: 0 0 .9rem; text-align: center;
+    font-size: .88rem; font-weight: 700; line-height: 1.5;
+    letter-spacing: .01em;
+    background: linear-gradient(90deg, var(--tone-1), var(--tone-2) 45%, var(--tone-3));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
 }
 
 /* --- page hero ----------------------------------------------------------- */
@@ -523,6 +567,17 @@ ul, ol { margin: 0 0 1rem; padding-left: 1.2rem; }
 }
 .about-facts h3 { font-size: .8rem; text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted); }
 .about-facts dl { margin: 0; display: grid; gap: .9rem; }
+.about-facts dt {
+  transition: color .35s ease, --tone .45s ease;
+}
+.about-facts > dl > div:nth-child(5n + 1) { --tone: var(--tone-1); }
+.about-facts > dl > div:nth-child(5n + 2) { --tone: var(--tone-2); }
+.about-facts > dl > div:nth-child(5n + 3) { --tone: var(--tone-3); }
+.about-facts > dl > div:nth-child(5n + 4) { --tone: var(--tone-4); }
+.about-facts > dl > div:nth-child(5n + 5) { --tone: var(--tone-5); }
+.about-facts > dl > div:hover dt { color: var(--tone); }
+.about-facts dt svg { transition: color .35s ease, transform .3s cubic-bezier(.22, 1, .36, 1); }
+.about-facts > dl > div:hover dt svg { color: var(--tone); transform: scale(1.15) rotate(-8deg); }
 .about-facts dt { display: flex; align-items: center; gap: .45rem; font-size: .78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; }
 .about-facts dd { margin: .15rem 0 0; font-weight: 600; color: var(--text); word-break: break-word; }
 
@@ -633,6 +688,48 @@ a.chip:hover { text-decoration: none; filter: brightness(1.06); }
 .cards-grid > *:nth-child(5n + 5), .highlights-grid > *:nth-child(5n + 5),
 .cert-list > li:nth-child(5n + 5), .process-list > li:nth-child(5n + 5),
 .skills-grid > *:nth-child(5n + 5), .masonry > *:nth-child(5n + 5) { --tone: var(--tone-5); }
+
+/* The highlight that follows the pointer. PointerGlow writes --px and --py;
+   with no script it simply never lights, which costs nothing. */
+.card, .highlight-card, .cert-item, .skill-group, .side-box, .about-facts, .hero-photo {
+  --px: 50%; --py: 50%;
+}
+.card::before, .highlight-card::after, .cert-item::before,
+.skill-group::before, .side-box::before, .about-facts::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background: radial-gradient(20rem 20rem at var(--px) var(--py), var(--tone-wash), transparent 68%);
+  opacity: 0; transition: opacity .35s ease;
+}
+.is-lit::before, .highlight-card.is-lit::after { opacity: 1; }
+.cert-item, .skill-group, .side-box, .about-facts { position: relative; }
+.card > *, .cert-item > *, .skill-group > *, .side-box > *, .about-facts > * { position: relative; z-index: 1; }
+
+/* Hovering an item moves it one place along the ramp, and the colour glides
+   there rather than snapping, because --tone is a registered property. Every
+   piece of the item that reads --tone travels with it: the edge bar, the icon,
+   the links, the border and the glow. */
+.cards-grid > *, .highlights-grid > *, .cert-list > li,
+.process-list > li, .skills-grid > *, .masonry > *,
+.card-icon, .cert-icon, .highlight-icon, .step-num, .quote-mark {
+  transition-property: transform, box-shadow, border-color, background-color, color, --tone;
+  transition-duration: .3s;
+  transition-timing-function: cubic-bezier(.22, 1, .36, 1);
+}
+.cards-grid > *:nth-child(5n + 1):hover, .highlights-grid > *:nth-child(5n + 1):hover,
+.cert-list > li:nth-child(5n + 1):hover, .process-list > li:nth-child(5n + 1):hover,
+.skills-grid > *:nth-child(5n + 1):hover, .masonry > *:nth-child(5n + 1):hover { --tone: var(--tone-2); }
+.cards-grid > *:nth-child(5n + 2):hover, .highlights-grid > *:nth-child(5n + 2):hover,
+.cert-list > li:nth-child(5n + 2):hover, .process-list > li:nth-child(5n + 2):hover,
+.skills-grid > *:nth-child(5n + 2):hover, .masonry > *:nth-child(5n + 2):hover { --tone: var(--tone-3); }
+.cards-grid > *:nth-child(5n + 3):hover, .highlights-grid > *:nth-child(5n + 3):hover,
+.cert-list > li:nth-child(5n + 3):hover, .process-list > li:nth-child(5n + 3):hover,
+.skills-grid > *:nth-child(5n + 3):hover, .masonry > *:nth-child(5n + 3):hover { --tone: var(--tone-4); }
+.cards-grid > *:nth-child(5n + 4):hover, .highlights-grid > *:nth-child(5n + 4):hover,
+.cert-list > li:nth-child(5n + 4):hover, .process-list > li:nth-child(5n + 4):hover,
+.skills-grid > *:nth-child(5n + 4):hover, .masonry > *:nth-child(5n + 4):hover { --tone: var(--tone-5); }
+.cards-grid > *:nth-child(5n + 5):hover, .highlights-grid > *:nth-child(5n + 5):hover,
+.cert-list > li:nth-child(5n + 5):hover, .process-list > li:nth-child(5n + 5):hover,
+.skills-grid > *:nth-child(5n + 5):hover, .masonry > *:nth-child(5n + 5):hover { --tone: var(--tone-1); }
 
 /* Three to a row, always. Fixed tracks rather than auto-fit so a section with
    a single service or a single post gives it a card's width instead of
@@ -762,7 +859,13 @@ a.chip:hover { text-decoration: none; filter: brightness(1.06); }
 .side-list a {
   display: flex; justify-content: space-between; align-items: center; gap: .5rem;
   padding: .5rem .65rem; border-radius: var(--radius-sm); color: var(--text-soft); font-weight: 600; font-size: .92rem;
+  transition: background-color .3s ease, color .3s ease, --tone .45s ease;
 }
+.side-list li:nth-child(5n + 1) a { --tone: var(--tone-1); }
+.side-list li:nth-child(5n + 2) a { --tone: var(--tone-2); }
+.side-list li:nth-child(5n + 3) a { --tone: var(--tone-3); }
+.side-list li:nth-child(5n + 4) a { --tone: var(--tone-4); }
+.side-list li:nth-child(5n + 5) a { --tone: var(--tone-5); }
 .side-list a:hover, .side-list a.is-active { background: var(--tone-wash); color: var(--tone); text-decoration: none; }
 .side-list span { font-size: .78rem; color: var(--text-muted); background: var(--bg-inset); padding: .1rem .45rem; border-radius: 999px; }
 .side-cta p { font-size: .9rem; color: var(--text-soft); }
@@ -953,7 +1056,11 @@ a.chip:hover { text-decoration: none; filter: brightness(1.06); }
 .newsletter-form .form-note.is-ok { color: #16a34a; }
 
 .site-footer { background: var(--bg); border-top: 1px solid var(--border); padding-block: clamp(2.5rem, 5vw, 3.5rem) 1.5rem; }
-.footer-grid { display: grid; gap: 2rem; grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr)); }
+/* The three link columns can each be switched off in the dashboard, so the
+   grid sizes itself to whatever is left rather than holding empty tracks. */
+.footer-grid { display: grid; gap: 2rem; grid-template-columns: minmax(0, 1.6fr); grid-auto-columns: minmax(0, 1fr); grid-auto-flow: column; }
+@media (max-width: 860px) { .footer-grid { grid-auto-flow: row; grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .footer-grid { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 900px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 560px) { .footer-grid { grid-template-columns: 1fr; } }
 
@@ -1282,7 +1389,20 @@ a.chip:hover { text-decoration: none; filter: brightness(1.06); }
   transform: scale(1.16);
   box-shadow: 0 0 0 6px var(--tone-wash);
 }
-.timeline-dot { transition: transform .25s cubic-bezier(.22, 1, .36, 1), box-shadow .25s ease; }
+.timeline-dot { transition: transform .25s cubic-bezier(.22, 1, .36, 1), box-shadow .25s ease, background-color .4s ease; }
+.timeline-item { transition: --tone .45s ease; }
+.timeline-item:nth-child(5n + 1) { --tone: var(--tone-1); }
+.timeline-item:nth-child(5n + 2) { --tone: var(--tone-2); }
+.timeline-item:nth-child(5n + 3) { --tone: var(--tone-3); }
+.timeline-item:nth-child(5n + 4) { --tone: var(--tone-4); }
+.timeline-item:nth-child(5n + 5) { --tone: var(--tone-5); }
+.timeline-item:nth-child(5n + 1):hover { --tone: var(--tone-2); }
+.timeline-item:nth-child(5n + 2):hover { --tone: var(--tone-3); }
+.timeline-item:nth-child(5n + 3):hover { --tone: var(--tone-4); }
+.timeline-item:nth-child(5n + 4):hover { --tone: var(--tone-5); }
+.timeline-item:nth-child(5n + 5):hover { --tone: var(--tone-1); }
+.timeline-card { transition: transform .25s cubic-bezier(.22, 1, .36, 1), box-shadow .25s ease, border-color .4s ease; }
+.timeline-item:hover .timeline-card { border-color: var(--tone-line); box-shadow: var(--shadow-md), 0 16px 34px -22px var(--tone-glow); }
 
 .tech-list li, .tag-cloud a, .chip { transition: background .2s ease, color .2s ease, transform .2s ease; }
 .tech-list li:hover { background: var(--tone); color: #fff; transform: translateY(-2px); }
@@ -1298,7 +1418,12 @@ a.chip:hover { text-decoration: none; filter: brightness(1.06); }
 
 .site-nav a { transition: color .2s ease, background .2s ease; }
 .footer-links a, .footer-contact a { transition: color .2s ease, padding-left .2s ease; }
-.footer-links a:hover, .footer-contact a:hover { padding-left: 4px; }
+.footer-links li:nth-child(5n + 1) a, .footer-contact li:nth-child(5n + 1) a { --tone: var(--tone-1); }
+.footer-links li:nth-child(5n + 2) a, .footer-contact li:nth-child(5n + 2) a { --tone: var(--tone-2); }
+.footer-links li:nth-child(5n + 3) a, .footer-contact li:nth-child(5n + 3) a { --tone: var(--tone-3); }
+.footer-links li:nth-child(5n + 4) a, .footer-contact li:nth-child(5n + 4) a { --tone: var(--tone-4); }
+.footer-links li:nth-child(5n + 5) a, .footer-contact li:nth-child(5n + 5) a { --tone: var(--tone-5); }
+.footer-links a:hover, .footer-contact a:hover { padding-left: 6px; color: var(--tone); }
 
 .stars svg { transition: transform .25s ease; }
 .testimonial-card:hover .stars svg:nth-child(odd) { transform: translateY(-2px); }

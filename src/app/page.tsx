@@ -84,18 +84,19 @@ export default async function HomePage() {
               <aside className="about-facts">
                 <h3>At a glance</h3>
                 <dl>
+                  {/* Each pair is wrapped so a whole row can light up together. */}
                   {setting(s, 'contact_location') && (
-                    <><dt><Icon name="pin" className="icon icon-sm" /> Based in</dt><dd>{setting(s, 'contact_location')}</dd></>
+                    <div><dt><Icon name="pin" className="icon icon-sm" /> Based in</dt><dd>{setting(s, 'contact_location')}</dd></div>
                   )}
                   {setting(s, 'years_started') && (
-                    <><dt><Icon name="clock" className="icon icon-sm" /> Working since</dt><dd>{setting(s, 'years_started')}</dd></>
+                    <div><dt><Icon name="clock" className="icon icon-sm" /> Working since</dt><dd>{setting(s, 'years_started')}</dd></div>
                   )}
                   {setting(s, 'contact_email') && (
-                    <><dt><Icon name="mail" className="icon icon-sm" /> Email</dt>
-                      <dd><a href={`mailto:${setting(s, 'contact_email')}`}>{setting(s, 'contact_email')}</a></dd></>
+                    <div><dt><Icon name="mail" className="icon icon-sm" /> Email</dt>
+                      <dd><a href={`mailto:${setting(s, 'contact_email')}`}>{setting(s, 'contact_email')}</a></dd></div>
                   )}
                   {setting(s, 'availability') && (
-                    <><dt><Icon name="sparkle" className="icon icon-sm" /> Status</dt><dd>{setting(s, 'availability')}</dd></>
+                    <div><dt><Icon name="sparkle" className="icon icon-sm" /> Status</dt><dd>{setting(s, 'availability')}</dd></div>
                   )}
                 </dl>
               </aside>

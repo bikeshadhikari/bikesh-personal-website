@@ -3,6 +3,7 @@ import Header from './Header';
 import Footer from './Footer';
 import Reveal from './Reveal';
 import Backdrop from './Backdrop';
+import PointerGlow from './PointerGlow';
 import { currentUser } from '@/lib/auth';
 import { getSettings, setting, settingBool } from '@/lib/settings';
 
@@ -54,6 +55,7 @@ export default async function SiteShell({
       <main id="main">{children}</main>
       <Footer />
       <Reveal />
+      <PointerGlow />
     </div>
   );
 }
