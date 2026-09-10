@@ -1,14 +1,15 @@
-import { getSettings, setting, socialLinks } from '@/lib/settings';
+import { getSettings, setting, settingBool, socialLinks } from '@/lib/settings';
 import { telHref } from '@/lib/utils';
 import Icon from '../Icon';
 
 export default async function ContactDetails({ showSocial = false }: { showSocial?: boolean }) {
   const s = await getSettings();
-  const email = setting(s, 'contact_email');
-  const phone = setting(s, 'contact_phone');
-  const location = setting(s, 'contact_location');
-  const hours = setting(s, 'contact_hours');
-  const socials = socialLinks(s);
+  // Each line needs both a value and its switch under Settings → Contact page.
+  const email = settingBool(s, 'contact_show_email', true) ? setting(s, 'contact_email') : '';
+  const phone = settingBool(s, 'contact_show_phone', true) ? setting(s, 'contact_phone') : '';
+  const location = settingBool(s, 'contact_show_location', true) ? setting(s, 'contact_location') : '';
+  const hours = settingBool(s, 'contact_show_hours', true) ? setting(s, 'contact_hours') : '';
+  const socials = settingBool(s, 'contact_show_social', true) ? socialLinks(s) : [];
 
   return (
     <aside className="contact-aside">

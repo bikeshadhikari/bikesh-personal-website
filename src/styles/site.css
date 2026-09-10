@@ -968,6 +968,7 @@ a.chip:hover { text-decoration: none; filter: brightness(1.06); }
 
 /* --- forms --------------------------------------------------------------- */
 
+.contact-layout.is-details-only { grid-template-columns: minmax(0, 1fr); max-width: 640px; }
 .contact-layout { display: grid; gap: clamp(1.75rem, 4vw, 3rem); grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); align-items: start; }
 @media (max-width: 860px) { .contact-layout { grid-template-columns: 1fr; } }
 
@@ -1004,7 +1005,7 @@ a.chip:hover { text-decoration: none; filter: brightness(1.06); }
 
 .contact-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; }
 .contact-list li { display: flex; gap: .9rem; align-items: flex-start; }
-.contact-icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); flex: none; }
+.contact-icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: var(--tone-wash); color: var(--tone); flex: none; }
 .contact-list strong { display: block; font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); }
 .contact-list a, .contact-list span { color: var(--text); font-weight: 600; word-break: break-word; }
 .contact-social { margin-top: 2rem; }
@@ -1152,9 +1153,24 @@ a.chip:hover { text-decoration: none; filter: brightness(1.06); }
    Floating backdrop — CSS only, composited, and silent under reduced motion
    ========================================================================== */
 
+/* --mx and --my are written on the root element by PointerGlow: where the
+   pointer sits relative to the middle of the window, -1 to 1. They are read
+   with a fallback rather than declared here, because declaring them on
+   .backdrop would shadow the value coming down from the root. With no script
+   the fallback holds and the backdrop simply does not lean. */
 .backdrop {
   position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden;
   contain: strict;
+}
+.backdrop-parallax {
+  position: absolute; inset: -8%;
+  transform: translate3d(calc(var(--mx, 0) * 2.2%), calc(var(--my, 0) * 2.2%), 0);
+  transition: transform .9s cubic-bezier(.22, 1, .36, 1);
+}
+.backdrop-parallax-far {
+  position: absolute; inset: -12%;
+  transform: translate3d(calc(var(--mx, 0) * -4%), calc(var(--my, 0) * -4%), 0);
+  transition: transform 1.3s cubic-bezier(.22, 1, .36, 1);
 }
 
 .backdrop-orb {
@@ -1276,6 +1292,7 @@ a.chip:hover { text-decoration: none; filter: brightness(1.06); }
 
 @media (prefers-reduced-motion: reduce) {
   .backdrop-orb, .backdrop-glyph, .backdrop-shape { animation: none !important; }
+  .backdrop-parallax, .backdrop-parallax-far { transform: none; transition: none; }
 }
 
 /* Sections sit on the page background, so the backdrop reads through the gaps. */
@@ -1383,7 +1400,14 @@ a.chip:hover { text-decoration: none; filter: brightness(1.06); }
 .card-icon, .cert-icon, .contact-icon, .highlight-icon {
   transition: background .25s ease, color .25s ease, transform .3s cubic-bezier(.22, 1, .36, 1);
 }
-.contact-list li:hover .contact-icon { background: var(--tone); color: #fff; }
+.contact-list li { transition: --tone .45s ease, transform .25s cubic-bezier(.22, 1, .36, 1); }
+.contact-list li:nth-child(5n + 1) { --tone: var(--tone-1); }
+.contact-list li:nth-child(5n + 2) { --tone: var(--tone-2); }
+.contact-list li:nth-child(5n + 3) { --tone: var(--tone-3); }
+.contact-list li:nth-child(5n + 4) { --tone: var(--tone-4); }
+.contact-list li:nth-child(5n + 5) { --tone: var(--tone-5); }
+.contact-list li:hover { transform: translateX(4px); }
+.contact-list li:hover .contact-icon { background: var(--tone); color: #fff; transform: rotate(-8deg) scale(1.08); }
 
 .timeline-item:hover .timeline-dot {
   transform: scale(1.16);

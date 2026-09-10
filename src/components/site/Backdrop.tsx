@@ -9,11 +9,15 @@
 export default function Backdrop() {
   return (
     <div className="backdrop" aria-hidden="true">
-      <span className="backdrop-orb backdrop-orb-1" />
-      <span className="backdrop-orb backdrop-orb-2" />
-      <span className="backdrop-orb backdrop-orb-3" />
-      <span className="backdrop-orb backdrop-orb-4" />
-      <span className="backdrop-orb backdrop-orb-5" />
+      {/* Two depths that lean opposite ways as the pointer moves, so the
+          background has a little parallax without any layout work. */}
+      <div className="backdrop-parallax-far">
+        <span className="backdrop-orb backdrop-orb-1" />
+        <span className="backdrop-orb backdrop-orb-2" />
+        <span className="backdrop-orb backdrop-orb-3" />
+        <span className="backdrop-orb backdrop-orb-4" />
+        <span className="backdrop-orb backdrop-orb-5" />
+      </div>
 
       <svg className="backdrop-grid" width="100%" height="100%">
         <defs>
@@ -24,17 +28,19 @@ export default function Backdrop() {
         <rect width="100%" height="100%" fill="url(#bd-grid)" />
       </svg>
 
-      {/* Outlined shapes that turn as they drift, each in its own colour. */}
-      <span className="backdrop-shape backdrop-shape-1" />
-      <span className="backdrop-shape backdrop-shape-2" />
-      <span className="backdrop-shape backdrop-shape-3" />
+      <div className="backdrop-parallax">
+        {/* Outlined shapes that turn as they drift, each in its own colour. */}
+        <span className="backdrop-shape backdrop-shape-1" />
+        <span className="backdrop-shape backdrop-shape-2" />
+        <span className="backdrop-shape backdrop-shape-3" />
 
-      {/* A few marks from the subject's own world: a bracket, a terminal
-          prompt, a chevron and a tag, drifting slowly. */}
-      <span className="backdrop-glyph backdrop-glyph-1">{'{ }'}</span>
-      <span className="backdrop-glyph backdrop-glyph-2">{'</>'}</span>
-      <span className="backdrop-glyph backdrop-glyph-3">{'$_'}</span>
-      <span className="backdrop-glyph backdrop-glyph-4">{'#'}</span>
+        {/* A few marks from the subject's own world: a bracket, a terminal
+            prompt, a chevron and a tag, drifting slowly. */}
+        <span className="backdrop-glyph backdrop-glyph-1">{'{ }'}</span>
+        <span className="backdrop-glyph backdrop-glyph-2">{'</>'}</span>
+        <span className="backdrop-glyph backdrop-glyph-3">{'$_'}</span>
+        <span className="backdrop-glyph backdrop-glyph-4">{'#'}</span>
+      </div>
     </div>
   );
 }

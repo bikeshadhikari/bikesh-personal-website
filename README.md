@@ -28,7 +28,8 @@ no UI framework and no CSS framework, so the markup stays readable and the pages
   a palette rather than one colour repeated. Change the accent and all five
   move with it.
 - Movement that stays out of the way: cards lift and light a coloured edge,
-  a soft highlight follows the pointer across them, hovering moves an item one
+  a soft highlight follows the pointer across them, the backdrop leans on two
+  depths as the pointer moves, hovering moves an item one
   place along the palette and the colour glides rather than snaps, grids
   assemble one item after another as they scroll in, numbers count up, and the
   backdrop drifts. All of it stops for a visitor who has asked for reduced
@@ -65,8 +66,12 @@ no UI framework and no CSS framework, so the markup stays readable and the pages
   you can find, say, the favicon without remembering which screen it is on.
 - **Messages** and **subscribers**, with CSV export.
 - **Footer** — the introduction, each column heading, which of the three
-  columns appear, the social icons, and the copyright line, which takes
-  `{year}` and `{name}` so it stays current.
+  columns appear, the social icons, the RSS link, and the copyright line, which
+  takes `{year}` and `{name}` so it stays current. Email, phone, location and
+  hours each have their own switch here.
+- **Contact page** — a switch for each of email, phone, location, hours, the
+  social icons, the message form and the map. The footer and the contact page
+  are switched separately, so a detail can appear in one and not the other.
 - **Settings** — site identity, favicon upload, contact details, social links,
   SEO, accent colours, blog rules and maintenance mode. While maintenance mode
   is on you keep browsing the real site, with a banner across the top reminding

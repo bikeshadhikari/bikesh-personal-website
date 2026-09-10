@@ -17,12 +17,18 @@ export default function PointerGlow() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
 
+    const root = document.documentElement;
     let frame = 0;
     let pending: { el: HTMLElement; x: number; y: number } | null = null;
+    let drift = { x: 0, y: 0 };
     let last: HTMLElement | null = null;
 
     const apply = () => {
       frame = 0;
+      // How far the pointer sits from the middle of the window, as -1 to 1.
+      // The backdrop leans this way, which gives the page a sense of depth.
+      root.style.setProperty('--mx', drift.x.toFixed(3));
+      root.style.setProperty('--my', drift.y.toFixed(3));
       if (!pending) return;
       const { el, x, y } = pending;
       el.style.setProperty('--px', `${x}%`);
@@ -30,6 +36,11 @@ export default function PointerGlow() {
     };
 
     const onMove = (event: PointerEvent) => {
+      drift = {
+        x: (event.clientX / window.innerWidth) * 2 - 1,
+        y: (event.clientY / window.innerHeight) * 2 - 1,
+      };
+
       const el = (event.target as Element | null)?.closest<HTMLElement>(SELECTOR) ?? null;
 
       if (el !== last) {
@@ -37,14 +48,17 @@ export default function PointerGlow() {
         last = el;
         el?.classList.add('is-lit');
       }
-      if (!el) return;
 
-      const box = el.getBoundingClientRect();
-      pending = {
-        el,
-        x: ((event.clientX - box.left) / box.width) * 100,
-        y: ((event.clientY - box.top) / box.height) * 100,
-      };
+      if (el) {
+        const box = el.getBoundingClientRect();
+        pending = {
+          el,
+          x: ((event.clientX - box.left) / box.width) * 100,
+          y: ((event.clientY - box.top) / box.height) * 100,
+        };
+      } else {
+        pending = null;
+      }
       frame ||= requestAnimationFrame(apply);
     };
 
@@ -58,6 +72,8 @@ export default function PointerGlow() {
       document.removeEventListener('pointerleave', onLeave);
       if (frame) cancelAnimationFrame(frame);
       last?.classList.remove('is-lit');
+      root.style.removeProperty('--mx');
+      root.style.removeProperty('--my');
     };
   }, []);
 

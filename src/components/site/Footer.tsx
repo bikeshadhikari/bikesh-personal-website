@@ -15,14 +15,21 @@ export default async function Footer() {
   ]);
 
   const socials = settingBool(s, 'footer_show_social', true) ? socialLinks(s) : [];
+  // The feed link is off unless it is asked for.
+  const showRss = blogOn && settingBool(s, 'footer_show_rss', false);
   const showTopics = blogOn && settingBool(s, 'footer_show_topics', true);
   const categories = showTopics ? (await getCategories()).slice(0, 5) : [];
-  const email = setting(s, 'contact_email');
-  const phone = setting(s, 'contact_phone');
-  const location = setting(s, 'contact_location');
+
+  // Each detail is shown only when it has a value and is switched on here.
+  const email = settingBool(s, 'footer_show_email', true) ? setting(s, 'contact_email') : '';
+  const phone = settingBool(s, 'footer_show_phone', true) ? setting(s, 'contact_phone') : '';
+  const location = settingBool(s, 'footer_show_location', true) ? setting(s, 'contact_location') : '';
+  const hours = settingBool(s, 'footer_show_hours', false) ? setting(s, 'contact_hours') : '';
+
   const showNewsletter = newsletterOn && settingBool(s, 'newsletter_enabled', true);
   const showLinks = settingBool(s, 'footer_show_links', true);
-  const showContact = settingBool(s, 'footer_show_contact', true) && Boolean(email || phone || location);
+  const showContact = settingBool(s, 'footer_show_contact', true)
+    && Boolean(email || phone || location || hours);
   const name = setting(s, 'full_name', setting(s, 'site_name'));
 
   // The copyright line is a template so it can be rewritten from the dashboard
@@ -42,7 +49,7 @@ export default async function Footer() {
             <span className="brand-mark" aria-hidden="true">{setting(s, 'full_name', 'B').charAt(0)}</span>
             <h3>{name}</h3>
             <p>{setting(s, 'footer_about') || setting(s, 'site_tagline')}</p>
-            {(socials.length > 0 || (blogOn && settingBool(s, 'footer_show_social', true))) && (
+            {(socials.length > 0 || showRss) && (
               <ul className="social-list">
                 {socials.map((social) => (
                   <li key={social.key}>
@@ -51,7 +58,7 @@ export default async function Footer() {
                     </a>
                   </li>
                 ))}
-                {blogOn && settingBool(s, 'footer_show_social', true) && (
+                {showRss && (
                   <li><a href="/feed.xml" aria-label="RSS feed"><Icon name="rss" /></a></li>
                 )}
               </ul>
@@ -92,6 +99,9 @@ export default async function Footer() {
               )}
               {location && (
                 <li><Icon name="pin" className="icon icon-sm" /><span>{location}</span></li>
+              )}
+              {hours && (
+                <li><Icon name="clock" className="icon icon-sm" /><span>{hours}</span></li>
               )}
             </ul>
           </div>

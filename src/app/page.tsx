@@ -8,7 +8,7 @@ import {
   SectionHead, Services, Skills, Testimonials, Timeline,
 } from '@/components/site/blocks';
 import { menuEnabled, menuLabel } from '@/lib/menu';
-import { getSettings, setting } from '@/lib/settings';
+import { getSettings, setting, settingBool } from '@/lib/settings';
 import {
   getCertifications, getExperiences, getHighlights, getPosts,
   getProjects, getServices, getSkillsGrouped, getTestimonials,
@@ -28,6 +28,7 @@ export default async function HomePage() {
     menuEnabled('projects-section'), menuEnabled('certifications'), menuEnabled('testimonials'),
     menuEnabled('blog-section'), menuEnabled('contact-section'),
   ]);
+  const contactFormOn = settingBool(s, 'contact_show_form', true);
   const [aboutPageOn, expPageOn, projectsPageOn, blogOn, contactOn] = await Promise.all([
     menuEnabled('about'), menuEnabled('experience'), menuEnabled('projects'),
     menuEnabled('blog'), menuEnabled('contact'),
@@ -227,8 +228,8 @@ export default async function HomePage() {
               heading={await menuLabel('contact-section', 'Let us talk')}
               sub={setting(s, 'contact_intro')}
             />
-            <div className="contact-layout">
-              <ContactForm />
+            <div className={`contact-layout${contactFormOn ? '' : ' is-details-only'}`}>
+              {contactFormOn && <ContactForm />}
               <ContactDetails />
             </div>
           </div>
