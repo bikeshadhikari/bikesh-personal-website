@@ -15,7 +15,6 @@ export default async function SetupPage() {
     ['Database connection string is set', Boolean(process.env.DATABASE_URL)],
     ['Session secret is set', Boolean(process.env.AUTH_SECRET && process.env.AUTH_SECRET.length >= 16)],
     ['Setup key is set', Boolean(process.env.SETUP_SECRET)],
-    ['File storage connected (optional)', Boolean(process.env.BLOB_READ_WRITE_TOKEN)],
   ];
 
   return (

@@ -27,3 +27,8 @@ npm-debug.log*
 Thumbs.db
 .idea/
 .vscode/
+
+.vercel
+.env*
+# The sample carries no secrets and the setup guide tells you to copy it.
+!.env.example
