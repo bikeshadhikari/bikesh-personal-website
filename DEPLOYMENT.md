@@ -45,6 +45,9 @@ Vercel sets `BLOB_READ_WRITE_TOKEN` for you.
 Without this the site still runs, and image fields accept a pasted link to a
 picture hosted elsewhere. With it, you upload files directly in the dashboard.
 
+Files go straight from your browser to Blob rather than through the site, so a
+full-size phone photo uploads without trouble. The ceiling is 10 MB per file.
+
 ---
 
 ## 5. Set the environment variables
@@ -157,6 +160,8 @@ through the site, move to the Pro plan.
 | "AUTH_SECRET is missing or too short" | Add `AUTH_SECRET` with at least 16 characters and redeploy. |
 | Setup key rejected | The value you typed does not match `SETUP_SECRET` in Vercel. They are case sensitive. |
 | Uploads say storage is not connected | Create a Blob store under Storage, connect it, and redeploy. |
+| An upload sits at 0%, then says it stopped responding | The Blob store is not reachable with the current token. Confirm it is connected to *this* project under Storage, then redeploy. |
+| Maintenance mode looks like it is not working | It is working. You are signed in, so you see the real site with an amber banner across the top. Open the site in a private window to see what a visitor sees. |
 | Everything is 500 after a deploy | Open the failing deployment in Vercel and read the runtime logs. They name the exact error. |
 | Locked out of the dashboard | Six wrong passwords locks that address for fifteen minutes. Wait it out, or clear the `login_attempts` table from the Neon SQL editor. |
 | Content edits do not show | Hard reload with Ctrl+Shift+R. Pages are server-rendered per request, so this is almost always the browser cache. |

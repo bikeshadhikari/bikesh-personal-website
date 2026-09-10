@@ -764,3 +764,23 @@ a.chip:hover { text-decoration: none; filter: brightness(1.06); }
   body { background: #fff; color: #000; }
   .section { padding-block: 1rem; }
 }
+
+/* --- owner bar (maintenance mode, visible only to the signed-in owner) ---- */
+
+.owner-bar {
+  display: flex; align-items: center; gap: .7rem; flex-wrap: wrap;
+  padding: .6rem var(--gutter);
+  background: #78350f; color: #fde68a;
+  font-size: .9rem; font-weight: 600;
+  border-bottom: 1px solid #92400e;
+}
+.owner-bar p { margin: 0; flex: 1; min-width: 14rem; font-weight: 500; }
+.owner-bar strong { color: #fff; font-weight: 700; }
+.owner-bar a {
+  color: #fff; text-decoration: underline; text-underline-offset: 3px; white-space: nowrap;
+}
+.owner-bar a:hover { color: #fde68a; }
+.owner-bar-dot {
+  width: 9px; height: 9px; border-radius: 50%; flex: none;
+  background: #f59e0b; box-shadow: 0 0 0 3px rgba(245, 158, 11, .25);
+}

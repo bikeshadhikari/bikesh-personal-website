@@ -10,7 +10,7 @@ import {
 import { deleteRow, saveRow, toggleRow } from '@/lib/crud';
 import { getResource } from '@/lib/resources';
 import { saveSettings } from '@/lib/settings';
-import { deleteUpload, storeUpload } from '@/lib/upload';
+import { acceptMediaUrl, deleteUpload } from '@/lib/upload';
 import { isValidEmail, normalizeUrl, safeColor, sanitizeEmbed } from '@/lib/utils';
 
 export type FormState = { ok: boolean; message: string; errors?: Record<string, string> } | null;
@@ -159,24 +159,13 @@ async function persistSettings(
 
       case 'image':
       case 'file': {
-        if (formData.get(`remove_${spec.key}`)) {
-          await deleteUpload(current[spec.key]);
-          values[spec.key] = '';
-          break;
+        // Uploaded in the browser, posted back here as a URL.
+        const next = acceptMediaUrl(String(formData.get(`${spec.key}_url`) ?? ''));
+        const previous = current[spec.key] ?? '';
+        if (previous && previous !== next) {
+          await deleteUpload(previous);
         }
-        try {
-          const uploaded = raw instanceof File ? await storeUpload(raw, spec.folder ?? 'site') : null;
-          if (uploaded) {
-            await deleteUpload(current[spec.key]);
-            values[spec.key] = uploaded;
-            break;
-          }
-        } catch (error) {
-          errors[spec.key] = error instanceof Error ? error.message : 'Upload failed.';
-          break;
-        }
-        const pasted = String(formData.get(`${spec.key}_url`) ?? '').trim();
-        if (pasted) values[spec.key] = normalizeUrl(pasted);
+        values[spec.key] = next;
         break;
       }
 
@@ -263,22 +252,10 @@ export async function subscriberAction(formData: FormData): Promise<void> {
   revalidatePath('/admin/subscribers');
 }
 
-export async function mediaUploadAction(_prev: FormState, formData: FormData): Promise<FormState> {
+/** Files land on Blob from the browser; this just refreshes the listing. */
+export async function refreshMediaAction(): Promise<void> {
   await requireUser();
-  const file = formData.get('file');
-  const folder = String(formData.get('folder') ?? 'media');
-
-  if (!(file instanceof File) || file.size === 0) {
-    return { ok: false, message: 'Choose a file to upload first.' };
-  }
-  try {
-    await storeUpload(file, folder);
-  } catch (error) {
-    return { ok: false, message: error instanceof Error ? error.message : 'Upload failed.' };
-  }
-
   revalidatePath('/admin/media');
-  return { ok: true, message: 'File uploaded.' };
 }
 
 export async function mediaDeleteAction(formData: FormData): Promise<void> {

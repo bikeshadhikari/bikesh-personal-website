@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ICON_CHOICES, type Field as FieldDef } from '@/lib/resources';
 import Icon from '../Icon';
 import Editor from './Editor';
+import FileUpload from './FileUpload';
 
 export type SelectOption = { value: string; label: string };
 
@@ -61,7 +62,13 @@ export default function Field({
       {field.type === 'range' && <RangeInput id={id} name={name} value={Number(value) || 0} />}
 
       {(field.type === 'image' || field.type === 'file') && (
-        <UploadField id={id} name={name} value={text} isImage={field.type === 'image'} blobReady={blobReady} />
+        <FileUpload
+          name={name}
+          value={text}
+          folder={field.folder}
+          isImage={field.type === 'image'}
+          ready={blobReady}
+        />
       )}
 
       {field.type === 'datetime' && (
@@ -122,48 +129,6 @@ function IconPicker({ id, name, value }: { id: string; name: string; value: stri
       <span className="icon-preview" style={{ opacity: chosen ? 1 : 0.35 }}>
         <Icon name={chosen || 'sparkle'} />
       </span>
-    </div>
-  );
-}
-
-function UploadField({
-  id, name, value, isImage, blobReady,
-}: { id: string; name: string; value: string; isImage: boolean; blobReady: boolean }) {
-  const [remove, setRemove] = useState(false);
-
-  return (
-    <div className="upload-field">
-      {value && (
-        <div className="upload-current">
-          {isImage
-            // eslint-disable-next-line @next/next/no-img-element
-            ? <img src={value} alt="" />
-            : <Icon name="download" />}
-          <div>
-            <code>{value.split('/').pop()}</code>
-            <label className="checkbox small">
-              <input type="checkbox" name={`remove_${name}`} value="1"
-                     checked={remove} onChange={(e) => setRemove(e.target.checked)} />
-              <span>Remove this file</span>
-            </label>
-          </div>
-        </div>
-      )}
-
-      {blobReady ? (
-        <>
-          <input type="file" id={id} name={name} accept={isImage ? 'image/*' : undefined} />
-          <p className="field-hint">Up to 5 MB.{isImage ? ' JPG, PNG, WebP, GIF or SVG.' : ' Image, PDF or Word document.'}</p>
-        </>
-      ) : (
-        <>
-          <input type="url" id={id} name={`${name}_url`} placeholder="https://example.com/image.jpg" />
-          <p className="field-hint">
-            File storage is not connected yet, so paste a link instead. Add Blob storage in
-            Vercel to upload files directly.
-          </p>
-        </>
-      )}
     </div>
   );
 }

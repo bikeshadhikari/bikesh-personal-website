@@ -1,65 +1,90 @@
 import 'server-only';
-import { put, del, list } from '@vercel/blob';
-import { slugify } from './utils';
+import { del, list } from '@vercel/blob';
 
-const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'image/avif', 'image/x-icon', 'image/vnd.microsoft.icon'];
-const DOC_TYPES = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-const MAX_BYTES = 5 * 1024 * 1024;
+export const IMAGE_TYPES = [
+  'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
+  'image/avif', 'image/x-icon', 'image/vnd.microsoft.icon',
+];
+export const DOC_TYPES = [
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+];
+export const ALLOWED_TYPES = [...IMAGE_TYPES, ...DOC_TYPES];
+
+/** 10 MB. Files go straight from the browser to Blob, so no server limit applies. */
+export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 
 export function blobConfigured(): boolean {
   return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 }
 
+const BLOB_HOST = '.public.blob.vercel-storage.com';
+
 /**
- * Store one uploaded file on Vercel Blob and return its public URL.
- * Returns null when the form field was left empty.
+ * Accept a URL for an image or document field.
+ *
+ * Uploads arrive as a Blob URL the browser already wrote; a person may also
+ * paste a link to a file hosted elsewhere. Anything that is not an https URL
+ * is discarded rather than stored.
  */
-export async function storeUpload(file: File | null, folder = 'media'): Promise<string | null> {
-  if (!file || file.size === 0 || !file.name) return null;
-
-  if (!blobConfigured()) {
-    throw new Error(
-      'File storage is not connected. Add Blob storage to the Vercel project, or paste an image URL in the field below instead.',
-    );
+export function acceptMediaUrl(value: string): string {
+  const trimmed = value.trim();
+  if (trimmed === '') return '';
+  try {
+    const url = new URL(trimmed);
+    return url.protocol === 'https:' ? url.toString() : '';
+  } catch {
+    return '';
   }
-  if (file.size > MAX_BYTES) {
-    throw new Error('That file is larger than 5 MB. Please compress it and try again.');
-  }
-
-  const allowed = [...IMAGE_TYPES, ...DOC_TYPES];
-  if (!allowed.includes(file.type)) {
-    throw new Error(`Files of type "${file.type || 'unknown'}" are not allowed. Use an image, PDF or Word document.`);
-  }
-
-  const ext = (file.name.split('.').pop() ?? 'bin').toLowerCase().replace(/[^a-z0-9]/g, '');
-  const base = slugify(file.name.replace(/\.[^.]+$/, ''), 'file').slice(0, 60);
-  const safeFolder = folder.replace(/[^a-z0-9_-]/gi, '') || 'media';
-
-  const blob = await put(`${safeFolder}/${base}.${ext}`, file, {
-    access: 'public',
-    addRandomSuffix: true,
-    contentType: file.type,
-  });
-  return blob.url;
 }
 
+export function isBlobUrl(url: string | null | undefined): boolean {
+  return Boolean(url && url.includes(BLOB_HOST));
+}
+
+/** Remove a file we own. External links are left alone. */
 export async function deleteUpload(url: string | null | undefined): Promise<void> {
-  if (!url || !url.includes('.public.blob.vercel-storage.com') || !blobConfigured()) return;
+  if (!isBlobUrl(url) || !blobConfigured()) return;
   try {
-    await del(url);
+    await del(url as string);
   } catch {
     // A file that is already gone is not an error worth surfacing.
   }
 }
 
-export type MediaItem = { url: string; pathname: string; size: number; uploadedAt: Date };
+export type MediaItem = { url: string; pathname: string; size: number; uploadedAt: string };
 
-export async function listMedia(): Promise<MediaItem[]> {
-  if (!blobConfigured()) return [];
-  const { blobs } = await list({ limit: 500 });
-  return blobs
-    .map((b) => ({ url: b.url, pathname: b.pathname, size: b.size, uploadedAt: new Date(b.uploadedAt) }))
-    .sort((a, b) => b.uploadedAt.getTime() - a.uploadedAt.getTime());
+/**
+ * Everything in the Blob store, newest first.
+ *
+ * Never throws and never hangs: the Blob client retries with backoff, so a bad
+ * or revoked token would otherwise leave the page loading for a long time.
+ */
+export async function listMedia(): Promise<{ items: MediaItem[]; error: string | null }> {
+  if (!blobConfigured()) return { items: [], error: null };
+
+  const timeout = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error('File storage did not respond in time.')), 8000),
+  );
+
+  try {
+    const { blobs } = await Promise.race([list({ limit: 500 }), timeout]);
+    const items = blobs
+      .map((b) => ({
+        url: b.url,
+        pathname: b.pathname,
+        size: b.size,
+        uploadedAt: new Date(b.uploadedAt).toISOString(),
+      }))
+      .sort((a, b) => b.uploadedAt.localeCompare(a.uploadedAt));
+    return { items, error: null };
+  } catch (error) {
+    return {
+      items: [],
+      error: error instanceof Error ? error.message : 'Could not reach file storage.',
+    };
+  }
 }
 
 export function humanSize(bytes: number): string {

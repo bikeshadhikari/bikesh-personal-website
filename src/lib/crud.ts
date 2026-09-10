@@ -1,7 +1,7 @@
 import 'server-only';
 import { sql } from './db';
 import { getResource, type Field, type ResourceDef } from './resources';
-import { deleteUpload, storeUpload } from './upload';
+import { acceptMediaUrl, deleteUpload } from './upload';
 import { normalizeUrl, sanitizeHtml, slugify, excerptOf } from './utils';
 
 export type Row = Record<string, unknown>;
@@ -109,25 +109,14 @@ async function readField(
 
     case 'image':
     case 'file': {
-      // Removing wins over everything else on the form.
-      if (formData.get(`remove_${name}`)) {
-        await deleteUpload(existing?.[name] as string | undefined);
-        return { value: '' };
+      // The browser uploads straight to Blob and posts back the resulting URL,
+      // so nothing larger than a few hundred bytes reaches this action.
+      const next = acceptMediaUrl(String(formData.get(`${name}_url`) ?? ''));
+      const previous = String(existing?.[name] ?? '');
+      if (previous && previous !== next) {
+        await deleteUpload(previous);
       }
-      try {
-        const file = formData.get(name);
-        const uploaded = file instanceof File ? await storeUpload(file, field.folder) : null;
-        if (uploaded) {
-          await deleteUpload(existing?.[name] as string | undefined);
-          return { value: uploaded };
-        }
-      } catch (error) {
-        return { value: existing?.[name] ?? '', error: error instanceof Error ? error.message : 'Upload failed.' };
-      }
-      // A pasted URL is the fallback when Blob storage is not connected.
-      const pasted = String(formData.get(`${name}_url`) ?? '').trim();
-      if (pasted) return { value: normalizeUrl(pasted) };
-      return { value: existing?.[name] ?? '' };
+      return { value: next };
     }
 
     case 'url': {
