@@ -165,6 +165,9 @@ export function Services({ items }: { items: Service[] }) {
               </ul>
             )}
             {s.price_note && <p className="card-note">{s.price_note}</p>}
+            <span className="card-corner" aria-hidden="true">
+              <Icon name="arrow-up-right" className="icon icon-xs" />
+            </span>
           </article>
         );
       })}

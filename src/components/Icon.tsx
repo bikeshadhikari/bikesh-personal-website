@@ -2,6 +2,7 @@
 
 const PATHS: Record<string, React.ReactNode> = {
   'arrow-right': <path d="M5 12h14M13 5l7 7-7 7" />,
+  'arrow-up-right': <path d="M7 17 17 7M8 7h9v9" />,
   'arrow-up': <path d="M12 19V5M5 12l7-7 7 7" />,
   external: <><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><path d="M15 3h6v6" /><path d="M10 14 21 3" /></>,
   mail: <><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-10 6L2 7" /></>,

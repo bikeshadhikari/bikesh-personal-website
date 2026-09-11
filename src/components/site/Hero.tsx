@@ -18,15 +18,14 @@ export default async function Hero() {
   const native = setting(s, 'name_native');
   const socials = socialLinks(s);
   const badge = highlights[0];
+  const floatStat = highlights[1];
 
   return (
     <section className="hero" id="hero">
       <div className="hero-glow" aria-hidden="true" />
       <div className="container hero-inner">
         <div className="hero-copy">
-          {availability && (
-            <p className="availability"><span className="pulse" aria-hidden="true" />{availability}</p>
-          )}
+          <p className="hero-hello">Hello, I&rsquo;m</p>
 
           <h1 className="hero-name">
             {setting(s, 'full_name', 'Your Name')}
@@ -40,6 +39,10 @@ export default async function Hero() {
           )}
 
           <p className="hero-intro">{setting(s, 'hero_intro')}</p>
+
+          {availability && (
+            <p className="availability"><span className="pulse" aria-hidden="true" />{availability}</p>
+          )}
 
           <div className="hero-actions">
             {contactOn && (
@@ -74,6 +77,20 @@ export default async function Hero() {
           {setting(s, 'headline') && (
             <p className="hero-tagline">{setting(s, 'headline')}</p>
           )}
+          {/* The picture and everything floating around it share one frame,
+              so the badge is placed against the photo rather than against the
+              column, which on a phone also holds the headline above it. */}
+          <div className="hero-frame">
+          {/* Glass shapes that sit around the picture, the way a frosted
+              interface floats its pieces over the background. */}
+          <span className="hero-orb hero-orb-a" aria-hidden="true" />
+          <span className="hero-orb hero-orb-b" aria-hidden="true" />
+          <span className="hero-spark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+              <path d="M12 2l1.9 6.1L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.9z" />
+            </svg>
+          </span>
+
           <div className={`hero-photo${photo ? '' : ' is-placeholder'}`}>
             {photo ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -91,6 +108,22 @@ export default async function Hero() {
               <span>{badge.label}</span>
             </div>
           )}
+
+          {/* The second key number, shown as a small card with a rising line.
+              Both come from Key numbers in the dashboard; nothing new to fill in. */}
+          {floatStat && (
+            <div className="float-card hero-float">
+              <span className="float-label">{floatStat.label}</span>
+              <strong className="float-value">
+                {floatStat.value}{floatStat.suffix}
+              </strong>
+              <svg className="float-spark" viewBox="0 0 96 28" aria-hidden="true" preserveAspectRatio="none">
+                <path d="M1 25 L18 19 L34 21 L52 11 L70 13 L95 3" fill="none"
+                      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+          )}
+          </div>
         </div>
       </div>
     </section>

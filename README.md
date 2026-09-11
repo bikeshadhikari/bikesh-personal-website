@@ -22,6 +22,11 @@ no UI framework and no CSS framework, so the markup stays readable and the pages
 - A blog with categories, tags, search, pagination, related posts, share buttons,
   reading time, view counts and moderated comments.
 - Contact form and newsletter signup that save to the database.
+- A frosted-glass interface: translucent panels blurred over a pale lavender
+  ground, a nav that sits in its own pill, near-black buttons that take colour
+  on hover, and glass beads and a key-number card floating around the hero
+  portrait. The dashboard wears the same skin, so moving between the two does
+  not feel like changing product.
 - Light and dark themes, respecting the visitor's device setting.
 - A five-colour palette rotated off the accent chosen in Settings, so each
   section, card, tag and nav item carries its own colour and the page reads as
