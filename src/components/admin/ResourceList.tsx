@@ -4,15 +4,21 @@ import { ConfirmButton } from './ShellClient';
 import TableSearch from './TableSearch';
 import type { ResourceDef } from '@/lib/resources';
 import type { ListResult } from '@/lib/crud';
-import { dateRange, formatDate, humanDuration } from '@/lib/utils';
+import { dateRange, formatDate, humanDuration, readingTime } from '@/lib/utils';
 import Icon from '../Icon';
 
-/** The tooltip behind a total: how many readings it came from, and the average. */
-function durationDetail(seconds: number, sessions: number): string {
-  if (seconds <= 0) return 'No reading time recorded yet.';
-  if (sessions <= 0) return `${humanDuration(seconds)} in total.`;
+/**
+ * The tooltip behind a total: how many readings it came from, the average, and
+ * how long the piece should take to read. The estimate is only shown here,
+ * never on the article itself.
+ */
+function durationDetail(seconds: number, sessions: number, content: string): string {
+  const estimate = content ? ` Should take about ${readingTime(content)} min to read.` : '';
+  if (seconds <= 0) return `No reading time recorded yet.${estimate}`;
+  if (sessions <= 0) return `${humanDuration(seconds)} in total.${estimate}`;
   const each = humanDuration(seconds / sessions);
-  return `${humanDuration(seconds)} across ${sessions} reading${sessions === 1 ? '' : 's'}, ${each} each on average.`;
+  return `${humanDuration(seconds)} across ${sessions} reading${sessions === 1 ? '' : 's'}, `
+    + `${each} each on average.${estimate}`;
 }
 
 export default function ResourceList({
@@ -127,7 +133,11 @@ export default function ResourceList({
                             ) : col.type === 'duration' ? (
                               // Total time readers actually spent on the page,
                               // with the average per session behind the tooltip.
-                              <span title={durationDetail(Number(value) || 0, Number(row.read_sessions) || 0)}>
+                              <span title={durationDetail(
+                                Number(value) || 0,
+                                Number(row.read_sessions) || 0,
+                                String(row.content ?? ''),
+                              )}>
                                 {humanDuration(Number(value) || 0)}
                               </span>
                             ) : col.type === 'mono' ? (

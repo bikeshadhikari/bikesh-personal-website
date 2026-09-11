@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Icon from '../Icon';
-import { csvList, dateRange, durationBetween, excerptOf, formatDate, isoDate, lines, readingTime } from '@/lib/utils';
+import { csvList, dateRange, durationBetween, excerptOf, formatDate, isoDate, lines } from '@/lib/utils';
 import type { Certification, Experience, Highlight, Post, Project, Service, Skill, Testimonial } from '@/lib/types';
 
 /* -- headings ------------------------------------------------------------- */
@@ -301,7 +301,6 @@ export function PostCard({ post }: { post: Post }) {
           <Link className="btn btn-link" href={`/blog/${post.slug}`}>
             Read <Icon name="arrow-right" className="icon icon-xs" />
           </Link>
-          <span className="reading-time">{readingTime(post.content)} min read</span>
         </div>
       </div>
     </article>

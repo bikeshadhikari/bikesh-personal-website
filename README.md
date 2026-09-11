@@ -63,8 +63,10 @@ no UI framework and no CSS framework, so the markup stays readable and the pages
   Hovering the figure gives the average per reading. Only time the page was
   visible counts, a glance under four seconds is not a reading, and a single
   reading is capped at an hour so a tab left open cannot distort the total.
-  These figures are visible in the dashboard only; nothing reaches the public
-  page or the feed.
+  These figures are visible in the dashboard only, and so is the estimate of
+  how long a piece should take to read, which sits in the same tooltip. Neither
+  the measurement nor the estimate appears on the article, the listings or the
+  feed.
 - **Profile** — name, headline, rotating roles, biography, photo, CV.
 - **Experience pipeline** — roles, organisations, dates and key points, grouped
   into work, education, volunteer and award tracks.

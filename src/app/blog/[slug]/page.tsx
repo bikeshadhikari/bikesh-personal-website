@@ -9,7 +9,7 @@ import { menuEnabled } from '@/lib/menu';
 import { getSettings, settingBool } from '@/lib/settings';
 import { getComments, getPost, getRelatedPosts, registerView } from '@/lib/content';
 import ReadTimer from '@/components/site/ReadTimer';
-import { csvList, excerptOf, formatDate, isoDate, readingTime, sanitizeHtml, siteOrigin } from '@/lib/utils';
+import { csvList, excerptOf, formatDate, isoDate, sanitizeHtml, siteOrigin } from '@/lib/utils';
 import Icon from '@/components/Icon';
 
 export const dynamic = 'force-dynamic';
@@ -100,7 +100,6 @@ export default async function PostPage({ params }: Props) {
                   {formatDate(post.published_at, { day: 'numeric', month: 'long', year: 'numeric' })}
                 </time>
               </li>
-              <li><Icon name="clock" className="icon icon-xs" />{readingTime(post.content)} min read</li>
               <li><Icon name="eye" className="icon icon-xs" />{post.views} views</li>
               {post.author_name && <li><Icon name="users" className="icon icon-xs" />{post.author_name}</li>}
             </ul>
