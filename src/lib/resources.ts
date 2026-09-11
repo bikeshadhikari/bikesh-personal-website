@@ -28,7 +28,7 @@ export type Field = {
 export type ListColumn = {
   key: string;
   label: string;
-  type?: 'text' | 'chip' | 'status' | 'bool' | 'toggle' | 'meter' | 'date' | 'number' | 'mono' | 'thumb';
+  type?: 'text' | 'chip' | 'status' | 'bool' | 'toggle' | 'meter' | 'date' | 'number' | 'mono' | 'thumb' | 'duration';
   primary?: boolean;
   viewPath?: string;
 };
@@ -61,6 +61,7 @@ export const RESOURCES: Record<string, ResourceDef> = {
       { key: 'category_name', label: 'Category', type: 'chip' },
       { key: 'status', label: 'Status', type: 'status' },
       { key: 'views', label: 'Views', type: 'number' },
+      { key: 'read_seconds', label: 'Read time', type: 'duration' },
       { key: 'published_at', label: 'Published', type: 'date' },
     ],
     fields: {

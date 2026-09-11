@@ -4,8 +4,16 @@ import { ConfirmButton } from './ShellClient';
 import TableSearch from './TableSearch';
 import type { ResourceDef } from '@/lib/resources';
 import type { ListResult } from '@/lib/crud';
-import { dateRange, formatDate } from '@/lib/utils';
+import { dateRange, formatDate, humanDuration } from '@/lib/utils';
 import Icon from '../Icon';
+
+/** The tooltip behind a total: how many readings it came from, and the average. */
+function durationDetail(seconds: number, sessions: number): string {
+  if (seconds <= 0) return 'No reading time recorded yet.';
+  if (sessions <= 0) return `${humanDuration(seconds)} in total.`;
+  const each = humanDuration(seconds / sessions);
+  return `${humanDuration(seconds)} across ${sessions} reading${sessions === 1 ? '' : 's'}, ${each} each on average.`;
+}
 
 export default function ResourceList({
   resource, def, data, search,
@@ -63,7 +71,7 @@ export default function ResourceList({
                         const value = col.key === 'period'
                           ? dateRange(row.start_date as string, row.end_date as string, Boolean(row.is_current))
                           : row[col.key];
-                        const numeric = col.type === 'number' || col.type === 'date';
+                        const numeric = col.type === 'number' || col.type === 'date' || col.type === 'duration';
 
                         return (
                           <td key={col.key} className={numeric ? 'num' : undefined}>
@@ -116,6 +124,12 @@ export default function ResourceList({
                                 // eslint-disable-next-line @next/next/no-img-element
                                 ? <img className="row-thumb" src={String(value)} alt="" loading="lazy" />
                                 : <span className="muted">—</span>
+                            ) : col.type === 'duration' ? (
+                              // Total time readers actually spent on the page,
+                              // with the average per session behind the tooltip.
+                              <span title={durationDetail(Number(value) || 0, Number(row.read_sessions) || 0)}>
+                                {humanDuration(Number(value) || 0)}
+                              </span>
                             ) : col.type === 'mono' ? (
                               <code>{String(value ?? '')}</code>
                             ) : (

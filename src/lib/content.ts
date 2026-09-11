@@ -118,6 +118,19 @@ const POST_COLUMNS = sql`
   p.*, c.name AS category_name, c.slug AS category_slug, c.color AS category_color,
   u.name AS author_name`;
 
+/**
+ * Reading figures are for the dashboard, not for visitors, so they are taken
+ * off every row that leaves this module for a public page. Selecting p.* keeps
+ * the query simple as the table grows; this is what keeps the measurements
+ * from riding along into the page a reader receives.
+ */
+const PRIVATE_POST_KEYS = ['read_seconds', 'read_sessions'] as const;
+
+function publicPost<T>(row: T): T {
+  for (const key of PRIVATE_POST_KEYS) delete (row as Record<string, unknown>)[key];
+  return row;
+}
+
 /** Published posts, filtered and paginated. Scheduled posts stay hidden. */
 export async function getPosts(opts: PostQuery = {}): Promise<Paginated<Post>> {
   const page = Math.max(1, opts.page ?? 1);
@@ -152,7 +165,7 @@ export async function getPosts(opts: PostQuery = {}): Promise<Paginated<Post>> {
     ORDER BY p.published_at DESC NULLS LAST, p.id DESC
     LIMIT ${perPage} OFFSET ${offset}`;
 
-  return { items, total, pages: Math.ceil(total / perPage), page };
+  return { items: items.map(publicPost), total, pages: Math.ceil(total / perPage), page };
 }
 
 export async function getPost(slug: string): Promise<Post | null> {
@@ -164,7 +177,7 @@ export async function getPost(slug: string): Promise<Post | null> {
     WHERE p.slug = ${slug} AND p.status = 'published'
       AND (p.published_at IS NULL OR p.published_at <= NOW())
     LIMIT 1`;
-  return rows[0] ?? null;
+  return rows[0] ? publicPost(rows[0]) : null;
 }
 
 export async function registerView(postId: number): Promise<void> {

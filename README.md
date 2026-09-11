@@ -57,7 +57,14 @@ no UI framework and no CSS framework, so the markup stays readable and the pages
   not-found page, and drops it from the sitemap and RSS feed. Nothing is
   hard-coded in a template.
 - **Blog** — write, edit, schedule, feature and delete posts with a formatting
-  toolbar; manage categories; approve or reject comments.
+  toolbar; manage categories; approve or reject comments. Each post shows its
+  views alongside the time readers actually spent on it: 12 views and 40
+  minutes means those twelve readings came to forty minutes between them.
+  Hovering the figure gives the average per reading. Only time the page was
+  visible counts, a glance under four seconds is not a reading, and a single
+  reading is capped at an hour so a tab left open cannot distort the total.
+  These figures are visible in the dashboard only; nothing reaches the public
+  page or the feed.
 - **Profile** — name, headline, rotating roles, biography, photo, CV.
 - **Experience pipeline** — roles, organisations, dates and key points, grouped
   into work, education, volunteer and award tracks.

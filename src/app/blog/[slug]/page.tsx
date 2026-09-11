@@ -8,6 +8,7 @@ import ShareBar from '@/components/site/ShareBar';
 import { menuEnabled } from '@/lib/menu';
 import { getSettings, settingBool } from '@/lib/settings';
 import { getComments, getPost, getRelatedPosts, registerView } from '@/lib/content';
+import ReadTimer from '@/components/site/ReadTimer';
 import { csvList, excerptOf, formatDate, isoDate, readingTime, sanitizeHtml, siteOrigin } from '@/lib/utils';
 import Icon from '@/components/Icon';
 
@@ -74,6 +75,9 @@ export default async function PostPage({ params }: Props) {
 
   return (
     <SiteShell current="blog">
+      {/* Counts the time this reader is actually on the page and reports it
+          once, when they leave. */}
+      <ReadTimer postId={post.id} />
       <article className="post-single">
         <header className="post-hero">
           <div className="hero-glow" aria-hidden="true" />

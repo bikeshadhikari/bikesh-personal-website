@@ -16,9 +16,43 @@ export function excerptOf(html: string, words = 32): string {
   return parts.length <= words ? text : `${parts.slice(0, words).join(' ')}…`;
 }
 
+/**
+ * A span of seconds written the way a person would say it: "45 sec",
+ * "12 min", "2 hr 5 min". Zero reads as a dash, because no reading time
+ * recorded is not the same as none spent.
+ */
+export function humanDuration(seconds: number): string {
+  const total = Math.max(0, Math.round(seconds));
+  if (total === 0) return '—';
+  if (total < 60) return `${total} sec`;
+
+  const minutes = Math.round(total / 60);
+  if (minutes < 60) return `${minutes} min`;
+
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  return rest === 0 ? `${hours} hr` : `${hours} hr ${rest} min`;
+}
+
+/**
+ * The estimate printed on a post: how long it should take to read.
+ *
+ * Counts words in the prose at 220 a minute, which is the usual figure for
+ * adult reading on screen, and adds twelve seconds for each picture, since a
+ * reader stops at those. Entities are decoded first so "&amp;" counts as one
+ * word rather than none, and script and style blocks are dropped whole rather
+ * than having their contents counted as prose.
+ */
 export function readingTime(html: string): number {
-  const count = html.replace(/<[^>]*>/g, ' ').trim().split(/\s+/).filter(Boolean).length;
-  return Math.max(1, Math.ceil(count / 200));
+  const images = (html.match(/<img\b/gi) ?? []).length;
+  const text = html
+    .replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, ' ')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&(nbsp|amp|lt|gt|quot|#39|hellip|mdash|ndash);/gi, ' x ');
+
+  const words = text.trim().split(/\s+/).filter(Boolean).length;
+  const seconds = (words / 220) * 60 + images * 12;
+  return Math.max(1, Math.round(seconds / 60));
 }
 
 /** Dates are formatted in a fixed timezone so the server and browser agree. */

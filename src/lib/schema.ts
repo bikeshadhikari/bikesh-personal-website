@@ -19,13 +19,35 @@ export async function ensureSchema(): Promise<void> {
   return ensuring;
 }
 
-/** Postgres 42P01: the table is not there yet. */
+/** Postgres 42P01: the table is not there yet. 42703: the column is not. */
 export function isMissingTable(error: unknown): boolean {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    (error as { code?: string }).code === '42P01'
-  );
+  return hasCode(error, '42P01');
+}
+
+export function isMissingColumn(error: unknown): boolean {
+  return hasCode(error, '42703');
+}
+
+function hasCode(error: unknown, code: string): boolean {
+  return typeof error === 'object' && error !== null && (error as { code?: string }).code === code;
+}
+
+/**
+ * Run a query; if the database is behind this build — a table or a column
+ * added since it was set up — bring the schema up to date and try once more.
+ *
+ * Setup only runs at installation, so without this a site that has been live
+ * for a while would start failing the moment a release added a column, and
+ * would need SQL run by hand to recover.
+ */
+export async function withSchema<T>(run: () => Promise<T>): Promise<T> {
+  try {
+    return await run();
+  } catch (error) {
+    if (!isMissingTable(error) && !isMissingColumn(error)) throw error;
+    await ensureSchema();
+    return run();
+  }
 }
 
 /**
@@ -88,6 +110,8 @@ export async function createSchema(): Promise<void> {
       is_featured      BOOLEAN NOT NULL DEFAULT FALSE,
       allow_comments   BOOLEAN NOT NULL DEFAULT TRUE,
       views            INTEGER NOT NULL DEFAULT 0,
+      read_seconds     BIGINT  NOT NULL DEFAULT 0,
+      read_sessions    INTEGER NOT NULL DEFAULT 0,
       meta_title       VARCHAR(220) DEFAULT '',
       meta_description VARCHAR(320) DEFAULT '',
       published_at     TIMESTAMPTZ,
@@ -259,5 +283,7 @@ export async function createSchema(): Promise<void> {
     ALTER TABLE media   ADD COLUMN IF NOT EXISTS width  INTEGER NOT NULL DEFAULT 0;
     ALTER TABLE media   ADD COLUMN IF NOT EXISTS height INTEGER NOT NULL DEFAULT 0;
     ALTER TABLE gallery ADD COLUMN IF NOT EXISTS caption VARCHAR(400) DEFAULT '';
+    ALTER TABLE posts   ADD COLUMN IF NOT EXISTS read_seconds  BIGINT  NOT NULL DEFAULT 0;
+    ALTER TABLE posts   ADD COLUMN IF NOT EXISTS read_sessions INTEGER NOT NULL DEFAULT 0;
   `);
 }

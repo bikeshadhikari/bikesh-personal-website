@@ -1,5 +1,6 @@
 import 'server-only';
 import { sql } from './db';
+import { withSchema } from './schema';
 import { getResource, type Field, type ResourceDef } from './resources';
 import { acceptMediaUrl, deleteUpload } from './upload';
 import { normalizeUrl, sanitizeHtml, slugify, excerptOf } from './utils';
@@ -54,8 +55,8 @@ export async function listRows(
          FROM categories c WHERE ${where} ORDER BY ${def.order}`
       : `SELECT * FROM ${def.table} WHERE ${where} ORDER BY ${def.order}`;
 
-  const rows = await sql.unsafe<Row[]>(
-    `${select} LIMIT ${perPage} OFFSET ${offset}`, params as never[]);
+  const rows = await withSchema(() => sql.unsafe<Row[]>(
+    `${select} LIMIT ${perPage} OFFSET ${offset}`, params as never[]));
 
   return { rows, total, pages: Math.max(1, Math.ceil(total / perPage)), page };
 }

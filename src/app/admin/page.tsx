@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { sql } from '@/lib/db';
+import { withSchema } from '@/lib/schema';
 import { currentUser } from '@/lib/auth';
 import Shell from '@/components/admin/Shell';
 import Icon from '@/components/Icon';
-import { formatDate } from '@/lib/utils';
+import { formatDate, humanDuration } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,7 +16,9 @@ type Counts = {
 export default async function DashboardPage() {
   const user = await currentUser();
 
-  const [counts, recentPosts, recentMessages, popular, disabled] = await Promise.all([
+  // A database set up before reading time existed gains the columns on the
+  // first dashboard load rather than erroring.
+  const [counts, recentPosts, recentMessages, popular, disabled] = await withSchema(() => Promise.all([
     sql<Counts[]>`SELECT
       (SELECT COUNT(*) FROM posts WHERE status = 'published')::text AS published,
       (SELECT COUNT(*) FROM posts WHERE status = 'draft')::text AS drafts,
@@ -23,16 +26,17 @@ export default async function DashboardPage() {
       (SELECT COUNT(*) FROM comments WHERE status = 'pending')::text AS pending,
       (SELECT COUNT(*) FROM projects)::text AS projects,
       (SELECT COUNT(*) FROM subscribers WHERE is_active)::text AS subscribers`,
-    sql<{ id: number; title: string; status: string; views: number }[]>`
-      SELECT id, title, status, views FROM posts ORDER BY id DESC LIMIT 5`,
+    sql<{ id: number; title: string; status: string; views: number; read_seconds: string }[]>`
+      SELECT id, title, status, views, read_seconds FROM posts ORDER BY id DESC LIMIT 5`,
     sql<{ id: number; name: string; subject: string; created_at: string; is_read: boolean }[]>`
       SELECT id, name, subject, created_at, is_read FROM messages ORDER BY id DESC LIMIT 5`,
-    sql<{ id: number; title: string; views: number }[]>`
-      SELECT id, title, views FROM posts WHERE status = 'published' AND views > 0
+    sql<{ id: number; title: string; views: number; read_seconds: string; read_sessions: number }[]>`
+      SELECT id, title, views, read_seconds, read_sessions FROM posts
+      WHERE status = 'published' AND views > 0
       ORDER BY views DESC LIMIT 5`,
     sql<{ slug: string; label: string; kind: string }[]>`
       SELECT slug, label, kind FROM menus WHERE enabled = FALSE ORDER BY sort_order`,
-  ]);
+  ]));
 
   const c = counts[0];
   const stats = [
@@ -98,7 +102,12 @@ export default async function DashboardPage() {
                   <tr key={p.id}>
                     <td><Link href={`/admin/posts/${p.id}`}>{p.title}</Link></td>
                     <td><span className={`status status-${p.status}`}>{p.status}</span></td>
-                    <td className="num">{p.views} views</td>
+                    <td className="num">
+                      {p.views} {p.views === 1 ? 'view' : 'views'}
+                      {Number(p.read_seconds) > 0 && (
+                        <><br /><small className="muted">{humanDuration(Number(p.read_seconds))} read</small></>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -137,12 +146,17 @@ export default async function DashboardPage() {
                 <li key={p.id}>
                   <span className="rank">{i + 1}</span>
                   <Link href={`/admin/posts/${p.id}`}>{p.title}</Link>
-                  <em>{p.views}</em>
+                  <em>
+                    {p.views} {p.views === 1 ? 'view' : 'views'}
+                    {Number(p.read_seconds) > 0 && (
+                      <small>{humanDuration(Number(p.read_seconds))} read</small>
+                    )}
+                  </em>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="muted">View counts appear once people start reading.</p>
+            <p className="muted">Views and reading time appear once people start reading.</p>
           )}
         </section>
 
