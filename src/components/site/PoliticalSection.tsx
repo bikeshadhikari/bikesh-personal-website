@@ -29,6 +29,12 @@ export default function PoliticalSection({
   const spoken = [section.title, section.subtitle, plainText(section.body)]
     .filter(Boolean).join('. ');
 
+  // A picture can sit above the text or beside it on either hand, which is
+  // what keeps six sections down a long page from reading as one column.
+  const side = section.image && (section.image_side === 'left' || section.image_side === 'right')
+    ? section.image_side
+    : 'full';
+
   return (
     <section className="pol-section" id={`s-${section.id}`} data-tone={index % 3}>
       <div className="pol-wrap">
@@ -37,11 +43,16 @@ export default function PoliticalSection({
           <div className="pol-head-text">
             <h2>{section.title}</h2>
             {section.subtitle && <p className="pol-sub">{section.subtitle}</p>}
-            <ListenButton text={spoken} label={listenLabel} audio={section.audio || undefined} />
+            <ListenButton
+              text={spoken}
+              label={listenLabel}
+              audio={section.audio || undefined}
+              scopeId={`s-${section.id}`}
+            />
           </div>
         </header>
 
-        {section.image && (
+        {side === 'full' && section.image && (
           <figure className="pol-lead">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={section.image} alt={section.title} loading="lazy" />
@@ -59,10 +70,18 @@ export default function PoliticalSection({
           </ul>
         )}
 
-        <div
-          className="pol-body"
-          dangerouslySetInnerHTML={{ __html: sanitizeHtml(section.body) }}
-        />
+        <div className={`pol-columns is-${side}`}>
+          {side !== 'full' && section.image && (
+            <figure className="pol-aside">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={section.image} alt={section.title} loading="lazy" />
+            </figure>
+          )}
+          <div
+            className="pol-body"
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(section.body) }}
+          />
+        </div>
 
         {photos.length > 0 && (
           <div className="pol-photos">

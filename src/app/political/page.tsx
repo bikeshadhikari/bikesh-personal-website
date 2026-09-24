@@ -3,6 +3,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import PoliticalSection from '@/components/site/PoliticalSection';
 import PoliticalNav from '@/components/site/PoliticalNav';
+import PoliticalBackdrop from '@/components/site/PoliticalBackdrop';
+import NoticePopup from '@/components/site/NoticePopup';
+import { getActiveNotice } from '@/lib/content';
 import Icon from '@/components/Icon';
 import { menuEnabled } from '@/lib/menu';
 import { getSettings, setting, socialLinks } from '@/lib/settings';
@@ -41,8 +44,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function PoliticalPage() {
   if (!(await menuEnabled('political'))) notFound();
 
-  const [s, sections, photos] = await Promise.all([
-    getSettings(), getPoliticalSections(), getPoliticalPhotos(),
+  const [s, sections, photos, notice] = await Promise.all([
+    getSettings(), getPoliticalSections(), getPoliticalPhotos(), getActiveNotice(),
   ]);
 
   const name = polSetting(s, 'pol_name');
@@ -63,7 +66,28 @@ export default async function PoliticalPage() {
 
   return (
     <div className="political">
-      <div className="pol-flag" aria-hidden="true" />
+      <div className="pol-ribbon" aria-hidden="true" />
+      <PoliticalBackdrop />
+
+      {/* The same notice the rest of the site shows, so a visitor who arrives
+          here first is told the same thing. */}
+      {notice && (
+        <NoticePopup
+          notice={{
+            id: notice.id,
+            title: notice.title,
+            body: notice.body ?? '',
+            image: notice.image ?? '',
+            linkUrl: notice.link_file || notice.link_url || '',
+            linkLabel: notice.link_label ?? '',
+            dismissOnce: notice.dismiss_once,
+            showOn: notice.show_on ?? 'home',
+            showPaths: (notice.show_paths ?? '')
+              .split('\n').map((x) => x.trim()).filter(Boolean),
+            version: String(notice.updated_at ?? ''),
+          }}
+        />
+      )}
 
       <header className="pol-hero">
         <div className="pol-hero-art" aria-hidden="true">

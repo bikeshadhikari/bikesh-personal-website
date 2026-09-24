@@ -127,6 +127,7 @@ export async function createSchema(): Promise<void> {
       body       TEXT         DEFAULT '',
       figures    TEXT         DEFAULT '',
       image      VARCHAR(500) DEFAULT '',
+      image_side VARCHAR(10)  NOT NULL DEFAULT 'full',
       audio      VARCHAR(500) DEFAULT '',
       sort_order INTEGER NOT NULL DEFAULT 0,
       enabled    BOOLEAN NOT NULL DEFAULT TRUE,
@@ -333,5 +334,7 @@ export async function createSchema(): Promise<void> {
     ALTER TABLE posts   ADD COLUMN IF NOT EXISTS read_sessions INTEGER NOT NULL DEFAULT 0;
     ALTER TABLE notices ADD COLUMN IF NOT EXISTS show_on    VARCHAR(20) NOT NULL DEFAULT 'home';
     ALTER TABLE notices ADD COLUMN IF NOT EXISTS show_paths TEXT DEFAULT '';
+    ALTER TABLE political_sections
+      ADD COLUMN IF NOT EXISTS image_side VARCHAR(10) NOT NULL DEFAULT 'full';
   `);
 }

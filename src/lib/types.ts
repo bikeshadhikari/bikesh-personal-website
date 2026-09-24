@@ -74,6 +74,7 @@ export type UserRow = {
 export type PoliticalSection = {
   id: number; number: string; title: string; subtitle: string;
   body: string; figures: string; image: string; audio: string;
+  image_side: 'left' | 'right' | 'full';
   sort_order: number; enabled: boolean; created_at: string; updated_at: string;
 };
 

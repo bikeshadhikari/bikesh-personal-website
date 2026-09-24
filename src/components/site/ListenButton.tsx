@@ -5,62 +5,79 @@ import Icon from '../Icon';
 
 type State = 'idle' | 'loading' | 'playing' | 'paused' | 'unsupported' | 'silent';
 
+const NEPALI = /^ne\b|^ne[-_]/i;
+const DEVANAGARI = /^(hi|mr|sa|ne|bh)\b|^(hi|mr|sa|ne|bh)[-_]/i;
+
 /**
  * Reads a section aloud.
  *
- * A recording uploaded in the dashboard is used when there is one, because a
- * human reading of Nepali will always beat a synthetic one. Without a
- * recording the browser's own speech engine reads the text, asked for Nepali
- * first and any other Devanagari voice second, since a device with no Nepali
- * voice installed usually has Hindi, which reads the same script intelligibly.
+ * Order of preference: a recording uploaded in the dashboard, then a Nepali
+ * voice installed on the device, then any other voice that reads Devanagari.
+ * A Hindi voice pronounces the script but not the language, so when one is all
+ * that is available the button says so and offers the list, rather than
+ * quietly reading Nepali in Hindi and leaving the listener wondering.
  *
- * Long text is spoken in sentence-sized pieces: several engines cut off around
- * a couple of hundred characters, and short utterances also make pausing and
- * stopping responsive.
+ * Selecting text before pressing play starts the reading at that point, which
+ * is how a reader picks up where their eye left off.
  */
 export default function ListenButton({
-  text, label, audio = '',
-}: { text: string; label: string; audio?: string }) {
+  text, label, audio = '', scopeId,
+}: { text: string; label: string; audio?: string; scopeId?: string }) {
   const [state, setState] = useState<State>('idle');
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [chosen, setChosen] = useState<string>('');
+  const [menuOpen, setMenuOpen] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const chunks = useRef<string[]>([]);
-  const at = useRef(0);
 
-  // Speech that is still running when the reader leaves would follow them to
-  // the next page, so it is always stopped on the way out.
   useEffect(() => () => {
     if (typeof window !== 'undefined') window.speechSynthesis?.cancel();
     audioRef.current?.pause();
   }, []);
 
+  // The voice list arrives asynchronously in most browsers.
   useEffect(() => {
     if (audio) return;
-    if (typeof window === 'undefined') return;
-    if (!('speechSynthesis' in window)) setState('unsupported');
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      setState('unsupported');
+      return;
+    }
+    const synth = window.speechSynthesis;
+    const read = () => {
+      const all = synth.getVoices().filter((v) => DEVANAGARI.test(v.lang ?? ''));
+      setVoices(all);
+      setChosen((current) => current || (all.find((v) => NEPALI.test(v.lang))?.voiceURI ?? all[0]?.voiceURI ?? ''));
+    };
+    read();
+    synth.addEventListener('voiceschanged', read);
+    return () => synth.removeEventListener('voiceschanged', read);
   }, [audio]);
 
-  const pickVoice = (): SpeechSynthesisVoice | null => {
-    const voices = window.speechSynthesis.getVoices();
-    return (
-      voices.find((v) => v.lang?.toLowerCase().startsWith('ne')) ??
-      voices.find((v) => /^(hi|mr|sa)/i.test(v.lang ?? '')) ??
-      null
-    );
-  };
+  const voice = voices.find((v) => v.voiceURI === chosen) ?? null;
+  const hasNepali = voices.some((v) => NEPALI.test(v.lang));
+  const readingNepali = voice ? NEPALI.test(voice.lang) : false;
 
   const speakFrom = (index: number) => {
     const synth = window.speechSynthesis;
-    if (index >= chunks.current.length) { setState('idle'); at.current = 0; return; }
+    if (index >= chunks.current.length) { setState('idle'); return; }
 
     const utterance = new SpeechSynthesisUtterance(chunks.current[index]);
-    const voice = pickVoice();
-    if (voice) utterance.voice = voice;
-    utterance.lang = voice?.lang ?? 'ne-NP';
-    utterance.rate = 0.95;
-    utterance.pitch = 1;
-    utterance.onend = () => { at.current = index + 1; speakFrom(index + 1); };
+    if (voice) { utterance.voice = voice; utterance.lang = voice.lang; }
+    else utterance.lang = 'ne-NP';
+    utterance.rate = 0.92;
+    utterance.onend = () => speakFrom(index + 1);
     utterance.onerror = () => setState('idle');
     synth.speak(utterance);
+  };
+
+  /** Where in the section the reader has highlighted, if anywhere. */
+  const selectedText = (): string => {
+    if (!scopeId || typeof window === 'undefined') return '';
+    const selection = window.getSelection();
+    if (!selection || selection.isCollapsed || selection.rangeCount === 0) return '';
+    const scope = document.getElementById(scopeId);
+    if (!scope || !scope.contains(selection.anchorNode)) return '';
+    return selection.toString().trim();
   };
 
   const start = () => {
@@ -75,46 +92,26 @@ export default function ListenButton({
 
     const synth = window.speechSynthesis;
     synth.cancel();
-    chunks.current = splitForSpeech(text);
-    at.current = 0;
-    if (chunks.current.length === 0) return;
 
-    // Voices load asynchronously in several browsers; asking once and waiting
-    // for the list avoids reading the first sentence in the wrong language.
-    if (synth.getVoices().length === 0) {
-      setState('loading');
-      const onVoices = () => {
-        synth.removeEventListener('voiceschanged', onVoices);
-        setState('playing');
-        speakFrom(0);
-        confirmSpeaking();
-      };
-      synth.addEventListener('voiceschanged', onVoices);
-      window.setTimeout(() => {
-        synth.removeEventListener('voiceschanged', onVoices);
-        if (synth.speaking) return;
-        setState('playing');
-        speakFrom(0);
-        confirmSpeaking();
-      }, 1200);
-      return;
+    // Start at the highlighted sentence when there is one, and carry on to
+    // the end of the section from there.
+    const picked = selectedText();
+    let source = text;
+    if (picked) {
+      const at = text.indexOf(picked.slice(0, 40));
+      if (at > 0) source = text.slice(at);
+      else source = `${picked}. ${text}`;
     }
+
+    chunks.current = splitForSpeech(source);
+    if (chunks.current.length === 0) return;
 
     setState('playing');
     speakFrom(0);
-    confirmSpeaking();
-  };
-
-  /**
-   * A device with no speech voices installed accepts speak() and then does
-   * nothing, which would leave the button looking broken. Check shortly after
-   * starting and say so plainly instead.
-   */
-  const confirmSpeaking = () => {
     window.setTimeout(() => {
-      const synth = window.speechSynthesis;
-      if (!synth.speaking && !synth.pending) setState('silent');
-    }, 900);
+      const s = window.speechSynthesis;
+      if (!s.speaking && !s.pending) setState('silent');
+    }, 1000);
   };
 
   const pause = () => {
@@ -139,15 +136,13 @@ export default function ListenButton({
     setState('idle');
   };
 
-  if (state === 'unsupported') return null;
+  const switchVoice = (uri: string) => {
+    setChosen(uri);
+    setMenuOpen(false);
+    if (state === 'playing' || state === 'paused') { window.speechSynthesis.cancel(); setState('idle'); }
+  };
 
-  if (state === 'silent') {
-    return (
-      <p className="listen-silent">
-        यो उपकरणमा नेपाली आवाज उपलब्ध छैन — कृपया पढ्नुहोस्।
-      </p>
-    );
-  }
+  if (state === 'unsupported') return null;
 
   const playing = state === 'playing';
   const paused = state === 'paused';
@@ -164,13 +159,53 @@ export default function ListenButton({
           <Icon name={playing ? 'pause' : 'play'} />
           {playing && <span className="listen-wave" />}
         </span>
-        <span>{state === 'loading' ? 'तयार हुँदैछ…' : playing ? 'रोक्नुहोस्' : paused ? 'फेरि सुन्नुहोस्' : label}</span>
+        <span>{playing ? 'रोक्नुहोस्' : paused ? 'फेरि सुन्नुहोस्' : label}</span>
       </button>
 
       {(playing || paused) && (
         <button type="button" className="listen-stop" onClick={stop} aria-label="बन्द गर्नुहोस्">
           <Icon name="close" className="icon icon-sm" />
         </button>
+      )}
+
+      {/* The voice list, when the device offers more than one. */}
+      {!audio && voices.length > 1 && (
+        <div className="listen-voice">
+          <button
+            type="button"
+            className="listen-voice-btn"
+            onClick={() => setMenuOpen((open) => !open)}
+            aria-expanded={menuOpen}
+          >
+            <Icon name="speaker" className="icon icon-sm" />
+            <span>{readingNepali ? 'नेपाली आवाज' : 'आवाज छान्नुहोस्'}</span>
+          </button>
+          {menuOpen && (
+            <ul className="listen-voice-menu">
+              {voices.map((v) => (
+                <li key={v.voiceURI}>
+                  <button
+                    type="button"
+                    className={v.voiceURI === chosen ? 'is-chosen' : undefined}
+                    onClick={() => switchVoice(v.voiceURI)}
+                  >
+                    {v.name} <small>{v.lang}</small>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
+      {state === 'silent' && (
+        <p className="listen-note">यो उपकरणमा आवाज उपलब्ध छैन — कृपया पढ्नुहोस्।</p>
+      )}
+
+      {!audio && voices.length > 0 && !hasNepali && state !== 'silent' && (
+        <p className="listen-note">
+          यो उपकरणमा नेपाली आवाज छैन। देवनागरी पढ्न सक्ने अर्को आवाज प्रयोग हुँदैछ।
+        </p>
       )}
     </div>
   );

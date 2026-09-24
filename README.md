@@ -22,8 +22,12 @@ no UI framework and no CSS framework, so the markup stays readable and the pages
   strip that marks the one being read, figure cards drawn from a plain text
   field, and a photo column under each section. Every section carries a listen
   button — नपढी सुन्नका लागि यहाँ क्लिक गर्नुहोस् — which plays a recording if
-  one is uploaded and otherwise has the browser read the Nepali aloud. It takes
-  its own share picture, so the link previews with a portrait of its own.
+  one is uploaded and otherwise has the browser read the Nepali aloud, choosing
+  a Nepali voice over any other and saying plainly when the device has none.
+  Highlight a passage first and the reading starts there. Party flags and tree
+  symbols drift behind the page on two depths. Each section's picture can sit
+  above the text or beside it on either hand. It takes its own share picture,
+  so the link previews with a portrait of its own.
 - A gallery that arranges photos of any shape into columns, keeping each picture
   at its own proportions and revealing its title along the bottom on hover.
 - Services, projects and posts sit three to a row and keep that width even when

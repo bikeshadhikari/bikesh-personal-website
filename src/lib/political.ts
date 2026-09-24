@@ -99,8 +99,13 @@ async function seedSections(): Promise<void> {
 export const getPoliticalSections = cache(async (): Promise<PoliticalSection[]> =>
   heal<PoliticalSection[]>(async () => {
     await seedSections();
+    // Named rather than SELECT *, so a database that predates a column fails
+    // loudly here and is brought up to date, instead of quietly returning rows
+    // with the new field missing.
     return [...await sql<PoliticalSection[]>`
-      SELECT * FROM political_sections WHERE enabled ORDER BY sort_order ASC, id ASC`];
+      SELECT id, number, title, subtitle, body, figures, image, image_side, audio,
+             sort_order, enabled, created_at, updated_at
+      FROM political_sections WHERE enabled ORDER BY sort_order ASC, id ASC`];
   }, []));
 
 export const getPoliticalPhotos = cache(async (): Promise<PoliticalPhoto[]> =>

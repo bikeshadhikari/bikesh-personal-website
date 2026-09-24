@@ -264,8 +264,16 @@ export const RESOURCES: Record<string, ResourceDef> = {
         type: 'textarea', label: 'Figures', rows: 4, full: true,
         hint: 'One per line as number | label, for example  ५००+ | रक्तदान सहयोग. Shown as cards above the text.',
       },
-      image: { type: 'image', label: 'Lead image', folder: 'political', full: true,
-               hint: 'Optional wide picture at the top of the section.' },
+      image: { type: 'image', label: 'Section picture', folder: 'political', full: true,
+               hint: 'Optional. Sits beside or above the text, as chosen below.' },
+      image_side: {
+        type: 'select', label: 'Picture position', default: 'full',
+        options: {
+          full: 'Across the top, full width',
+          left: 'Beside the text, on the left',
+          right: 'Beside the text, on the right',
+        },
+      },
       audio: { type: 'file', label: 'Recorded reading', folder: 'political',
                hint: 'Optional MP3. Without one the listen button reads the text aloud in the browser.' },
       sort_order: { type: 'number', label: 'Sort order', default: 0 },

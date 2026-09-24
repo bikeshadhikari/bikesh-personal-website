@@ -46,9 +46,72 @@
 }
 
 /* A thin band of the national colours across the very top. */
-.pol-flag {
+.pol-ribbon {
   position: fixed; inset: 0 0 auto 0; height: 4px; z-index: 40;
   background: linear-gradient(90deg, var(--crimson) 0 33%, var(--indigo) 33% 66%, var(--green) 66% 100%);
+}
+
+/* --- drifting flags and tree symbols ------------------------------------- */
+
+.pol-backdrop {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+  contain: strict;
+}
+.political > *:not(.pol-backdrop) { position: relative; z-index: 1; }
+
+.pol-glow { position: absolute; border-radius: 50%; filter: blur(70px); }
+.pol-glow-1 {
+  width: 40vmax; height: 40vmax; top: -16vmax; left: -10vmax;
+  background: radial-gradient(circle, rgba(11, 107, 58, .3), transparent 70%);
+  animation: pol-float-a 32s ease-in-out infinite;
+}
+.pol-glow-2 {
+  width: 30vmax; height: 30vmax; top: 44vh; right: -12vmax;
+  background: radial-gradient(circle, rgba(227, 160, 8, .26), transparent 70%);
+  animation: pol-float-b 40s ease-in-out infinite;
+}
+.pol-glow-3 {
+  width: 26vmax; height: 26vmax; bottom: -10vmax; left: 30vw;
+  background: radial-gradient(circle, rgba(200, 16, 46, .14), transparent 70%);
+  animation: pol-float-a 48s ease-in-out infinite reverse;
+}
+
+/* Two depths, moving at different speeds, which reads as distance. */
+.pol-layer { position: absolute; inset: 0; }
+.pol-layer-far { animation: pol-float-b 60s ease-in-out infinite; }
+.pol-layer-near { animation: pol-float-a 44s ease-in-out infinite reverse; }
+
+.pol-sym { position: absolute; color: var(--green); display: block; }
+.pol-sym-1 { top: 12vh; left: 4vw;  width: clamp(90px, 11vw, 170px); aspect-ratio: 1; opacity: .09; animation: pol-turn 50s linear infinite; }
+.pol-sym-2 { top: 58vh; left: 8vw;  width: clamp(80px, 9vw, 140px);  aspect-ratio: 8/9; opacity: .15; animation: pol-wave 14s ease-in-out infinite; }
+.pol-sym-3 { top: 130vh; right: 6vw; width: clamp(110px, 13vw, 200px); aspect-ratio: 1; opacity: .08; animation: pol-turn 66s linear infinite reverse; }
+.pol-sym-4 { top: 24vh; right: 5vw; width: clamp(90px, 10vw, 155px); aspect-ratio: 8/9; opacity: .17; animation: pol-wave 11s ease-in-out infinite; }
+.pol-sym-5 { top: 92vh; left: 46vw; width: clamp(80px, 10vw, 150px); aspect-ratio: 1; opacity: .08; animation: pol-turn 58s linear infinite; }
+.pol-sym-6 { top: 168vh; left: 12vw; width: clamp(80px, 9vw, 135px); aspect-ratio: 8/9; opacity: .14; animation: pol-wave 16s ease-in-out infinite reverse; }
+
+/* The cloth of a flag lifts and falls rather than the whole flag moving. */
+.pol-flag-cloth { transform-origin: 9px 26px; animation: pol-cloth 6s ease-in-out infinite; }
+@keyframes pol-cloth {
+  0%, 100% { transform: skewY(0deg) scaleY(1); }
+  35%      { transform: skewY(-2.5deg) scaleY(1.03); }
+  70%      { transform: skewY(2deg) scaleY(.98); }
+}
+@keyframes pol-wave {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50%      { transform: translate3d(-10px, 14px, 0) rotate(-2deg); }
+}
+@keyframes pol-turn {
+  0%   { transform: rotate(0deg) translate3d(0, 0, 0); }
+  50%  { transform: rotate(180deg) translate3d(14px, -18px, 0); }
+  100% { transform: rotate(360deg) translate3d(0, 0, 0); }
+}
+@keyframes pol-float-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(3vw, 3vh, 0) scale(1.06); }
+}
+@keyframes pol-float-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.04); }
+  50%      { transform: translate3d(-3vw, -3vh, 0) scale(1); }
 }
 
 /* --- hero ---------------------------------------------------------------- */
@@ -258,12 +321,38 @@
 }
 .listen-stop:hover { color: var(--crimson); border-color: var(--crimson); }
 
-.listen-silent {
-  margin: 0; padding: .45rem .9rem; border-radius: 999px;
-  display: inline-block;
-  font-size: .84rem; color: var(--ink-muted);
-  background: var(--paper-alt); border: 1px dashed var(--green-line);
+/* An honest line when the device cannot read Nepali properly. */
+.listen-note {
+  flex-basis: 100%; margin: .1rem 0 0;
+  font-size: .82rem; line-height: 1.6; color: var(--ink-muted);
 }
+
+/* Which voice is doing the reading. */
+.listen-voice { position: relative; }
+.listen-voice-btn {
+  display: inline-flex; align-items: center; gap: .35rem;
+  padding: .45rem .8rem; border-radius: 999px;
+  border: 1px dashed var(--green-line); background: transparent;
+  font-family: inherit; font-size: .8rem; font-weight: 600; color: var(--ink-muted);
+  cursor: pointer; transition: color .2s ease, border-color .2s ease;
+}
+.listen-voice-btn:hover { color: var(--green-deep); border-color: var(--green); }
+
+.listen-voice-menu {
+  position: absolute; z-index: 20; top: calc(100% + .35rem); left: 0;
+  min-width: 250px; max-height: 260px; overflow-y: auto;
+  list-style: none; margin: 0; padding: .3rem;
+  border-radius: 14px; border: 1px solid var(--green-line); background: #fff;
+  box-shadow: 0 20px 44px -22px rgba(6, 77, 41, .55);
+}
+.listen-voice-menu button {
+  display: block; width: 100%; text-align: left;
+  padding: .45rem .6rem; border: 0; border-radius: 9px; background: none;
+  font-family: inherit; font-size: .84rem; color: var(--ink-soft); cursor: pointer;
+}
+.listen-voice-menu button:hover { background: var(--green-soft); color: var(--green-deep); }
+.listen-voice-menu button.is-chosen { background: var(--green); color: #fff; }
+.listen-voice-menu small { opacity: .7; }
 
 /* --- figures ------------------------------------------------------------- */
 
@@ -292,7 +381,30 @@
 
 /* --- body ---------------------------------------------------------------- */
 
+/* A picture beside the text, on whichever hand the section chooses. The
+   column collapses under the picture on a narrow screen, where two columns
+   would leave neither enough room. */
+.pol-columns { display: grid; gap: clamp(1.4rem, 4vw, 2.4rem); align-items: start; }
+.pol-columns.is-left  { grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr); }
+.pol-columns.is-right { grid-template-columns: minmax(0, 1.18fr) minmax(0, .82fr); }
+.pol-columns.is-right .pol-aside { order: 2; }
+@media (max-width: 820px) {
+  .pol-columns.is-left, .pol-columns.is-right { grid-template-columns: minmax(0, 1fr); }
+  .pol-columns.is-right .pol-aside { order: -1; }
+}
+
+.pol-aside {
+  margin: 0; border-radius: 20px; overflow: hidden;
+  border: 1px solid var(--green-line); background: var(--paper-alt);
+  box-shadow: 0 16px 40px -28px rgba(6, 77, 41, .85);
+  transition: transform .35s cubic-bezier(.22, 1, .36, 1), box-shadow .35s ease;
+}
+.pol-aside:hover { transform: translateY(-4px); box-shadow: 0 24px 50px -28px rgba(6, 77, 41, .9); }
+.pol-aside img { width: 100%; height: auto; }
+@media (min-width: 821px) { .pol-aside { position: sticky; top: 92px; } }
+
 .pol-body { max-width: 68ch; }
+.pol-columns.is-left .pol-body, .pol-columns.is-right .pol-body { max-width: none; }
 .pol-body p { margin: 0 0 1.15rem; color: var(--ink-soft); }
 .pol-body h3 {
   margin: 2rem 0 .7rem;
@@ -367,6 +479,7 @@
 .pol-footer-back a:hover { color: #fff; text-decoration: underline; }
 
 @media (prefers-reduced-motion: reduce) {
+  .pol-aside:hover { transform: none; }
   .political *, .political *::before, .political *::after {
     animation: none !important; transition: none !important;
   }
