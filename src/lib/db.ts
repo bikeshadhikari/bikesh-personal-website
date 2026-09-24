@@ -2,7 +2,14 @@ import 'server-only';
 import postgres from 'postgres';
 
 /**
- * One Postgres client for the whole app.
+ * One Postgres client for the whole app, created the first time a query runs.
+ *
+ * Nothing connects when this module is imported. That matters at build time:
+ * `next build` imports every page to read its configuration, and a client that
+ * connected on import would fail the whole build on a machine with no
+ * DATABASE_URL — which is exactly what a first deploy looks like before the
+ * variable is added. Deferring it means the build succeeds and a missing
+ * variable is reported at the moment a page actually asks for data.
  *
  * Serverless functions come and go, so the client is cached on globalThis to
  * survive hot reloads in development and module re-evaluation in production.
@@ -32,10 +39,32 @@ function connect(): postgres.Sql {
   });
 }
 
-export const sql: postgres.Sql = globalThis.__sql ?? connect();
-if (process.env.NODE_ENV !== 'production') {
-  globalThis.__sql = sql;
+function client(): postgres.Sql {
+  globalThis.__sql ??= connect();
+  return globalThis.__sql;
 }
+
+/**
+ * Stands in for the client until one is needed. postgres.js is used both as a
+ * tagged template (`sql\`SELECT …\``) and as an object (`sql.unsafe`, `sql.end`),
+ * so both calling and property access are forwarded to the real client.
+ */
+export const sql: postgres.Sql = new Proxy(
+  (() => {}) as unknown as postgres.Sql,
+  {
+    apply(_target, _thisArg, args: unknown[]) {
+      return (client() as unknown as (...a: unknown[]) => unknown)(...args);
+    },
+    get(_target, property) {
+      const real = client() as unknown as Record<string | symbol, unknown>;
+      const value = real[property];
+      return typeof value === 'function' ? value.bind(real) : value;
+    },
+    has(_target, property) {
+      return property in (client() as unknown as object);
+    },
+  },
+);
 
 /** True once the schema has been created. Used by the setup flow. */
 export async function isInstalled(): Promise<boolean> {

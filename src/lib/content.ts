@@ -140,7 +140,12 @@ export type PostQuery = {
   excludeId?: number;
 };
 
-const POST_COLUMNS = sql`
+/**
+ * The columns every post query selects. Built on each call rather than once at
+ * module scope: a fragment made at import time would ask for a database
+ * connection the moment this file is loaded, which is too early during a build.
+ */
+const postColumns = () => sql`
   p.*, c.name AS category_name, c.slug AS category_slug, c.color AS category_color,
   u.name AS author_name`;
 
@@ -183,7 +188,7 @@ export async function getPosts(opts: PostQuery = {}): Promise<Paginated<Post>> {
   const total = Number(countRows[0]?.count ?? 0);
 
   const items = await sql<Post[]>`
-    SELECT ${POST_COLUMNS}
+    SELECT ${postColumns()}
     FROM posts p
     LEFT JOIN categories c ON c.id = p.category_id
     LEFT JOIN users u ON u.id = p.author_id
@@ -196,7 +201,7 @@ export async function getPosts(opts: PostQuery = {}): Promise<Paginated<Post>> {
 
 export async function getPost(slug: string): Promise<Post | null> {
   const rows = await sql<Post[]>`
-    SELECT ${POST_COLUMNS}
+    SELECT ${postColumns()}
     FROM posts p
     LEFT JOIN categories c ON c.id = p.category_id
     LEFT JOIN users u ON u.id = p.author_id
