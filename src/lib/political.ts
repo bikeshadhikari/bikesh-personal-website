@@ -24,6 +24,8 @@ export const POLITICAL_DEFAULTS: Record<string, string> = {
   pol_footer_note: 'समुन्नत नेपाल, सम्मानित नेपाली',
   pol_jaya_label: 'जय नेपाल भन्नुहोस्',
   pol_eyebrow: 'सार्वजनिक परिचय',
+  pol_phone: '977-9851438635',
+  pol_call_label: 'फोन गर्नुहोस्',
   pol_emblem: '/political/tree.png',
   pol_emblem_label: 'रूख',
   pol_candidacy: 'संघीय महाधिवेशन प्रतिनिधि उम्मेदवार',
@@ -151,4 +153,50 @@ export async function sectionChoices(): Promise<{ value: string; label: string }
       label: r.number ? `${r.number} — ${r.title}` : r.title,
     }));
   }, []);
+}
+
+export type PoliticalStats = { views: number; read_seconds: number; read_sessions: number };
+
+/**
+ * Count one arrival on the political page.
+ *
+ * Deliberately not awaited by the page: a counter is never worth delaying or
+ * failing a render for.
+ */
+export async function registerPoliticalView(): Promise<void> {
+  try {
+    await heal(async () => {
+      await sql`UPDATE political_stats SET views = views + 1 WHERE id = 1`;
+    }, undefined);
+  } catch {
+    // A missed view is not worth an error.
+  }
+}
+
+/** Add one reader's measured time to the running total. */
+export async function addPoliticalReadTime(seconds: number): Promise<void> {
+  try {
+    await heal(async () => {
+      await sql`
+        UPDATE political_stats
+        SET read_seconds = read_seconds + ${seconds}, read_sessions = read_sessions + 1
+        WHERE id = 1`;
+    }, undefined);
+  } catch {
+    // Same: the reader never learns that a figure went missing.
+  }
+}
+
+/** The running totals, for the dashboard. */
+export async function getPoliticalStats(): Promise<PoliticalStats> {
+  return heal(async () => {
+    const rows = await sql<{ views: string; read_seconds: string; read_sessions: string }[]>`
+      SELECT views, read_seconds, read_sessions FROM political_stats WHERE id = 1`;
+    const row = rows[0];
+    return {
+      views: Number(row?.views ?? 0),
+      read_seconds: Number(row?.read_seconds ?? 0),
+      read_sessions: Number(row?.read_sessions ?? 0),
+    };
+  }, { views: 0, read_seconds: 0, read_sessions: 0 });
 }

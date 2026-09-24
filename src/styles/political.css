@@ -647,7 +647,7 @@
   .political *, .political *::before, .political *::after {
     animation: none !important; transition: none !important;
   }
-  .pol-emblem, .pol-emblem-glow, .pol-float { animation: none; }
+  .pol-emblem, .pol-emblem-glow, .pol-float, .pol-call-icon svg { animation: none; }
   .pol-btn:hover, .pol-portrait:hover, .pol-figures li:hover, .pol-photos figure:hover,
   .listen-btn:hover, .pol-social a:hover { transform: none; }
 }
@@ -676,6 +676,56 @@
 }
 .jaya-btn:hover { padding-right: 1.3rem; box-shadow: 0 18px 40px -14px rgba(160, 12, 36, 1); }
 .jaya-btn:active { transform: translateY(-50%) scale(.97); }
+
+/* --- call button --------------------------------------------------------- */
+
+/* Sits directly above the जय नेपाल button, on the same right edge, and rides
+   down the page with it. The offset is one button's height plus the gap. */
+.pol-call {
+  position: fixed; right: 0; top: 62%; z-index: 35;
+  display: flex; align-items: center; gap: .55rem;
+  padding: .6rem 1rem .6rem .8rem;
+  border-radius: 14px 0 0 14px;
+  background: linear-gradient(135deg, var(--green), var(--green-deep));
+  color: #fff; text-decoration: none;
+  font-family: var(--pol-sans);
+  box-shadow: 0 14px 34px -14px rgba(6, 77, 41, .9);
+  transform: translateY(calc(-50% - 3.7rem));
+  transition: padding-right .3s ease, box-shadow .3s ease;
+}
+.pol-call:hover, .pol-call:focus-visible {
+  padding-right: 1.3rem;
+  box-shadow: 0 18px 40px -14px rgba(6, 77, 41, 1);
+  outline: none;
+}
+.pol-call:active { transform: translateY(calc(-50% - 3.7rem)) scale(.97); }
+
+.pol-call-icon { display: grid; place-items: center; }
+.pol-call-icon svg {
+  width: 20px; height: 20px;
+  animation: pol-ring 3s ease-in-out infinite;
+  transform-origin: 50% 70%;
+}
+.pol-call-text { display: flex; flex-direction: column; line-height: 1.15; }
+.pol-call-text strong { font-size: .88rem; font-weight: 700; white-space: nowrap; }
+.pol-call-text small { font-size: .74rem; opacity: .85; white-space: nowrap; }
+
+/* A handset shake, the same idea as the waving hand below it. */
+@keyframes pol-ring {
+  0%, 62%, 100% { transform: rotate(0deg); }
+  68% { transform: rotate(-13deg); }
+  74% { transform: rotate(11deg); }
+  80% { transform: rotate(-9deg); }
+  86% { transform: rotate(6deg); }
+}
+
+/* On a phone the number itself is redundant — pressing it is the point — so
+   only the icon and the wording travel. */
+@media (max-width: 560px) {
+  .pol-call { padding: .55rem .8rem .55rem .7rem; transform: translateY(calc(-50% - 3.3rem)); }
+  .pol-call:active { transform: translateY(calc(-50% - 3.3rem)) scale(.97); }
+  .pol-call-text small { display: none; }
+}
 
 .jaya-hand { font-size: 1.35rem; line-height: 1; animation: jaya-wave 2.6s ease-in-out infinite; transform-origin: 70% 80%; }
 .jaya-text { white-space: nowrap; }
@@ -764,78 +814,80 @@
    Hero slider
    ========================================================================== */
 
-.pol-slider { position: relative; justify-self: center; width: 100%; max-width: 440px; margin-inline: auto; }
-/* Standing under the pledges it has the whole width, so it reads as a band
-   rather than a column. */
-.pol-hero-gallery .pol-slider { max-width: 880px; }
-.pol-hero-gallery .pol-slider-frame { aspect-ratio: 16 / 10; }
+/* --- photograph rail ----------------------------------------------------- */
 
-/* One frame, one shape: photographs of different sizes come round without the
-   page jumping as each one lands. */
-.pol-slider-frame {
-  position: relative; aspect-ratio: 4 / 5;
-  border-radius: 26px; overflow: hidden;
-  border: 6px solid #fff; background: var(--paper-alt);
-  box-shadow: 0 26px 60px -26px rgba(6, 77, 41, .5);
+.pol-rail { position: relative; display: flex; align-items: flex-start; }
+
+/* A real scroll container, so a finger and a trackpad work without any script.
+   The padding keeps the cards' shadows off the clipped edge. */
+.pol-rail-track {
+  display: flex; gap: 1rem;
+  margin: 0; padding: .35rem .2rem 1rem; list-style: none;
+  overflow-x: auto; overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.pol-rail-track::-webkit-scrollbar { display: none; }
+
+/* Three and a bit across, so the row says there is more without a caption
+   having to. The fraction is what makes the next card peek. */
+.pol-rail-card {
+  flex: 0 0 calc((100% - 2.6rem) / 3.25);
+  scroll-snap-align: start;
+}
+.pol-rail-card figure { margin: 0; }
+
+.pol-rail-shot {
+  aspect-ratio: 4 / 3; overflow: hidden;
+  border-radius: 12px; background: var(--paper-alt);
+  border: 1px solid var(--green-line);
+  box-shadow: 0 12px 26px -20px rgba(6, 77, 41, .9);
+  transition: transform .35s cubic-bezier(.22, 1, .36, 1), box-shadow .35s ease;
+}
+.pol-rail-shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pol-rail-card:hover .pol-rail-shot {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 38px -22px rgba(6, 77, 41, .9);
+}
+.pol-rail-card figcaption {
+  margin-top: .6rem;
+  font-size: .92rem; font-weight: 700; line-height: 1.4;
+  color: var(--ink);
 }
 
-.pol-slide {
-  position: absolute; inset: 0; margin: 0;
-  opacity: 0; transform: scale(1.04);
-  transition: opacity .7s ease, transform 5s ease;
-  pointer-events: none;
-}
-.pol-slide.is-on { opacity: 1; transform: scale(1); pointer-events: auto; }
-.pol-slide img { width: 100%; height: 100%; object-fit: cover; }
-.pol-slide figcaption {
-  position: absolute; inset: auto 0 0 0;
-  padding: 2.2rem .95rem .85rem;
-  color: #fff; font-size: .88rem; line-height: 1.5;
-  background: linear-gradient(transparent, rgba(6, 30, 18, .88));
-}
-
-.pol-slide-arrow {
-  position: absolute; top: 50%; z-index: 2;
-  display: grid; place-items: center; width: 40px; height: 40px;
+/* The arrows sit beside the rail rather than over the photographs, so nothing
+   covers a face. They are hidden outright at either end of the travel. */
+.pol-rail-arrow {
+  flex: 0 0 auto; align-self: center;
+  display: grid; place-items: center;
+  width: 34px; height: 34px; margin-bottom: 1.2rem;
   border: 0; border-radius: 50%; cursor: pointer;
-  background: rgba(255, 255, 255, .9); color: var(--green-deep);
-  box-shadow: 0 8px 20px -10px rgba(6, 45, 24, .8);
-  transform: translateY(-50%);
-  opacity: 0; transition: opacity .25s ease, background-color .25s ease;
+  background: transparent; color: var(--green-deep); opacity: .55;
+  transition: opacity .2s ease, background-color .2s ease;
 }
-.pol-slider:hover .pol-slide-arrow,
-.pol-slider:focus-within .pol-slide-arrow { opacity: 1; }
-.pol-slide-arrow:hover { background: #fff; }
-.pol-slide-arrow.is-prev { left: .6rem; rotate: 180deg; }
-.pol-slide-arrow.is-next { right: .6rem; }
-.pol-slide-arrow svg { width: 18px; height: 18px; }
-/* Touch has no hover, and neither does a narrow screen in practice, so the
-   arrows stay put in both cases rather than hiding behind a gesture nobody
-   can make. */
-@media (hover: none) { .pol-slide-arrow { opacity: 1; } }
-@media (max-width: 860px) { .pol-slide-arrow { opacity: 1; } }
+.pol-rail-arrow:hover, .pol-rail-arrow:focus-visible {
+  opacity: 1; background: rgba(11, 107, 58, .1); outline: none;
+}
+.pol-rail-arrow[hidden] { display: none; }
+.pol-rail-arrow.is-prev { rotate: 180deg; margin-right: .3rem; }
+.pol-rail-arrow.is-next { margin-left: .3rem; }
+.pol-rail-arrow svg { width: 22px; height: 22px; }
 
-.pol-slide-dots { display: flex; justify-content: center; gap: .4rem; margin-top: .85rem; }
-.pol-slide-dots button {
-  width: 9px; height: 9px; padding: 0; border: 0; border-radius: 50%;
-  background: var(--green-line); cursor: pointer;
-  transition: background-color .25s ease, width .25s ease;
+@media (max-width: 860px) {
+  .pol-rail-card { flex-basis: calc((100% - 1.3rem) / 2.2); }
 }
-.pol-slide-dots button:hover { background: var(--green); }
-.pol-slide-dots button.is-on { width: 26px; border-radius: 999px; background: var(--green); }
+@media (max-width: 560px) {
+  .pol-rail-card { flex-basis: 74%; }
+  .pol-rail-card figcaption { font-size: .86rem; }
+}
 
 .visually-hidden {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
 
-@media (max-width: 860px) {
-  .pol-slider { max-width: 340px; }
-  .pol-hero-gallery .pol-slider { max-width: 420px; }
-  .pol-hero-gallery .pol-slider-frame { aspect-ratio: 4 / 5; }
-}
 @media (prefers-reduced-motion: reduce) {
-  .pol-slide { transition: opacity .2s ease; transform: none; }
-  .pol-slide.is-on { transform: none; }
+  .pol-rail-track { scroll-behavior: auto; }
+  .pol-rail-card:hover .pol-rail-shot { transform: none; }
   .pol-pillars li:hover { transform: none; }
 }

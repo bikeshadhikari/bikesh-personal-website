@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 
 /**
- * Measures how long the reader actually spends on a post.
+ * Measures how long the reader actually spends on a page.
  *
  * Only time the page is visible counts, so a tab opened and left in the
  * background adds nothing. The figure is sent when the reader leaves, switches
@@ -13,7 +13,7 @@ import { useEffect } from 'react';
  */
 const MIN_SECONDS = 4;
 
-export default function ReadTimer({ postId }: { postId: number }) {
+export default function ReadTimer({ endpoint }: { endpoint: string }) {
   useEffect(() => {
     let visibleSince = document.visibilityState === 'visible' ? Date.now() : 0;
     let banked = 0;
@@ -31,7 +31,7 @@ export default function ReadTimer({ postId }: { postId: number }) {
       sent = true;
 
       const body = JSON.stringify({ seconds });
-      const url = `/api/posts/${postId}/time`;
+      const url = endpoint;
       // A Blob keeps the beacon a simple request, so it needs no preflight.
       if (navigator.sendBeacon?.(url, new Blob([body], { type: 'text/plain' }))) return;
       // Older browsers: a keepalive fetch does the same job.
@@ -55,7 +55,7 @@ export default function ReadTimer({ postId }: { postId: number }) {
       window.removeEventListener('pagehide', send);
       send();
     };
-  }, [postId]);
+  }, [endpoint]);
 
   return null;
 }

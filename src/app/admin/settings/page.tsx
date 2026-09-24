@@ -69,6 +69,9 @@ const GROUPS: SettingsGroup[] = [
     fields: {
       pol_name: { type: 'text', label: 'Name', default: 'विकेश अधिकारी', full: true },
       pol_eyebrow: { type: 'text', label: 'Line above the name', default: 'सार्वजनिक परिचय' },
+      pol_phone: { type: 'text', label: 'Phone number',
+                   hint: 'Shown as a call button that follows the reader down the political page. Clear the field to remove the button.' },
+      pol_call_label: { type: 'text', label: 'Call button wording', default: 'फोन गर्नुहोस्' },
       pol_emblem: { type: 'image', label: 'Election symbol', folder: 'political',
                     hint: 'The symbol beside the name in the hero. Pressing it gives the जय नेपाल greeting. Leave empty for the tree.' },
       pol_emblem_label: { type: 'text', label: 'Symbol caption', default: 'रूख' },

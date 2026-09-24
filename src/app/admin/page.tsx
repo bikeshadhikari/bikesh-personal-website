@@ -5,6 +5,7 @@ import { currentUser } from '@/lib/auth';
 import Shell from '@/components/admin/Shell';
 import Icon from '@/components/Icon';
 import { formatDate, humanDuration } from '@/lib/utils';
+import { getPoliticalStats } from '@/lib/political';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,7 +19,8 @@ export default async function DashboardPage() {
 
   // A database set up before reading time existed gains the columns on the
   // first dashboard load rather than erroring.
-  const [counts, recentPosts, recentMessages, popular, disabled] = await withSchema(() => Promise.all([
+  const [counts, recentPosts, recentMessages, popular, disabled, political] =
+    await withSchema(() => Promise.all([
     sql<Counts[]>`SELECT
       (SELECT COUNT(*) FROM posts WHERE status = 'published')::text AS published,
       (SELECT COUNT(*) FROM posts WHERE status = 'draft')::text AS drafts,
@@ -36,6 +38,7 @@ export default async function DashboardPage() {
       ORDER BY views DESC LIMIT 5`,
     sql<{ slug: string; label: string; kind: string }[]>`
       SELECT slug, label, kind FROM menus WHERE enabled = FALSE ORDER BY sort_order`,
+    getPoliticalStats(),
   ]));
 
   const c = counts[0];
@@ -157,6 +160,50 @@ export default async function DashboardPage() {
             </ul>
           ) : (
             <p className="muted">Views and reading time appear once people start reading.</p>
+          )}
+        </section>
+
+        <section className="panel">
+          <div className="panel-head">
+            <h3>Political page</h3>
+            <Link href="/political" target="_blank" rel="noopener noreferrer">View page</Link>
+          </div>
+          {political.views > 0 ? (
+            <>
+              <table className="data-table compact">
+                <tbody>
+                  <tr>
+                    <td>Visits</td>
+                    <td className="num">{political.views.toLocaleString()}</td>
+                  </tr>
+                  <tr>
+                    <td>Time spent reading</td>
+                    <td className="num">
+                      {humanDuration(political.read_seconds)}
+                      {political.read_sessions > 0 && (
+                        <>
+                          <br />
+                          <small className="muted">
+                            {political.read_sessions}{' '}
+                            {political.read_sessions === 1 ? 'reader' : 'readers'}
+                            {' · '}
+                            {humanDuration(
+                              Math.round(political.read_seconds / political.read_sessions),
+                            )} each
+                          </small>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <p className="muted">
+                Counted for this page only. Reading time measures the time the page was
+                actually in front of someone, not the time a tab sat open.
+              </p>
+            </>
+          ) : (
+            <p className="muted">No visits counted yet.</p>
           )}
         </section>
 

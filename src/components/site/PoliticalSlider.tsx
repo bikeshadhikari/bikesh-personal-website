@@ -5,103 +5,90 @@ import Icon from '../Icon';
 
 export type Slide = { id: number; image: string; caption: string; width: number; height: number };
 
-const HOLD_MS = 4500;
-
 /**
- * The photographs at the top of the political page.
+ * The photographs, as a rail of small cards rather than one large picture.
  *
- * It advances on its own, pauses while the pointer is on it or while the tab
- * is hidden, and stops for good the moment anyone works the arrows or dots —
- * a carousel that keeps moving under a reader's hand is a nuisance. Only the
- * current slide is in the accessibility tree, and the frame holds one shape so
- * the page does not jump as photographs of different sizes come round.
+ * Several read at once and the next one peeks in from the edge, so the row
+ * announces that there is more to see without needing dots to say so. It is a
+ * real scroll container: a finger drags it, a trackpad swipes it, the keyboard
+ * reaches every card, and the arrows are a convenience on top rather than the
+ * only way through.
  */
 export default function PoliticalSlider({ slides, alt }: { slides: Slide[]; alt: string }) {
-  const [at, setAt] = useState(0);
-  const [held, setHeld] = useState(false);
-  const stopped = useRef(false);
-  const timer = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
+  const rail = useRef<HTMLUListElement | null>(null);
+  const [at, setAt] = useState({ start: true, end: false });
 
-  const go = useCallback((next: number) => {
-    setAt((next + slides.length) % slides.length);
-  }, [slides.length]);
-
-  const take = (next: number) => { stopped.current = true; go(next); };
+  /** Which arrows are worth showing depends on how far along the rail is. */
+  const measure = useCallback(() => {
+    const node = rail.current;
+    if (!node) return;
+    const slack = node.scrollWidth - node.clientWidth;
+    setAt({
+      start: node.scrollLeft <= 4,
+      // Never both at once: a rail with nothing to scroll shows no arrows.
+      end: slack <= 4 || node.scrollLeft >= slack - 4,
+    });
+  }, []);
 
   useEffect(() => {
-    if (slides.length < 2) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    measure();
+    const node = rail.current;
+    if (!node) return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [measure]);
 
-    const tick = () => {
-      if (stopped.current || held || document.hidden) return;
-      setAt((current) => (current + 1) % slides.length);
-    };
-    timer.current = setInterval(tick, HOLD_MS);
-    return () => { if (timer.current) clearInterval(timer.current); };
-  }, [slides.length, held]);
+  /** One card's worth of travel, so a press moves a predictable distance. */
+  const step = (direction: 1 | -1) => {
+    const node = rail.current;
+    if (!node) return;
+    const card = node.firstElementChild as HTMLElement | null;
+    const width = card ? card.getBoundingClientRect().width + 16 : node.clientWidth * 0.8;
+    node.scrollBy({ left: width * direction, behavior: 'smooth' });
+  };
 
   if (slides.length === 0) return null;
 
-  const current = slides[at];
-
   return (
-    <div
-      className="pol-slider"
-      onMouseEnter={() => setHeld(true)}
-      onMouseLeave={() => setHeld(false)}
-      onFocusCapture={() => setHeld(true)}
-      onBlurCapture={() => setHeld(false)}
-    >
-      <div className="pol-slider-frame">
+    <div className="pol-rail">
+      <button
+        type="button"
+        className="pol-rail-arrow is-prev"
+        onClick={() => step(-1)}
+        aria-label="अघिल्ला तस्बिरहरू"
+        hidden={at.start}
+      >
+        <Icon name="arrow-right" />
+      </button>
+
+      <ul className="pol-rail-track" ref={rail} onScroll={measure}>
         {slides.map((slide, i) => (
-          <figure
-            key={slide.id}
-            className={`pol-slide${i === at ? ' is-on' : ''}`}
-            aria-hidden={i === at ? undefined : true}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={slide.image}
-              alt={slide.caption || alt}
-              loading={i === 0 ? 'eager' : 'lazy'}
-            />
-            {slide.caption && <figcaption>{slide.caption}</figcaption>}
-          </figure>
+          <li key={slide.id} className="pol-rail-card">
+            <figure>
+              <div className="pol-rail-shot">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={slide.image}
+                  alt={slide.caption || alt}
+                  loading={i < 3 ? 'eager' : 'lazy'}
+                />
+              </div>
+              {slide.caption && <figcaption>{slide.caption}</figcaption>}
+            </figure>
+          </li>
         ))}
+      </ul>
 
-        {slides.length > 1 && (
-          <>
-            <button type="button" className="pol-slide-arrow is-prev"
-                    onClick={() => take(at - 1)} aria-label="अघिल्लो तस्बिर">
-              <Icon name="arrow-right" />
-            </button>
-            <button type="button" className="pol-slide-arrow is-next"
-                    onClick={() => take(at + 1)} aria-label="अर्को तस्बिर">
-              <Icon name="arrow-right" />
-            </button>
-          </>
-        )}
-      </div>
-
-      {slides.length > 1 && (
-        <div className="pol-slide-dots" role="tablist" aria-label="तस्बिरहरू">
-          {slides.map((slide, i) => (
-            <button
-              key={slide.id}
-              type="button"
-              role="tab"
-              aria-selected={i === at}
-              aria-label={`तस्बिर ${i + 1}`}
-              className={i === at ? 'is-on' : undefined}
-              onClick={() => take(i)}
-            />
-          ))}
-        </div>
-      )}
-
-      <p className="visually-hidden" aria-live="polite">
-        {current.caption || `तस्बिर ${at + 1} / ${slides.length}`}
-      </p>
+      <button
+        type="button"
+        className="pol-rail-arrow is-next"
+        onClick={() => step(1)}
+        aria-label="अरू तस्बिरहरू"
+        hidden={at.end}
+      >
+        <Icon name="arrow-right" />
+      </button>
     </div>
   );
 }

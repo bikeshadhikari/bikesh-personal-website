@@ -135,6 +135,18 @@ export async function createSchema(): Promise<void> {
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
+    -- One row, id 1: how much the political page has been read. It is kept
+    -- apart from the site's other counters because it is the only page whose
+    -- audience is counted at all.
+    CREATE TABLE IF NOT EXISTS political_stats (
+      id            INTEGER PRIMARY KEY DEFAULT 1,
+      views         BIGINT NOT NULL DEFAULT 0,
+      read_seconds  BIGINT NOT NULL DEFAULT 0,
+      read_sessions BIGINT NOT NULL DEFAULT 0,
+      CONSTRAINT political_stats_one_row CHECK (id = 1)
+    );
+    INSERT INTO political_stats (id) VALUES (1) ON CONFLICT (id) DO NOTHING;
+
     CREATE TABLE IF NOT EXISTS political_slides (
       id         SERIAL PRIMARY KEY,
       image      VARCHAR(500) NOT NULL,

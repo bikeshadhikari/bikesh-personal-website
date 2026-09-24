@@ -77,7 +77,7 @@ export default async function PostPage({ params }: Props) {
     <SiteShell current="blog">
       {/* Counts the time this reader is actually on the page and reports it
           once, when they leave. */}
-      <ReadTimer postId={post.id} />
+      <ReadTimer endpoint={`/api/posts/${post.id}/time`} />
       <article className="post-single">
         <header className="post-hero">
           <div className="hero-glow" aria-hidden="true" />

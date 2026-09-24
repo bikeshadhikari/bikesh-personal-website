@@ -11,10 +11,12 @@ import Icon from '@/components/Icon';
 import { menuEnabled } from '@/lib/menu';
 import { getSettings, setting, socialLinks } from '@/lib/settings';
 import { getPoliticalPhotos, getPoliticalSections, getPoliticalSlides,
-         parseFigures, polSetting } from '@/lib/political';
+         parseFigures, polSetting, registerPoliticalView } from '@/lib/political';
+import ReadTimer from '@/components/site/ReadTimer';
 import PoliticalSlider from '@/components/site/PoliticalSlider';
 import PoliticalEmblem from '@/components/site/PoliticalEmblem';
 import PoliticalFloaters from '@/components/site/PoliticalFloaters';
+import PoliticalCall from '@/components/site/PoliticalCall';
 import { siteOrigin } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
@@ -50,6 +52,11 @@ export async function generateMetadata(): Promise<Metadata> {
  */
 export default async function PoliticalPage() {
   if (!(await menuEnabled('political'))) notFound();
+
+  // Counted here rather than in generateMetadata, which runs for the same
+  // request and would double every arrival. Not awaited: a counter never
+  // delays a render.
+  void registerPoliticalView();
 
   const [s, sections, photos, slides, notice] = await Promise.all([
     getSettings(), getPoliticalSections(), getPoliticalPhotos(),
@@ -98,6 +105,8 @@ export default async function PoliticalPage() {
           }}
         />
       )}
+
+      <ReadTimer endpoint="/api/political/time" />
 
       <header className="pol-hero">
         <div className="pol-hero-art" aria-hidden="true">
@@ -184,6 +193,11 @@ export default async function PoliticalPage() {
           ))
         )}
       </main>
+
+      <PoliticalCall
+        phone={polSetting(s, 'pol_phone')}
+        label={polSetting(s, 'pol_call_label')}
+      />
 
       <JayaNepal
         label={polSetting(s, 'pol_jaya_label')}
