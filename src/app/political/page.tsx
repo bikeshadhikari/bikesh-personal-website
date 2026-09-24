@@ -13,6 +13,7 @@ import { getSettings, setting, socialLinks } from '@/lib/settings';
 import { getPoliticalPhotos, getPoliticalSections, getPoliticalSlides,
          parseFigures, polSetting } from '@/lib/political';
 import PoliticalSlider from '@/components/site/PoliticalSlider';
+import PoliticalEmblem from '@/components/site/PoliticalEmblem';
 import { siteOrigin } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
@@ -23,8 +24,9 @@ export async function generateMetadata(): Promise<Metadata> {
   const title = `${name} — राजनीतिक संलग्नता`;
   const description = polSetting(s, 'pol_meta_description');
 
-  // The share picture is its own setting so this page can travel with a
-  // portrait of its own rather than the site's default card.
+  // The Share picture wins, then the portrait. Naming neither leaves the card
+  // in opengraph-image.tsx to serve, which is why an empty field no longer
+  // means a link arrives on Facebook as bare text.
   const cover = setting(s, 'pol_cover') || setting(s, 'pol_portrait');
   const images = cover ? { images: [{ url: cover, width: 1200, height: 630, alt: title }] } : {};
 
@@ -33,7 +35,8 @@ export async function generateMetadata(): Promise<Metadata> {
     description,
     alternates: { canonical: '/political' },
     openGraph: { type: 'profile', url: `${siteOrigin()}/political`, title, description, ...images },
-    twitter: { card: cover ? 'summary_large_image' : 'summary', title, description, ...images },
+    // There is always a wide picture now — an uploaded one or the drawn card.
+    twitter: { card: 'summary_large_image', title, description, ...images },
   };
 }
 
@@ -104,7 +107,7 @@ export default async function PoliticalPage() {
 
         <div className="pol-wrap pol-hero-inner">
           <div className="pol-hero-copy">
-            <p className="pol-eyebrow">सार्वजनिक परिचय</p>
+            <p className="pol-eyebrow">{polSetting(s, 'pol_eyebrow')}</p>
             <h1>{name}</h1>
 
             {candidacy && (
@@ -128,8 +131,17 @@ export default async function PoliticalPage() {
             )}
           </div>
 
-          {/* The slider when there are slides, the single portrait otherwise. */}
-          {slides.length > 0 ? (
+          {/* The ballot symbol, which asks for the जय नेपाल greeting. */}
+          <PoliticalEmblem
+            image={polSetting(s, 'pol_emblem')}
+            caption={polSetting(s, 'pol_emblem_label')}
+            label={polSetting(s, 'pol_jaya_label')}
+          />
+        </div>
+
+        {/* The photographs, reading after the pledges rather than beside them. */}
+        {slides.length > 0 ? (
+          <div className="pol-wrap pol-hero-gallery">
             <PoliticalSlider
               alt={name}
               slides={slides.map((x) => ({
@@ -137,13 +149,15 @@ export default async function PoliticalPage() {
                 width: x.width, height: x.height,
               }))}
             />
-          ) : portrait ? (
+          </div>
+        ) : portrait ? (
+          <div className="pol-wrap pol-hero-gallery">
             <div className="pol-portrait">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={portrait} alt={name} />
             </div>
-          ) : null}
-        </div>
+          </div>
+        ) : null}
       </header>
 
       {sections.length > 0 && <PoliticalNav sections={sections.map((x) => ({

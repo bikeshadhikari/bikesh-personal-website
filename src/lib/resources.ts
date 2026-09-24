@@ -244,7 +244,7 @@ export const RESOURCES: Record<string, ResourceDef> = {
   },
 
   political_sections: {
-    table: 'political_sections', label: 'Political page sections', singular: 'Section',
+    table: 'political_sections', label: 'Page sections', singular: 'Section',
     icon: 'compass', group: 'Political', order: 'sort_order ASC, id ASC',
     search: ['title', 'subtitle', 'body'], toggle: 'enabled',
     list: [
@@ -303,7 +303,7 @@ export const RESOURCES: Record<string, ResourceDef> = {
   },
 
   political_photos: {
-    table: 'political_photos', label: 'Political page photos', singular: 'Photo',
+    table: 'political_photos', label: 'Section photos', singular: 'Section photo',
     icon: 'eye', group: 'Political', order: 'sort_order ASC, id DESC',
     search: ['caption'], toggle: 'enabled',
     list: [
@@ -314,7 +314,7 @@ export const RESOURCES: Record<string, ResourceDef> = {
     ],
     fields: {
       image: { type: 'image', label: 'Photo', folder: 'political', required: true, full: true,
-               hint: 'Any size or shape. Photos arrange themselves inside the section.' },
+               hint: 'Shown in a column under the section you choose below, further down the political page. Not the picture used when the link is shared — that is Settings → Political page → Share picture.' },
       dimensions: { type: 'dimensions', label: 'Dimensions' },
       section_id: { type: 'select', label: 'Section', options: 'political_sections',
                     hint: 'Which section of the political page this photo belongs under.' },

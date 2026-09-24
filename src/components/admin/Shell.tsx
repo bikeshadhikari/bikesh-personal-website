@@ -54,7 +54,7 @@ export default async function Shell({
     ['Political', [
       ['political_sections', 'Page sections', 'compass'],
       ['political_slides', 'Hero slider', 'eye'],
-      ['political_photos', 'Page photos', 'eye'],
+      ['political_photos', 'Section photos', 'eye'],
     ]],
     ['Inbox', [
       ['messages', 'Messages', 'mail', unread],

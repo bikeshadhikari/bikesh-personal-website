@@ -180,7 +180,58 @@
 }
 @media (max-width: 860px) {
   .pol-hero-inner { grid-template-columns: 1fr; }
-  .pol-portrait { order: -1; max-width: 300px; margin-inline: auto; }
+  .pol-emblem { order: -1; }
+}
+
+/* The photographs sit under the pledges, the full width of the hero. */
+.pol-hero-gallery { margin-top: clamp(2.2rem, 5vw, 3.4rem); }
+.pol-hero-gallery .pol-portrait { max-width: 420px; margin-inline: auto; }
+
+/* --- ballot symbol ------------------------------------------------------- */
+
+.pol-emblem {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; gap: .9rem;
+  justify-self: center;
+  width: min(100%, 300px); padding: clamp(1.4rem, 3vw, 2.2rem);
+  border: 0; border-radius: 50%;
+  background: radial-gradient(circle at 50% 38%, #fff 0%, #f3fbf6 62%, #e4f3ea 100%);
+  box-shadow: 0 30px 70px -30px rgba(6, 77, 41, .6), inset 0 0 0 1px var(--green-line);
+  cursor: pointer;
+  transition: transform .45s cubic-bezier(.22, 1, .36, 1), box-shadow .45s ease;
+  animation: pol-emblem-float 7s ease-in-out infinite;
+}
+.pol-emblem img {
+  position: relative; z-index: 1;
+  width: 100%; height: auto; display: block;
+  filter: drop-shadow(0 12px 22px rgba(6, 77, 41, .28));
+}
+.pol-emblem-name {
+  position: relative; z-index: 1;
+  font-size: 1.05rem; font-weight: 700; letter-spacing: .06em; color: var(--green-deep);
+}
+
+/* A ring that breathes outward, so the symbol reads as something to press. */
+.pol-emblem-glow {
+  position: absolute; inset: -6px; border-radius: 50%;
+  border: 2px solid var(--green); opacity: 0;
+  animation: pol-emblem-ring 3.2s ease-out infinite;
+}
+.pol-emblem:hover, .pol-emblem:focus-visible {
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 40px 84px -32px rgba(6, 77, 41, .72), inset 0 0 0 1px var(--green);
+  outline: none;
+}
+.pol-emblem:active { transform: translateY(-2px) scale(.99); }
+
+@keyframes pol-emblem-float {
+  0%, 100% { translate: 0 0; }
+  50%      { translate: 0 -12px; }
+}
+@keyframes pol-emblem-ring {
+  0%   { opacity: .55; transform: scale(1); }
+  70%  { opacity: 0;   transform: scale(1.14); }
+  100% { opacity: 0;   transform: scale(1.14); }
 }
 
 .pol-eyebrow {
@@ -547,6 +598,7 @@
   .political *, .political *::before, .political *::after {
     animation: none !important; transition: none !important;
   }
+  .pol-emblem, .pol-emblem-glow { animation: none; }
   .pol-btn:hover, .pol-portrait:hover, .pol-figures li:hover, .pol-photos figure:hover,
   .listen-btn:hover, .pol-social a:hover { transform: none; }
 }
@@ -663,7 +715,11 @@
    Hero slider
    ========================================================================== */
 
-.pol-slider { position: relative; justify-self: center; width: 100%; max-width: 440px; }
+.pol-slider { position: relative; justify-self: center; width: 100%; max-width: 440px; margin-inline: auto; }
+/* Standing under the pledges it has the whole width, so it reads as a band
+   rather than a column. */
+.pol-hero-gallery .pol-slider { max-width: 880px; }
+.pol-hero-gallery .pol-slider-frame { aspect-ratio: 16 / 10; }
 
 /* One frame, one shape: photographs of different sizes come round without the
    page jumping as each one lands. */
@@ -724,7 +780,11 @@
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
 
-@media (max-width: 860px) { .pol-slider { order: -1; max-width: 340px; } }
+@media (max-width: 860px) {
+  .pol-slider { max-width: 340px; }
+  .pol-hero-gallery .pol-slider { max-width: 420px; }
+  .pol-hero-gallery .pol-slider-frame { aspect-ratio: 4 / 5; }
+}
 @media (prefers-reduced-motion: reduce) {
   .pol-slide { transition: opacity .2s ease; transform: none; }
   .pol-slide.is-on { transform: none; }

@@ -23,6 +23,9 @@ export const POLITICAL_DEFAULTS: Record<string, string> = {
   pol_listen_label: 'नपढी सुन्नका लागि यहाँ क्लिक गर्नुहोस्',
   pol_footer_note: 'समुन्नत नेपाल, सम्मानित नेपाली',
   pol_jaya_label: 'जय नेपाल भन्नुहोस्',
+  pol_eyebrow: 'सार्वजनिक परिचय',
+  pol_emblem: '/political/tree.png',
+  pol_emblem_label: 'रूख',
   pol_candidacy: 'संघीय महाधिवेशन प्रतिनिधि उम्मेदवार',
   pol_candidacy_sub: 'युवा तर्फ — ३५ वर्षमुनि',
   pol_candidacy_note:

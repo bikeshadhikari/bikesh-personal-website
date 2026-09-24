@@ -5,10 +5,14 @@ import { useEffect, useRef, useState } from 'react';
 const CHEER_MS = 2600;
 const PIECES = 26;
 
+/** Anything on the page can ask for the greeting by firing this event. */
+export const JAYA_EVENT = 'jaya-nepal';
+
 /**
  * A greeting the reader can set off: the button on the edge of the screen
  * says जय नेपाल भन्नुहोस्, and pressing it brings a waving hand to the middle
- * of the page while the words are spoken aloud.
+ * of the page while the words are spoken aloud. The tree in the hero asks for
+ * the same greeting through JAYA_EVENT, so both give the identical cheer.
  *
  * A recording uploaded in the dashboard is used when there is one. Otherwise
  * the browser speaks the two words, preferring a Nepali voice and falling back
@@ -24,6 +28,13 @@ export default function JayaNepal({ label, audio = '' }: { label: string; audio?
     if (timer.current) clearTimeout(timer.current);
     if (typeof window !== 'undefined') window.speechSynthesis?.cancel();
     audioRef.current?.pause();
+  }, []);
+
+  // The emblem elsewhere on the page sets off the very same cheer.
+  useEffect(() => {
+    const onAsk = () => cheerRef.current();
+    window.addEventListener(JAYA_EVENT, onAsk);
+    return () => window.removeEventListener(JAYA_EVENT, onAsk);
   }, []);
 
   const say = () => {
@@ -58,6 +69,8 @@ export default function JayaNepal({ label, audio = '' }: { label: string; audio?
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => setCheering(false), CHEER_MS);
   };
+  const cheerRef = useRef(cheer);
+  cheerRef.current = cheer;
 
   return (
     <>
