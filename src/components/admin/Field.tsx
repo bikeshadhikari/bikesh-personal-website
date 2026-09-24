@@ -10,7 +10,7 @@ export type SelectOption = { value: string; label: string };
 
 /** Renders one dashboard control from a Resource field definition. */
 export default function Field({
-  name, field, value, error, categoryOptions = [],
+  name, field, value, error, categoryOptions = [], pageOptions = [],
   withDimensions = false, initialWidth = 0, initialHeight = 0,
 }: {
   name: string;
@@ -18,6 +18,7 @@ export default function Field({
   value: unknown;
   error?: string;
   categoryOptions?: SelectOption[];
+  pageOptions?: SelectOption[];
   withDimensions?: boolean;
   initialWidth?: number;
   initialHeight?: number;
@@ -54,6 +55,31 @@ export default function Field({
                 <option key={key} value={key}>{text2}</option>
               ))}
         </select>
+      )}
+
+      {/* The site's own pages, ticked. Nothing can be typed here, so a notice
+          can only ever be pointed at a page that exists. */}
+      {field.type === 'pages' && (
+        <div className="page-picker">
+          {pageOptions.length === 0 ? (
+            <p className="muted">No pages are switched on yet.</p>
+          ) : (
+            pageOptions.map((option) => (
+              <label className="checkbox" key={option.value}>
+                <input
+                  type="checkbox"
+                  name={name}
+                  value={option.value}
+                  defaultChecked={text.split('\n').includes(option.value)}
+                />
+                <span>{option.label} <code>{option.value}</code></span>
+              </label>
+            ))
+          )}
+          {/* Keeps the field present even with nothing ticked, so clearing
+              every box saves as empty rather than leaving the old list. */}
+          <input type="hidden" name={`${name}__present`} value="1" />
+        </div>
       )}
 
       {field.type === 'icon' && <IconPicker id={id} name={name} value={text} />}

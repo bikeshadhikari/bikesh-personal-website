@@ -340,7 +340,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .
 .admin-form > .field { margin-bottom: 1rem; }
 .field > label { display: block; font-size: .84rem; font-weight: 700; margin-bottom: .35rem; }
 .field > label small { font-weight: 500; color: var(--text-muted); }
-.field > label span { color: var(--danger); }
+.field > label:not(.checkbox) span { color: var(--danger); }
 
 .field input[type="text"], .field input[type="email"], .field input[type="url"], .field input[type="tel"],
 .field input[type="password"], .field input[type="number"], .field input[type="date"],
@@ -577,4 +577,18 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .
   .stat-card, .panel, .form-panel, .media-item, .comment-admin,
   .media-thumb img, .sidebar-nav a, .quick-links a, .search-results a { transition: none; }
   .media-item:hover, .comment-admin:hover, .search-results a:hover { transform: none; }
+}
+
+/* The page picker on a notice: the site's own pages, ticked. */
+.page-picker {
+  display: grid; gap: .35rem;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  padding: .8rem .9rem;
+  border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+  background: var(--panel-alt);
+}
+.page-picker .checkbox { margin: 0; }
+.page-picker code {
+  font-size: .76rem; color: var(--text-muted);
+  background: none; padding: 0;
 }

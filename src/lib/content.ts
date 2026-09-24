@@ -5,7 +5,7 @@ import type {
   Category, Certification, Comment, Experience, GalleryItem, Highlight,
   Notice, Paginated, Post, Project, Service, Skill, Testimonial,
 } from './types';
-import { ensureSchema, isMissingTable } from './schema';
+import { ensureSchema, isMissingColumn, isMissingTable } from './schema';
 
 /* -------------------------------------------------------------------------- */
 /* Profile blocks                                                             */
@@ -109,7 +109,7 @@ export const getActiveNotice = cache(async (): Promise<Notice | null> => {
     return (await query())[0] ?? null;
   } catch (error) {
     // A site set up before notices existed creates the table on first view.
-    if (!isMissingTable(error)) return null;
+    if (!isMissingTable(error) && !isMissingColumn(error)) return null;
     await ensureSchema();
     return (await query())[0] ?? null;
   }

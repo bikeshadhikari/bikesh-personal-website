@@ -90,3 +90,18 @@ export function menuHref(item: MenuItem): string {
   if (item.custom_url && item.custom_url.trim()) return item.custom_url;
   return item.slug === 'home' ? '/' : `/${item.slug}`;
 }
+
+/**
+ * The pages a visitor can actually reach, as somewhere a notice can be pinned.
+ * Built from Menus & sections, so a page switched off there cannot be chosen,
+ * and the home page is always first.
+ */
+export async function pageChoices(): Promise<{ value: string; label: string }[]> {
+  const items = await getMenus();
+  const pages = items
+    .filter((m) => m.enabled && m.kind === 'page')
+    .map((m) => ({ value: menuHref(m), label: m.label }))
+    .filter((p) => p.value.startsWith('/'));
+
+  return [{ value: '/', label: 'Home' }, ...pages.filter((p) => p.value !== '/')];
+}

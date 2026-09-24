@@ -1,5 +1,6 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import Icon from '../Icon';
 
@@ -11,9 +12,32 @@ export type NoticeData = {
   linkUrl: string;
   linkLabel: string;
   dismissOnce: boolean;
+  /** Where it is allowed to appear. */
+  showOn: 'home' | 'all' | 'pages';
+  /** The pages it is pinned to, when showOn is 'pages'. */
+  showPaths: string[];
   /** Changes whenever the notice is edited, so an edited notice shows again. */
   version: string;
 };
+
+/**
+ * Whether this notice belongs on the page being looked at.
+ *
+ * A pinned page matches the page itself and anything under it, so pinning to
+ * /blog covers every article without listing them. Trailing slashes are
+ * ignored, so /blog and /blog/ are the same page.
+ */
+function allowedHere(notice: NoticeData, pathname: string | null): boolean {
+  const here = (pathname ?? '/').replace(/\/+$/, '') || '/';
+
+  if (notice.showOn === 'all') return true;
+  if (notice.showOn === 'home') return here === '/';
+
+  return notice.showPaths.some((raw) => {
+    const path = raw.replace(/\/+$/, '') || '/';
+    return path === '/' ? here === '/' : here === path || here.startsWith(`${path}/`);
+  });
+}
 
 /**
  * The notice a visitor meets on arrival.
@@ -33,8 +57,11 @@ export default function NoticePopup({ notice }: { notice: NoticeData }) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const key = `notice-seen-${notice.id}-${notice.version}`;
+  const pathname = usePathname();
+  const allowed = allowedHere(notice, pathname);
 
   useEffect(() => {
+    if (!allowed) { setOpen(false); return; }
     if (!notice.dismissOnce) { setOpen(true); return; }
     try {
       if (window.localStorage.getItem(key) !== '1') setOpen(true);
@@ -43,7 +70,7 @@ export default function NoticePopup({ notice }: { notice: NoticeData }) {
       // side of that: better seen twice than never.
       setOpen(true);
     }
-  }, [key, notice.dismissOnce]);
+  }, [key, notice.dismissOnce, allowed]);
 
   useEffect(() => {
     if (!open) return;

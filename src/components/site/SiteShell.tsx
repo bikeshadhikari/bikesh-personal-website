@@ -54,6 +54,9 @@ export default async function SiteShell({
             linkUrl: notice.link_file || notice.link_url || '',
             linkLabel: notice.link_label ?? '',
             dismissOnce: notice.dismiss_once,
+            showOn: notice.show_on ?? 'home',
+            showPaths: (notice.show_paths ?? '')
+              .split('\n').map((p) => p.trim()).filter(Boolean),
             version: String(notice.updated_at ?? ''),
           }}
         />

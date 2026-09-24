@@ -128,6 +128,8 @@ export async function createSchema(): Promise<void> {
       link_file    VARCHAR(500) DEFAULT '',
       link_label   VARCHAR(120) DEFAULT '',
       dismiss_once BOOLEAN NOT NULL DEFAULT TRUE,
+      show_on      VARCHAR(20)  NOT NULL DEFAULT 'home',
+      show_paths   TEXT         DEFAULT '',
       enabled      BOOLEAN NOT NULL DEFAULT TRUE,
       starts_at    TIMESTAMPTZ,
       ends_at      TIMESTAMPTZ,
@@ -302,5 +304,7 @@ export async function createSchema(): Promise<void> {
     ALTER TABLE gallery ADD COLUMN IF NOT EXISTS caption VARCHAR(400) DEFAULT '';
     ALTER TABLE posts   ADD COLUMN IF NOT EXISTS read_seconds  BIGINT  NOT NULL DEFAULT 0;
     ALTER TABLE posts   ADD COLUMN IF NOT EXISTS read_sessions INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE notices ADD COLUMN IF NOT EXISTS show_on    VARCHAR(20) NOT NULL DEFAULT 'home';
+    ALTER TABLE notices ADD COLUMN IF NOT EXISTS show_paths TEXT DEFAULT '';
   `);
 }

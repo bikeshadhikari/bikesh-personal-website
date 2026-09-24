@@ -79,7 +79,11 @@ no UI framework and no CSS framework, so the markup stays readable and the pages
   shown, never cropped, and the notice fits any screen from a small phone to a
   desktop. Set a start and an end date to schedule it, choose whether each
   visitor sees it once or on every visit, and when more than one is live the
-  lowest sort order wins.
+  lowest sort order wins. Choose where it appears: the home page only, every
+  page, or only the pages you tick. The pages are a list of your own, taken
+  from Menus & sections, so a notice can only ever be pinned to a page that
+  exists and is switched on. A ticked page covers what sits under it, so
+  choosing the blog covers every article without listing them.
 - **Skills, services, projects, certifications, testimonials, key numbers** — each
   with its own visibility switch and sort order.
 - **Search** — one box in the dashboard header, or press `/` from anywhere in it.

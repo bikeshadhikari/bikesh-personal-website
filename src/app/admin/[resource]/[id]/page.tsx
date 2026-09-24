@@ -4,6 +4,7 @@ import ResourceForm from '@/components/admin/ResourceForm';
 import { getResource } from '@/lib/resources';
 import { findRow } from '@/lib/crud';
 import { getCategories } from '@/lib/content';
+import { pageChoices } from '@/lib/menu';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,6 +29,8 @@ export default async function EditResourcePage({ params, searchParams }: Props) 
 
   const needsCategories = Object.values(def.fields).some((f) => f.options === 'categories');
   const categories = needsCategories ? await getCategories() : [];
+  const needsPages = Object.values(def.fields).some((f) => f.type === 'pages');
+  const pages = needsPages ? await pageChoices() : [];
 
   const viewColumn = def.list.find((c) => c.viewPath);
   const viewHref = viewColumn && record.slug ? `/${viewColumn.viewPath}/${record.slug}` : undefined;
@@ -42,6 +45,7 @@ export default async function EditResourcePage({ params, searchParams }: Props) 
         viewHref={viewHref}
         saved={saved === '1'}
         categoryOptions={categories.map((c) => ({ value: String(c.id), label: c.name }))}
+        pageOptions={pages}
       />
     </Shell>
   );

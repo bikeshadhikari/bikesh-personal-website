@@ -7,7 +7,7 @@
 export type FieldType =
   | 'text' | 'textarea' | 'richtext' | 'slug' | 'url' | 'number' | 'range'
   | 'select' | 'checkbox' | 'date' | 'datetime' | 'color' | 'image' | 'file'
-  | 'icon' | 'dimensions';
+  | 'icon' | 'dimensions' | 'pages';
 
 export type Field = {
   type: FieldType;
@@ -272,8 +272,18 @@ export const RESOURCES: Record<string, ResourceDef> = {
                    hint: 'Leave empty to start immediately.' },
       ends_at: { type: 'datetime', label: 'Stop showing',
                  hint: 'Leave empty to keep showing until you switch it off.' },
+      show_on: {
+        type: 'select', label: 'Where it appears', default: 'home',
+        options: {
+          home: 'The home page only',
+          all: 'Every page',
+          pages: 'Only the pages I tick below',
+        },
+      },
+      show_paths: { type: 'pages', label: 'Pages', full: true,
+                    hint: 'Used only when "Only the pages I tick below" is chosen above.' },
       dismiss_once: { type: 'checkbox', label: 'Show each visitor once', default: true,
-                      hint: 'On: it appears once and stays closed for that person. Off: it appears on every visit.' },
+                      hint: 'On: it appears once and stays closed for that person. Off: it appears on every visit it is allowed on.' },
       sort_order: { type: 'number', label: 'Sort order', default: 0,
                     hint: 'When more than one notice is live, the lowest number wins.' },
       enabled: { type: 'checkbox', label: 'Show this notice', default: true },

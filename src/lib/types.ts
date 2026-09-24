@@ -75,6 +75,7 @@ export type Notice = {
   id: number; title: string; body: string; image: string;
   link_url: string; link_file: string; link_label: string;
   dismiss_once: boolean; enabled: boolean;
+  show_on: 'home' | 'all' | 'pages'; show_paths: string;
   starts_at: string | null; ends_at: string | null;
   sort_order: number; created_at: string; updated_at: string;
 };

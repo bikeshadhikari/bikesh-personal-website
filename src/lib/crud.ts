@@ -123,6 +123,15 @@ async function readField(
       return { value: next };
     }
 
+    case 'pages': {
+      // A checkbox list: only paths on this site, and only ones that came from
+      // the picker, so nothing arbitrary can be stored here.
+      const picked = formData.getAll(name)
+        .map((v) => String(v).trim())
+        .filter((v) => v.startsWith('/') && !v.startsWith('//'));
+      return { value: [...new Set(picked)].join('\n') };
+    }
+
     case 'dimensions': {
       // Written by the uploader, not by a person.
       return { value: Math.max(0, Number(formData.get(name) ?? 0) || 0) };
@@ -206,14 +215,17 @@ export async function saveRow(
     return { ok: false, errors, values: { ...(existing ?? blankRow(def)), ...data, id } };
   }
 
+  // Wrapped because a write is where a database behind this build shows it:
+  // reading with SELECT * survives a missing column, writing to one does not.
   if (id > 0) {
     const columns = Object.keys(data);
-    await sql`UPDATE ${sql(def.table)} SET ${sql(data as never, ...columns)} WHERE id = ${id}`;
+    await withSchema(() =>
+      sql`UPDATE ${sql(def.table)} SET ${sql(data as never, ...columns)} WHERE id = ${id}`);
     return { ok: true, id };
   }
 
-  const inserted = await sql<{ id: number }[]>`
-    INSERT INTO ${sql(def.table)} ${sql(data as never, ...Object.keys(data))} RETURNING id`;
+  const inserted = await withSchema(() => sql<{ id: number }[]>`
+    INSERT INTO ${sql(def.table)} ${sql(data as never, ...Object.keys(data))} RETURNING id`);
   return { ok: true, id: inserted[0].id };
 }
 

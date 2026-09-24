@@ -4,6 +4,7 @@ import ResourceForm from '@/components/admin/ResourceForm';
 import { getResource } from '@/lib/resources';
 import { blankRow } from '@/lib/crud';
 import { getCategories } from '@/lib/content';
+import { pageChoices } from '@/lib/menu';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,6 +23,8 @@ export default async function NewResourcePage({ params }: Props) {
 
   const needsCategories = Object.values(def.fields).some((f) => f.options === 'categories');
   const categories = needsCategories ? await getCategories() : [];
+  const needsPages = Object.values(def.fields).some((f) => f.type === 'pages');
+  const pages = needsPages ? await pageChoices() : [];
 
   return (
     <Shell title={`New ${def.singular.toLowerCase()}`} current={resource}>
@@ -31,6 +34,7 @@ export default async function NewResourcePage({ params }: Props) {
         record={blankRow(def)}
         isEdit={false}
         categoryOptions={categories.map((c) => ({ value: String(c.id), label: c.name }))}
+        pageOptions={pages}
       />
     </Shell>
   );

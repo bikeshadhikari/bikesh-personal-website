@@ -10,13 +10,14 @@ import type { Row } from '@/lib/crud';
 import Icon from '../Icon';
 
 export default function ResourceForm({
-  resource, def, record, isEdit, categoryOptions, viewHref, saved,
+  resource, def, record, isEdit, categoryOptions, pageOptions = [], viewHref, saved,
 }: {
   resource: string;
   def: ResourceDef;
   record: Row;
   isEdit: boolean;
   categoryOptions: SelectOption[];
+  pageOptions?: SelectOption[];
   viewHref?: string;
   saved?: boolean;
 }) {
@@ -61,6 +62,7 @@ export default function ResourceForm({
                 value={values[name]}
                 error={errors[name]}
                 categoryOptions={categoryOptions}
+                pageOptions={pageOptions}
                 withDimensions={hasDimensions && field.type === 'image'}
                 initialWidth={Number(values.width ?? 0)}
                 initialHeight={Number(values.height ?? 0)}
