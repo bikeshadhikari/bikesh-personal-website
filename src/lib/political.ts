@@ -93,7 +93,7 @@ async function heal<T>(run: () => Promise<T>, fallback: T): Promise<T> {
 async function seedSections(): Promise<void> {
   const [{ count }] = await sql<{ count: string }[]>`
     SELECT COUNT(*)::text AS count FROM political_sections`;
-  if (Number(count) > 0) { await refreshUntouched(); return; }
+  if (Number(count) > 0) return;
 
   await sql`INSERT INTO political_sections ${sql(
     SECTION_SEED.map((s, i) => ({
@@ -111,29 +111,15 @@ async function seedSections(): Promise<void> {
   )}`;
 }
 
-/**
- * Bring the shipped wording up to date where nobody has changed it.
- *
- * A section whose updated_at still equals its created_at has never been saved
- * from the dashboard, so replacing its text loses nothing. The moment the
- * owner edits a section it is theirs, and this leaves it alone for good.
+/*
+ * There was a refreshUntouched() here that rewrote any section still carrying
+ * updated_at = created_at with the shipped Nepali, so improvements to the
+ * wording reached a page that had already been seeded. It has served its
+ * purpose and is gone: saving a section did not stamp updated_at, so every
+ * edit made in the dashboard was overwritten on the next visit. The stamp is
+ * fixed in crud.ts, but a mechanism that silently replaces the owner's words
+ * whenever the shipped text changes is not worth keeping for that one use.
  */
-async function refreshUntouched(): Promise<void> {
-  const rows = await sql<{ id: number; number: string }[]>`
-    SELECT id, number FROM political_sections WHERE updated_at = created_at`;
-  if (rows.length === 0) return;
-
-  for (const row of rows) {
-    const shipped = SECTION_SEED.find((x) => x.number === row.number);
-    if (!shipped) continue;
-    await sql`
-      UPDATE political_sections
-      SET title = ${shipped.title}, subtitle = ${shipped.subtitle},
-          body = ${shipped.body}, figures = ${shipped.figures},
-          updated_at = created_at
-      WHERE id = ${row.id} AND updated_at = created_at`;
-  }
-}
 
 export const getPoliticalSections = cache(async (): Promise<PoliticalSection[]> =>
   heal<PoliticalSection[]>(async () => {

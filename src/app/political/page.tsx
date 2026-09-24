@@ -14,6 +14,7 @@ import { getPoliticalPhotos, getPoliticalSections, getPoliticalSlides,
          parseFigures, polSetting } from '@/lib/political';
 import PoliticalSlider from '@/components/site/PoliticalSlider';
 import PoliticalEmblem from '@/components/site/PoliticalEmblem';
+import PoliticalFloaters from '@/components/site/PoliticalFloaters';
 import { siteOrigin } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
@@ -104,6 +105,8 @@ export default async function PoliticalPage() {
           <span className="pol-orb pol-orb-2" />
           <span className="pol-hero-tree" />
         </div>
+
+        <PoliticalFloaters />
 
         <div className="pol-wrap pol-hero-inner">
           <div className="pol-hero-copy">

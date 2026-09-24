@@ -26,8 +26,15 @@ async function uniqueSlug(table: string, slug: string, ignoreId?: number): Promi
 
 export type ListResult = { rows: Row[]; total: number; pages: number; page: number };
 
-/** Tables whose schema carries an updated_at column. */
-const TIMESTAMPED = new Set(['posts', 'notices']);
+/**
+ * Tables whose schema carries an updated_at column.
+ *
+ * A political section must be in here: the page refreshes the shipped Nepali
+ * wording on any section still carrying updated_at = created_at, so a section
+ * that saved without being stamped was silently overwritten on the next visit
+ * and an edit made in the dashboard never reached the page.
+ */
+const TIMESTAMPED = new Set(['posts', 'notices', 'political_sections']);
 
 /** Rows for a dashboard list screen, with search, pagination and derived columns. */
 export async function listRows(

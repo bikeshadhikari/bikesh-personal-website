@@ -187,6 +187,55 @@
 .pol-hero-gallery { margin-top: clamp(2.2rem, 5vw, 3.4rem); }
 .pol-hero-gallery .pol-portrait { max-width: 420px; margin-inline: auto; }
 
+/* --- drifting vector art ------------------------------------------------- */
+
+/* The field covers the hero and never catches a click, so the drawings can sit
+   over the copy without getting in the reader's way. */
+.pol-floats {
+  position: absolute; inset: 0; z-index: 1;
+  overflow: hidden; pointer-events: none;
+}
+.pol-float {
+  position: absolute;
+  width: var(--size); height: var(--size);
+  display: block; opacity: .38;
+  animation: pol-drift var(--dur) ease-in-out infinite;
+  animation-delay: var(--delay);
+  will-change: transform;
+}
+.pol-float-art { width: 100%; height: 100%; display: block; overflow: visible; }
+/* The tree is the ballot symbol, so it carries a touch more weight than the
+   flag and the stars, which are there to colour the space. */
+.pol-float.is-tree { opacity: .44; }
+
+/* Each piece travels a short way and comes back, turning slightly as it goes,
+   so no two of them ever line up into a pattern. */
+@keyframes pol-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  33%      { transform: translate3d(8px, -16px, 0) rotate(var(--spin)); }
+  66%      { transform: translate3d(-9px, -7px, 0) rotate(calc(var(--spin) * -0.6)); }
+}
+
+/* Small screens keep every piece — the page should feel the same at any width —
+   but at two thirds the size, and fainter, so they never crowd the words. */
+@media (max-width: 860px) {
+  .pol-float { width: calc(var(--size) * .68); height: calc(var(--size) * .68); opacity: .3; }
+  .pol-float.is-tree { opacity: .36; }
+}
+/* Below the hero's own breakpoint the words fill the width and the cards fill
+   the lower half, so only the pieces standing clear of both are kept. */
+@media (max-width: 860px) {
+  .pol-float:not(.is-edge), .pol-float.is-low { display: none; }
+}
+/* Two columns, but the page is no wider than its own wrapper, so there is no
+   left gutter for a drawing to stand in. */
+@media (min-width: 861px) and (max-width: 1200px) {
+  .pol-float.is-side { display: none; }
+}
+@media (max-width: 480px) {
+  .pol-float { width: calc(var(--size) * .58); height: calc(var(--size) * .58); }
+}
+
 /* --- ballot symbol ------------------------------------------------------- */
 
 .pol-emblem {
@@ -598,7 +647,7 @@
   .political *, .political *::before, .political *::after {
     animation: none !important; transition: none !important;
   }
-  .pol-emblem, .pol-emblem-glow { animation: none; }
+  .pol-emblem, .pol-emblem-glow, .pol-float { animation: none; }
   .pol-btn:hover, .pol-portrait:hover, .pol-figures li:hover, .pol-photos figure:hover,
   .listen-btn:hover, .pol-social a:hover { transform: none; }
 }
