@@ -3,7 +3,7 @@ import { cache } from 'react';
 import { sql } from './db';
 import { ensureSchema, isMissingColumn, isMissingTable } from './schema';
 import { SECTION_SEED } from './political-content';
-import type { PoliticalPhoto, PoliticalSection } from './types';
+import type { PoliticalPhoto, PoliticalSection, PoliticalSlide } from './types';
 
 /**
  * What the page says before anyone has filled the form in.
@@ -23,6 +23,17 @@ export const POLITICAL_DEFAULTS: Record<string, string> = {
   pol_listen_label: 'नपढी सुन्नका लागि यहाँ क्लिक गर्नुहोस्',
   pol_footer_note: 'समुन्नत नेपाल, सम्मानित नेपाली',
   pol_jaya_label: 'जय नेपाल भन्नुहोस्',
+  pol_candidacy: 'संघीय महाधिवेशन प्रतिनिधि उम्मेदवार',
+  pol_candidacy_sub: 'युवा तर्फ — ३५ वर्षमुनि',
+  pol_candidacy_note:
+    'नेपाली कांग्रेसको संघीय महाधिवेशनमा युवा तर्फबाट प्रतिनिधि उम्मेदवार । '
+    + 'शिक्षा, प्रविधि र समाजसेवाको अनुभवलाई संगठनभित्रको नीति–निर्माण र '
+    + 'युवा प्रतिनिधित्वमा रूपान्तरण गर्ने प्रतिबद्धतासहित ।',
+  pol_pillars:
+    'शिक्षित युवा | सबल संगठन\n'
+    + 'नयाँ विचार | नयाँ नेतृत्व\n'
+    + 'युवा सहभागिता | समावेशी प्रतिनिधित्व\n'
+    + 'व्यावहारिक राजनीति | सकारात्मक परिवर्तन',
   pol_meta_description:
     'प्रविधि, शिक्षा, समाजसेवा र युवा नेतृत्वदेखि सार्वजनिक जीवनसम्म — '
     + 'विकेश अधिकारीको राजनीतिक यात्रा, विचार र संलग्नताको विस्तृत परिचय ।',
@@ -136,6 +147,10 @@ export const getPoliticalSections = cache(async (): Promise<PoliticalSection[]> 
 export const getPoliticalPhotos = cache(async (): Promise<PoliticalPhoto[]> =>
   heal<PoliticalPhoto[]>(async () => [...await sql<PoliticalPhoto[]>`
     SELECT * FROM political_photos WHERE enabled ORDER BY sort_order ASC, id ASC`], []));
+
+export const getPoliticalSlides = cache(async (): Promise<PoliticalSlide[]> =>
+  heal<PoliticalSlide[]>(async () => [...await sql<PoliticalSlide[]>`
+    SELECT * FROM political_slides WHERE enabled ORDER BY sort_order ASC, id ASC`], []));
 
 /** The sections a photo can be filed under, for the dashboard dropdown. */
 export async function sectionChoices(): Promise<{ value: string; label: string }[]> {

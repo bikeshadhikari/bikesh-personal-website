@@ -281,6 +281,27 @@ export const RESOURCES: Record<string, ResourceDef> = {
     },
   },
 
+  political_slides: {
+    table: 'political_slides', label: 'Hero slider', singular: 'Slide',
+    icon: 'eye', group: 'Political', order: 'sort_order ASC, id ASC',
+    search: ['caption'], toggle: 'enabled',
+    list: [
+      { key: 'image', label: 'Photo', type: 'thumb' },
+      { key: 'caption', label: 'Caption', primary: true },
+      { key: 'sort_order', label: 'Order', type: 'number' },
+      { key: 'enabled', label: 'Live', type: 'toggle' },
+    ],
+    fields: {
+      image: { type: 'image', label: 'Photo', folder: 'political', required: true, full: true,
+               hint: 'Shown in the slider at the top of the political page. Up to ten works well.' },
+      dimensions: { type: 'dimensions', label: 'Dimensions' },
+      caption: { type: 'text', label: 'Caption', full: true,
+                 hint: 'Shown across the bottom of the photo. Optional.' },
+      sort_order: { type: 'number', label: 'Sort order', default: 0 },
+      enabled: { type: 'checkbox', label: 'Show this slide', default: true },
+    },
+  },
+
   political_photos: {
     table: 'political_photos', label: 'Political page photos', singular: 'Photo',
     icon: 'eye', group: 'Political', order: 'sort_order ASC, id DESC',

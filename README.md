@@ -27,7 +27,9 @@ no UI framework and no CSS framework, so the markup stays readable and the pages
   Highlight a passage first and the reading starts there. Party flags and tree
   symbols — the supplied artwork, not a drawing of it — drift behind the page
   on two depths. Each section's picture can sit
-  above the text or beside it on either hand. A greeting button on the edge of
+  above the text or beside it on either hand. The top of the page carries the
+  candidacy, the pledges and a slider of photographs rather than a single
+  portrait. A greeting button on the edge of
   the screen brings a waving hand to the middle of the page and says जय नेपाल
   aloud. It takes its own share picture, so the link previews with a portrait
   of its own.
@@ -88,6 +90,8 @@ no UI framework and no CSS framework, so the markup stays readable and the pages
   into work, education, volunteer and award tracks.
 - **Gallery** — upload a photo, give it a title and a caption, and it takes its
   place in the arrangement. Any resolution, size or shape works.
+- **Hero slider** — the photographs at the top of the political page, shown in
+  turn. Ten sit comfortably.
 - **Political page sections** and **Political page photos** — the six sections
   of the standalone page at `/political`, each with a heading, a standfirst,
   rich text, a lead picture, figures and an optional recorded reading. Photos

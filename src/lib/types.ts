@@ -78,6 +78,11 @@ export type PoliticalSection = {
   sort_order: number; enabled: boolean; created_at: string; updated_at: string;
 };
 
+export type PoliticalSlide = {
+  id: number; image: string; caption: string;
+  width: number; height: number; sort_order: number; enabled: boolean; created_at: string;
+};
+
 export type PoliticalPhoto = {
   id: number; section_id: number | null; image: string; caption: string;
   width: number; height: number; sort_order: number; enabled: boolean; created_at: string;

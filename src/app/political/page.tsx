@@ -10,7 +10,9 @@ import { getActiveNotice } from '@/lib/content';
 import Icon from '@/components/Icon';
 import { menuEnabled } from '@/lib/menu';
 import { getSettings, setting, socialLinks } from '@/lib/settings';
-import { getPoliticalPhotos, getPoliticalSections, polSetting } from '@/lib/political';
+import { getPoliticalPhotos, getPoliticalSections, getPoliticalSlides,
+         parseFigures, polSetting } from '@/lib/political';
+import PoliticalSlider from '@/components/site/PoliticalSlider';
 import { siteOrigin } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
@@ -45,14 +47,17 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function PoliticalPage() {
   if (!(await menuEnabled('political'))) notFound();
 
-  const [s, sections, photos, notice] = await Promise.all([
-    getSettings(), getPoliticalSections(), getPoliticalPhotos(), getActiveNotice(),
+  const [s, sections, photos, slides, notice] = await Promise.all([
+    getSettings(), getPoliticalSections(), getPoliticalPhotos(),
+    getPoliticalSlides(), getActiveNotice(),
   ]);
 
   const name = polSetting(s, 'pol_name');
-  const roles = polSetting(s, 'pol_roles');
-  const quote = polSetting(s, 'pol_quote');
-  const intro = polSetting(s, 'pol_intro');
+  const candidacy = polSetting(s, 'pol_candidacy');
+  const candidacySub = polSetting(s, 'pol_candidacy_sub');
+  const candidacyNote = polSetting(s, 'pol_candidacy_note');
+  // Pledges share the figure format: two halves to a line, separated by a bar.
+  const pillars = parseFigures(polSetting(s, 'pol_pillars'));
   const portrait = setting(s, 'pol_portrait') || setting(s, 'photo');
   const listenLabel = polSetting(s, 'pol_listen_label');
   const footerNote = polSetting(s, 'pol_footer_note');
@@ -101,26 +106,43 @@ export default async function PoliticalPage() {
           <div className="pol-hero-copy">
             <p className="pol-eyebrow">सार्वजनिक परिचय</p>
             <h1>{name}</h1>
-            {roles && <p className="pol-roles">{roles}</p>}
-            {quote && <blockquote className="pol-quote">{quote}</blockquote>}
-            {intro && <p className="pol-intro">{intro}</p>}
 
-            <div className="pol-hero-actions">
-              <a className="pol-btn pol-btn-solid" href={`#s-${sections[0]?.id ?? ''}`}>
-                पढ्न सुरु गर्नुहोस् <Icon name="arrow-right" className="icon icon-sm" />
-              </a>
-              <Link className="pol-btn pol-btn-ghost" href="/">
-                मुख्य वेबसाइट
-              </Link>
-            </div>
+            {candidacy && (
+              <div className="pol-candidacy">
+                <strong>{candidacy}</strong>
+                {candidacySub && <span>{candidacySub}</span>}
+              </div>
+            )}
+
+            {candidacyNote && <p className="pol-intro">{candidacyNote}</p>}
+
+            {pillars.length > 0 && (
+              <ul className="pol-pillars">
+                {pillars.map((pillar, i) => (
+                  <li key={i}>
+                    <strong>{pillar.value}</strong>
+                    {pillar.label && <span>{pillar.label}</span>}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
-          {portrait && (
+          {/* The slider when there are slides, the single portrait otherwise. */}
+          {slides.length > 0 ? (
+            <PoliticalSlider
+              alt={name}
+              slides={slides.map((x) => ({
+                id: x.id, image: x.image, caption: x.caption,
+                width: x.width, height: x.height,
+              }))}
+            />
+          ) : portrait ? (
             <div className="pol-portrait">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={portrait} alt={name} />
             </div>
-          )}
+          ) : null}
         </div>
       </header>
 
@@ -154,7 +176,12 @@ export default async function PoliticalPage() {
       <footer className="pol-footer">
         <div className="pol-wrap">
           <p className="pol-footer-line">{footerNote}</p>
-          <p className="pol-footer-name">{name}{roles && <span> · {roles}</span>}</p>
+          <p className="pol-footer-name">{name}</p>
+          {candidacy && (
+            <p className="pol-footer-role">
+              {candidacy}{candidacySub && <span> · {candidacySub}</span>}
+            </p>
+          )}
 
           {(socials.length > 0 || email) && (
             <ul className="pol-social">
