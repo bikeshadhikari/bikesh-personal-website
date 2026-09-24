@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Icon from '../Icon';
+import { synthesis } from '@/lib/speech';
 
-type State = 'idle' | 'loading' | 'playing' | 'paused' | 'unsupported' | 'silent';
+type State = 'idle' | 'loading' | 'playing' | 'paused' | 'silent';
 
 const NEPALI = /^ne\b|^ne[-_]/i;
 const DEVANAGARI = /^(hi|mr|sa|ne|bh)\b|^(hi|mr|sa|ne|bh)[-_]/i;
@@ -19,6 +20,13 @@ const DEVANAGARI = /^(hi|mr|sa|ne|bh)\b|^(hi|mr|sa|ne|bh)[-_]/i;
  *
  * Selecting text before pressing play starts the reading at that point, which
  * is how a reader picks up where their eye left off.
+ *
+ * The button is always shown, whatever the browser can do. It used to remove
+ * itself when the device had no speech engine, which meant it was missing
+ * altogether from a link opened inside Messenger or Facebook — a web view
+ * that frequently has none. A button that says it cannot speak here is worth
+ * more than one that quietly is not there, and where a recording has been
+ * uploaded the browser's own speech does not come into it at all.
  */
 export default function ListenButton({
   text, label, audio = '', scopeId,
@@ -31,17 +39,14 @@ export default function ListenButton({
   const chunks = useRef<string[]>([]);
 
   useEffect(() => () => {
-    if (typeof window !== 'undefined') window.speechSynthesis?.cancel();
+    synthesis()?.cancel();
     audioRef.current?.pause();
   }, []);
 
   // The voice list arrives asynchronously in most browsers.
   useEffect(() => {
     if (audio) return;
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
-      setState('unsupported');
-      return;
-    }
+    if (!synthesis()) return;
     const synth = window.speechSynthesis;
     const read = () => {
       const all = synth.getVoices().filter((v) => DEVANAGARI.test(v.lang ?? ''));
@@ -89,11 +94,19 @@ export default function ListenButton({
       const player = audioRef.current ?? new Audio(audio);
       audioRef.current = player;
       player.onended = () => setState('idle');
-      player.onerror = () => setState('unsupported');
-      void player.play().then(() => setState('playing')).catch(() => setState('unsupported'));
+      // A recording that will not play is a reason to try the browser's own
+      // voice, not a reason for the button to give up.
+      player.onerror = speakInstead;
+      void player.play().then(() => setState('playing')).catch(speakInstead);
       return;
     }
 
+    speakInstead();
+  };
+
+  /** Read the text aloud, or say plainly that this device cannot. */
+  const speakInstead = () => {
+    if (!synthesis()) { setState('silent'); return; }
     const synth = window.speechSynthesis;
     // Only when something is queued: cancel() on an idle queue is enough to
     // make WebKit drop the utterance that follows it.
@@ -121,35 +134,38 @@ export default function ListenButton({
     }, 1000);
   };
 
+  // Whichever of the two is actually making the sound is the one to work on:
+  // a recording that failed over to speech is no longer the audio path.
+  const usingRecording = () => Boolean(audio) && !audioRef.current?.paused;
+
   const pause = () => {
-    if (audio) { audioRef.current?.pause(); setState('paused'); return; }
-    window.speechSynthesis.pause();
+    if (usingRecording()) { audioRef.current?.pause(); setState('paused'); return; }
+    synthesis()?.pause();
     setState('paused');
   };
 
   const resume = () => {
-    if (audio) { void audioRef.current?.play(); setState('playing'); return; }
-    window.speechSynthesis.resume();
+    if (audio && audioRef.current?.paused && audioRef.current.currentTime > 0) {
+      void audioRef.current.play();
+      setState('playing');
+      return;
+    }
+    synthesis()?.resume();
     setState('playing');
   };
 
   const stop = () => {
-    if (audio) {
-      const player = audioRef.current;
-      if (player) { player.pause(); player.currentTime = 0; }
-    } else {
-      window.speechSynthesis.cancel();
-    }
+    const player = audioRef.current;
+    if (player) { player.pause(); player.currentTime = 0; }
+    synthesis()?.cancel();
     setState('idle');
   };
 
   const switchVoice = (uri: string) => {
     setChosen(uri);
     setMenuOpen(false);
-    if (state === 'playing' || state === 'paused') { window.speechSynthesis.cancel(); setState('idle'); }
+    if (state === 'playing' || state === 'paused') { synthesis()?.cancel(); setState('idle'); }
   };
-
-  if (state === 'unsupported') return null;
 
   const playing = state === 'playing';
   const paused = state === 'paused';
@@ -206,7 +222,9 @@ export default function ListenButton({
       )}
 
       {state === 'silent' && (
-        <p className="listen-note">यो उपकरणमा आवाज उपलब्ध छैन — कृपया पढ्नुहोस्।</p>
+        <p className="listen-note">
+          यो ब्राउजरमा आवाज उपलब्ध छैन । कृपया यो पृष्ठ आफ्नो ब्राउजरमा खोलेर सुन्नुहोस् ।
+        </p>
       )}
 
       {!audio && voices.length > 0 && !hasNepali && state !== 'silent' && (
