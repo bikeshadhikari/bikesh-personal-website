@@ -31,6 +31,8 @@ export type MenuItem = {
 const LATER_ADDITIONS: Pick<MenuItem, 'slug' | 'label' | 'kind' | 'description' | 'sort_order'>[] = [
   { slug: 'gallery', label: 'Gallery', kind: 'page',
     description: 'Photo gallery that arranges itself.', sort_order: 65 },
+  { slug: 'political', label: 'राजनीतिक संलग्नता', kind: 'page',
+    description: 'The standalone political involvement page.', sort_order: 68 },
 ];
 
 /**

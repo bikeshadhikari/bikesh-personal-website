@@ -5,6 +5,7 @@ import { getResource } from '@/lib/resources';
 import { blankRow } from '@/lib/crud';
 import { getCategories } from '@/lib/content';
 import { pageChoices } from '@/lib/menu';
+import { sectionChoices } from '@/lib/political';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,6 +26,8 @@ export default async function NewResourcePage({ params }: Props) {
   const categories = needsCategories ? await getCategories() : [];
   const needsPages = Object.values(def.fields).some((f) => f.type === 'pages');
   const pages = needsPages ? await pageChoices() : [];
+  const needsSections = Object.values(def.fields).some((f) => f.options === 'political_sections');
+  const sections = needsSections ? await sectionChoices() : [];
 
   return (
     <Shell title={`New ${def.singular.toLowerCase()}`} current={resource}>
@@ -35,6 +38,7 @@ export default async function NewResourcePage({ params }: Props) {
         isEdit={false}
         categoryOptions={categories.map((c) => ({ value: String(c.id), label: c.name }))}
         pageOptions={pages}
+        sectionOptions={sections}
       />
     </Shell>
   );

@@ -3,6 +3,12 @@
 const PATHS: Record<string, React.ReactNode> = {
   'arrow-right': <path d="M5 12h14M13 5l7 7-7 7" />,
   'arrow-up-right': <path d="M7 17 17 7M8 7h9v9" />,
+  play: <path d="M7 4.5v15l12-7.5z" fill="currentColor" stroke="none" />,
+  pause: <>
+    <rect x="7" y="5" width="3.6" height="14" rx="1.2" fill="currentColor" stroke="none" />
+    <rect x="13.4" y="5" width="3.6" height="14" rx="1.2" fill="currentColor" stroke="none" />
+  </>,
+  speaker: <><path d="M11 5 6 9H3v6h3l5 4V5z" /><path d="M16.5 8.5a5 5 0 0 1 0 7" /><path d="M19.5 5.5a9 9 0 0 1 0 13" /></>,
   'arrow-up': <path d="M12 19V5M5 12l7-7 7 7" />,
   external: <><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><path d="M15 3h6v6" /><path d="M10 14 21 3" /></>,
   mail: <><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-10 6L2 7" /></>,

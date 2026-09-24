@@ -119,6 +119,33 @@ export async function createSchema(): Promise<void> {
       updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
+    CREATE TABLE IF NOT EXISTS political_sections (
+      id         SERIAL PRIMARY KEY,
+      number     VARCHAR(8)   NOT NULL DEFAULT '',
+      title      VARCHAR(220) NOT NULL,
+      subtitle   VARCHAR(300) DEFAULT '',
+      body       TEXT         DEFAULT '',
+      figures    TEXT         DEFAULT '',
+      image      VARCHAR(500) DEFAULT '',
+      audio      VARCHAR(500) DEFAULT '',
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      enabled    BOOLEAN NOT NULL DEFAULT TRUE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS political_photos (
+      id         SERIAL PRIMARY KEY,
+      section_id INTEGER REFERENCES political_sections(id) ON DELETE CASCADE,
+      image      VARCHAR(500) NOT NULL,
+      caption    VARCHAR(300) DEFAULT '',
+      width      INTEGER NOT NULL DEFAULT 0,
+      height     INTEGER NOT NULL DEFAULT 0,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      enabled    BOOLEAN NOT NULL DEFAULT TRUE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+
     CREATE TABLE IF NOT EXISTS notices (
       id           SERIAL PRIMARY KEY,
       title        VARCHAR(200) NOT NULL DEFAULT '',

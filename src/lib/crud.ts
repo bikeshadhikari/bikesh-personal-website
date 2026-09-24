@@ -103,7 +103,9 @@ async function readField(
 
     case 'select': {
       const text = String(raw ?? '');
-      if (name === 'category_id') return { value: text === '' ? null : Number(text) };
+      if (name === 'category_id' || name === 'section_id') {
+        return { value: text === '' ? null : Number(text) };
+      }
       if (field.options && field.options !== 'categories') {
         const keys = Object.keys(field.options);
         return { value: keys.includes(text) ? text : (field.default ?? keys[0]) };

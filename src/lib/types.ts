@@ -71,6 +71,17 @@ export type UserRow = {
   is_active: boolean; last_login_at: string | null; created_at: string;
 };
 
+export type PoliticalSection = {
+  id: number; number: string; title: string; subtitle: string;
+  body: string; figures: string; image: string; audio: string;
+  sort_order: number; enabled: boolean; created_at: string; updated_at: string;
+};
+
+export type PoliticalPhoto = {
+  id: number; section_id: number | null; image: string; caption: string;
+  width: number; height: number; sort_order: number; enabled: boolean; created_at: string;
+};
+
 export type Notice = {
   id: number; title: string; body: string; image: string;
   link_url: string; link_file: string; link_label: string;

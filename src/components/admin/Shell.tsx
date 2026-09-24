@@ -51,6 +51,10 @@ export default async function Shell({
       ['testimonials', 'Testimonials', 'quote'],
       ['highlights', 'Key numbers', 'star'],
     ]],
+    ['Political', [
+      ['political_sections', 'Page sections', 'compass'],
+      ['political_photos', 'Page photos', 'eye'],
+    ]],
     ['Inbox', [
       ['messages', 'Messages', 'mail', unread],
       ['subscribers', 'Subscribers', 'users'],

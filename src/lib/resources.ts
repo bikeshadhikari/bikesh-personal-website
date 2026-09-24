@@ -20,7 +20,7 @@ export type Field = {
   max?: number;
   from?: string;
   folder?: string;
-  options?: Record<string, string> | 'categories';
+  options?: Record<string, string> | 'categories' | 'political_sections';
   default?: string | number | boolean;
   group?: 'seo';
 };
@@ -240,6 +240,59 @@ export const RESOURCES: Record<string, ResourceDef> = {
       rating: { type: 'number', label: 'Stars (0–5)', default: 5, min: 0, max: 5 },
       sort_order: { type: 'number', label: 'Sort order', default: 0 },
       enabled: { type: 'checkbox', label: 'Show on the website', default: false },
+    },
+  },
+
+  political_sections: {
+    table: 'political_sections', label: 'Political page sections', singular: 'Section',
+    icon: 'compass', group: 'Political', order: 'sort_order ASC, id ASC',
+    search: ['title', 'subtitle', 'body'], toggle: 'enabled',
+    list: [
+      { key: 'number', label: 'No.', type: 'mono' },
+      { key: 'title', label: 'Section', primary: true },
+      { key: 'image', label: 'Image', type: 'thumb' },
+      { key: 'sort_order', label: 'Order', type: 'number' },
+      { key: 'enabled', label: 'Live', type: 'toggle' },
+    ],
+    fields: {
+      number: { type: 'text', label: 'Number', hint: 'Shown large beside the heading, for example 01.' },
+      title: { type: 'text', label: 'Heading', required: true, full: true },
+      subtitle: { type: 'text', label: 'Standfirst', full: true,
+                  hint: 'One line under the heading. Optional.' },
+      body: { type: 'richtext', label: 'Text', full: true, required: true },
+      figures: {
+        type: 'textarea', label: 'Figures', rows: 4, full: true,
+        hint: 'One per line as number | label, for example  ५००+ | रक्तदान सहयोग. Shown as cards above the text.',
+      },
+      image: { type: 'image', label: 'Lead image', folder: 'political', full: true,
+               hint: 'Optional wide picture at the top of the section.' },
+      audio: { type: 'file', label: 'Recorded reading', folder: 'political',
+               hint: 'Optional MP3. Without one the listen button reads the text aloud in the browser.' },
+      sort_order: { type: 'number', label: 'Sort order', default: 0 },
+      enabled: { type: 'checkbox', label: 'Show this section', default: true },
+    },
+  },
+
+  political_photos: {
+    table: 'political_photos', label: 'Political page photos', singular: 'Photo',
+    icon: 'eye', group: 'Political', order: 'sort_order ASC, id DESC',
+    search: ['caption'], toggle: 'enabled',
+    list: [
+      { key: 'image', label: 'Photo', type: 'thumb' },
+      { key: 'caption', label: 'Caption', primary: true },
+      { key: 'sort_order', label: 'Order', type: 'number' },
+      { key: 'enabled', label: 'Live', type: 'toggle' },
+    ],
+    fields: {
+      image: { type: 'image', label: 'Photo', folder: 'political', required: true, full: true,
+               hint: 'Any size or shape. Photos arrange themselves inside the section.' },
+      dimensions: { type: 'dimensions', label: 'Dimensions' },
+      section_id: { type: 'select', label: 'Section', options: 'political_sections',
+                    hint: 'Which section of the political page this photo belongs under.' },
+      caption: { type: 'text', label: 'Caption', full: true,
+                 hint: 'Shown under the photo. Optional.' },
+      sort_order: { type: 'number', label: 'Sort order', default: 0 },
+      enabled: { type: 'checkbox', label: 'Show this photo', default: true },
     },
   },
 

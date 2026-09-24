@@ -10,7 +10,7 @@ export type SelectOption = { value: string; label: string };
 
 /** Renders one dashboard control from a Resource field definition. */
 export default function Field({
-  name, field, value, error, categoryOptions = [], pageOptions = [],
+  name, field, value, error, categoryOptions = [], pageOptions = [], sectionOptions = [],
   withDimensions = false, initialWidth = 0, initialHeight = 0,
 }: {
   name: string;
@@ -19,6 +19,7 @@ export default function Field({
   error?: string;
   categoryOptions?: SelectOption[];
   pageOptions?: SelectOption[];
+  sectionOptions?: SelectOption[];
   withDimensions?: boolean;
   initialWidth?: number;
   initialHeight?: number;
@@ -47,8 +48,11 @@ export default function Field({
 
       {field.type === 'select' && (
         <select id={id} name={name} defaultValue={text}>
-          {field.options === 'categories'
-            ? [{ value: '', label: '— none —' }, ...categoryOptions].map((o) => (
+          {field.options === 'categories' || field.options === 'political_sections'
+            ? [
+                { value: '', label: '— none —' },
+                ...(field.options === 'categories' ? categoryOptions : sectionOptions),
+              ].map((o) => (
                 <option key={o.value} value={o.value}>{o.label}</option>
               ))
             : Object.entries(field.options ?? {}).map(([key, text2]) => (

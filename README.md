@@ -15,6 +15,15 @@ no UI framework and no CSS framework, so the markup stays readable and the pages
   experience pipeline, services, projects, certifications, testimonials, latest
   writing and contact.
 - Standalone pages for About, Experience, Services, Projects, Gallery and Contact.
+- A political involvement page at `/political` that stands on its own: its own
+  Nepali Congress palette, its own Devanagari typefaces, its own header and
+  footer, and none of the site's chrome, so a shared link lands on one subject
+  rather than a portfolio with a political tab. Six numbered sections, a sticky
+  strip that marks the one being read, figure cards drawn from a plain text
+  field, and a photo column under each section. Every section carries a listen
+  button — नपढी सुन्नका लागि यहाँ क्लिक गर्नुहोस् — which plays a recording if
+  one is uploaded and otherwise has the browser read the Nepali aloud. It takes
+  its own share picture, so the link previews with a portrait of its own.
 - A gallery that arranges photos of any shape into columns, keeping each picture
   at its own proportions and revealing its title along the bottom on hover.
 - Services, projects and posts sit three to a row and keep that width even when
@@ -72,6 +81,10 @@ no UI framework and no CSS framework, so the markup stays readable and the pages
   into work, education, volunteer and award tracks.
 - **Gallery** — upload a photo, give it a title and a caption, and it takes its
   place in the arrangement. Any resolution, size or shape works.
+- **Political page sections** and **Political page photos** — the six sections
+  of the standalone page at `/political`, each with a heading, a standfirst,
+  rich text, a lead picture, figures and an optional recorded reading. Photos
+  are filed under a section and arrange themselves beside its text.
 - **Pop-up notices** — a notice shown to every visitor on arrival, which has to
   be closed before the site can be used: the backdrop does not dismiss it and
   neither does Escape. A picture, a heading and a message, with a button that

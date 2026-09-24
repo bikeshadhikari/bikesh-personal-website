@@ -5,6 +5,7 @@ import { getResource } from '@/lib/resources';
 import { findRow } from '@/lib/crud';
 import { getCategories } from '@/lib/content';
 import { pageChoices } from '@/lib/menu';
+import { sectionChoices } from '@/lib/political';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,6 +32,8 @@ export default async function EditResourcePage({ params, searchParams }: Props) 
   const categories = needsCategories ? await getCategories() : [];
   const needsPages = Object.values(def.fields).some((f) => f.type === 'pages');
   const pages = needsPages ? await pageChoices() : [];
+  const needsSections = Object.values(def.fields).some((f) => f.options === 'political_sections');
+  const sections = needsSections ? await sectionChoices() : [];
 
   const viewColumn = def.list.find((c) => c.viewPath);
   const viewHref = viewColumn && record.slug ? `/${viewColumn.viewPath}/${record.slug}` : undefined;
@@ -46,6 +49,7 @@ export default async function EditResourcePage({ params, searchParams }: Props) 
         saved={saved === '1'}
         categoryOptions={categories.map((c) => ({ value: String(c.id), label: c.name }))}
         pageOptions={pages}
+        sectionOptions={sections}
       />
     </Shell>
   );

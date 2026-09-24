@@ -23,6 +23,8 @@ const CONTENT_TARGETS: [resource: string, columns: string[], titleColumn: string
   ['categories', ['name', 'description'], 'name'],
   ['gallery', ['title', 'caption'], 'title'],
   ['notices', ['title', 'body'], 'title'],
+  ['political_sections', ['title', 'subtitle', 'body'], 'title'],
+  ['political_photos', ['caption'], 'caption'],
 ];
 
 /** Plain-language labels for settings keys, so a search for "favicon" lands somewhere. */
