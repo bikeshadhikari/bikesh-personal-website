@@ -104,8 +104,8 @@ const GROUPS: SettingsGroup[] = [
                          default: 'समुन्नत नेपाल, सम्मानित नेपाली' },
       pol_jaya_label: { type: 'text', label: 'Greeting button text', full: true,
                         default: 'जय नेपाल भन्नुहोस्' },
-      pol_jaya_audio: { type: 'file', label: 'Greeting recording', folder: 'political',
-                        hint: 'MP3 of “जय नेपाल”. Strongly recommended: without one the browser has to speak the words itself, and a link opened inside Messenger or Facebook lands in a browser that often cannot. A recording plays everywhere.' },
+      pol_jaya_audio: { type: 'audio', label: 'Greeting recording', folder: 'political',
+                        hint: 'A recording of “जय नेपाल” — MP3, M4A, MP4, WAV, OGG or a voice memo straight off your phone. Strongly recommended: without one the browser has to speak the words itself, and a link opened inside Messenger or Facebook lands in a browser that often cannot. A recording plays everywhere.' },
     },
   },
   {

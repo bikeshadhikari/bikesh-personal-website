@@ -19,7 +19,7 @@ function specFor(name: string, field: FieldDef) {
     : field.type === 'number' ? 'number'
     : field.type === 'url' ? 'url'
     : field.type === 'image' ? 'image'
-    : field.type === 'file' ? 'file'
+    : field.type === 'file' || field.type === 'audio' ? 'file'
     : field.type === 'color' ? 'color'
     : name === 'map_embed' ? 'html'
     : 'text';

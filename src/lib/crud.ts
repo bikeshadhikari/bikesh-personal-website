@@ -121,6 +121,7 @@ async function readField(
     }
 
     case 'image':
+    case 'audio':
     case 'file': {
       // The browser uploads straight to Blob and posts back the resulting URL,
       // so nothing larger than a few hundred bytes reaches this action.
@@ -247,7 +248,7 @@ export async function deleteRow(resource: string, id: number): Promise<boolean> 
 
   // Clean up any files this record owned.
   for (const [name, field] of Object.entries(def.fields)) {
-    if ((field.type === 'image' || field.type === 'file') && row[name]) {
+    if ((field.type === 'image' || field.type === 'file' || field.type === 'audio') && row[name]) {
       await deleteUpload(row[name] as string);
     }
   }

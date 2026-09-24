@@ -6,7 +6,7 @@
 
 export type FieldType =
   | 'text' | 'textarea' | 'richtext' | 'slug' | 'url' | 'number' | 'range'
-  | 'select' | 'checkbox' | 'date' | 'datetime' | 'color' | 'image' | 'file'
+  | 'select' | 'checkbox' | 'date' | 'datetime' | 'color' | 'image' | 'file' | 'audio'
   | 'icon' | 'dimensions' | 'pages';
 
 export type Field = {
@@ -274,8 +274,8 @@ export const RESOURCES: Record<string, ResourceDef> = {
           right: 'Beside the text, on the right',
         },
       },
-      audio: { type: 'file', label: 'Recorded reading', folder: 'political',
-               hint: 'Optional MP3. Without one the listen button reads the text aloud in the browser.' },
+      audio: { type: 'audio', label: 'Recorded reading', folder: 'political',
+               hint: 'Optional recording — MP3, M4A, MP4, WAV, OGG or a voice memo off your phone. Without one the listen button reads the text aloud in the browser.' },
       sort_order: { type: 'number', label: 'Sort order', default: 0 },
       enabled: { type: 'checkbox', label: 'Show this section', default: true },
     },

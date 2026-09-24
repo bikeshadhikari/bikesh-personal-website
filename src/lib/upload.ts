@@ -13,16 +13,12 @@ import { withSchema } from './schema';
  * multi-megabyte original off a phone camera.
  */
 
-export const IMAGE_TYPES = [
-  'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
-  'image/avif', 'image/x-icon', 'image/vnd.microsoft.icon',
-];
-export const DOC_TYPES = [
-  'application/pdf',
-  'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-];
-export const ALLOWED_TYPES = [...IMAGE_TYPES, ...DOC_TYPES];
+// The lists themselves live in a module the browser can read too, so the file
+// picker offers exactly what the server will accept.
+export {
+  IMAGE_TYPES, DOC_TYPES, AUDIO_TYPES, ALLOWED_TYPES, AUDIO_ACCEPT, resolveType,
+} from './upload-types';
+import { resolveType } from './upload-types';
 
 /** Vercel refuses a request body over 4.5 MB, so stop short of it with a clear message. */
 export const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
@@ -54,10 +50,13 @@ export async function storeMedia(
   const id = newId();
   const safeFolder = (folder || 'media').replace(/[^a-z0-9_-]/gi, '').slice(0, 60) || 'media';
   const filename = file.name.replace(/[^\w.\- ]+/g, '').slice(0, 255) || 'file';
+  // Stored resolved rather than as reported: a file saved as octet-stream is
+  // served back as octet-stream, and no browser will play that.
+  const mime = resolveType(file.type, file.name);
 
   await withSchema(() => sql`
     INSERT INTO media (id, filename, folder, mime, size, width, height, bytes)
-    VALUES (${id}, ${filename}, ${safeFolder}, ${file.type}, ${bytes.length},
+    VALUES (${id}, ${filename}, ${safeFolder}, ${mime}, ${bytes.length},
             ${Math.max(0, Math.round(width))}, ${Math.max(0, Math.round(height))}, ${bytes})`);
 
   return { id, url: `${MEDIA_PREFIX}${id}`, width, height };

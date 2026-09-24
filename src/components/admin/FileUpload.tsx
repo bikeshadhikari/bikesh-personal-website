@@ -10,13 +10,15 @@ import Icon from '../Icon';
  * elsewhere can be pasted instead.
  */
 export default function FileUpload({
-  name, value, folder = 'media', isImage = true, withDimensions = false,
+  name, value, folder = 'media', isImage = true, accept, withDimensions = false,
   initialWidth = 0, initialHeight = 0,
 }: {
   name: string;
   value: string;
   folder?: string;
   isImage?: boolean;
+  /** What the picker should offer. Images are assumed; anything else says so. */
+  accept?: string;
   withDimensions?: boolean;
   initialWidth?: number;
   initialHeight?: number;
@@ -64,7 +66,7 @@ export default function FileUpload({
         ref={fileInput}
         type="file"
         id={`f-${name}`}
-        accept={isImage ? 'image/*' : undefined}
+        accept={accept ?? (isImage ? 'image/*' : undefined)}
         disabled={progress !== null}
         onChange={(e) => {
           const file = e.target.files?.[0];

@@ -1,5 +1,5 @@
 import { currentUser } from '@/lib/auth';
-import { ALLOWED_TYPES, MAX_UPLOAD_BYTES, humanSize, storeMedia } from '@/lib/upload';
+import { ALLOWED_TYPES, MAX_UPLOAD_BYTES, humanSize, resolveType, storeMedia } from '@/lib/upload';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -35,9 +35,15 @@ export async function POST(request: Request): Promise<Response> {
       { status: 413 },
     );
   }
-  if (!ALLOWED_TYPES.includes(file.type)) {
+  // Resolved first: a phone often reports nothing at all for a voice memo, and
+  // the file's own name is the only thing that says what it is.
+  const mime = resolveType(file.type, file.name);
+  if (!ALLOWED_TYPES.includes(mime)) {
     return Response.json(
-      { error: `Files of type "${file.type || 'unknown'}" are not allowed. Use an image, PDF or Word document.` },
+      {
+        error: `Files of type "${mime || 'unknown'}" are not allowed. `
+          + 'Use an image, an audio recording, a PDF or a Word document.',
+      },
       { status: 415 },
     );
   }

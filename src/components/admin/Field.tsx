@@ -5,6 +5,7 @@ import { ICON_CHOICES, type Field as FieldDef } from '@/lib/resources';
 import Icon from '../Icon';
 import Editor from './Editor';
 import FileUpload from './FileUpload';
+import { AUDIO_ACCEPT } from '@/lib/upload-types';
 
 export type SelectOption = { value: string; label: string };
 
@@ -97,12 +98,13 @@ export default function Field({
 
       {field.type === 'range' && <RangeInput id={id} name={name} value={Number(value) || 0} />}
 
-      {(field.type === 'image' || field.type === 'file') && (
+      {(field.type === 'image' || field.type === 'file' || field.type === 'audio') && (
         <FileUpload
           name={name}
           value={text}
           folder={field.folder}
           isImage={field.type === 'image'}
+          accept={field.type === 'audio' ? AUDIO_ACCEPT : undefined}
           withDimensions={withDimensions}
           initialWidth={initialWidth}
           initialHeight={initialHeight}
