@@ -62,8 +62,12 @@ export default function ListenButton({
     if (index >= chunks.current.length) { setState('idle'); return; }
 
     const utterance = new SpeechSynthesisUtterance(chunks.current[index]);
+    // A language is named only when there is a voice behind it. Asking a
+    // device for 'ne-NP' when it has no Nepali voice makes some engines say
+    // nothing at all, where leaving it unset reads the words in the default
+    // voice — which is how a page opened inside Messenger's own browser ended
+    // up silent.
     if (voice) { utterance.voice = voice; utterance.lang = voice.lang; }
-    else utterance.lang = 'ne-NP';
     utterance.rate = 0.92;
     utterance.onend = () => speakFrom(index + 1);
     utterance.onerror = () => setState('idle');
@@ -91,7 +95,10 @@ export default function ListenButton({
     }
 
     const synth = window.speechSynthesis;
-    synth.cancel();
+    // Only when something is queued: cancel() on an idle queue is enough to
+    // make WebKit drop the utterance that follows it.
+    if (synth.speaking || synth.pending) synth.cancel();
+    if (synth.paused) synth.resume();
 
     // Start at the highlighted sentence when there is one, and carry on to
     // the end of the section from there.

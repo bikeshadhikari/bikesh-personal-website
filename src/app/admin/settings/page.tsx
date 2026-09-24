@@ -105,7 +105,7 @@ const GROUPS: SettingsGroup[] = [
       pol_jaya_label: { type: 'text', label: 'Greeting button text', full: true,
                         default: 'जय नेपाल भन्नुहोस्' },
       pol_jaya_audio: { type: 'file', label: 'Greeting recording', folder: 'political',
-                        hint: 'Optional MP3 of “जय नेपाल”. Without one the browser speaks it.' },
+                        hint: 'MP3 of “जय नेपाल”. Strongly recommended: without one the browser has to speak the words itself, and a link opened inside Messenger or Facebook lands in a browser that often cannot. A recording plays everywhere.' },
     },
   },
   {

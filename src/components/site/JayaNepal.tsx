@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { nepaliVoice, speak, synthesis, watchVoices } from '@/lib/speech';
 
 const CHEER_MS = 2600;
 const PIECES = 26;
@@ -14,53 +15,51 @@ export const JAYA_EVENT = 'jaya-nepal';
  * of the page while the words are spoken aloud. The tree in the hero asks for
  * the same greeting through JAYA_EVENT, so both give the identical cheer.
  *
- * A recording uploaded in the dashboard is used when there is one. Otherwise
- * the browser speaks the two words, preferring a Nepali voice and falling back
- * to another that reads Devanagari — two words are short enough that even an
- * imperfect voice carries them.
+ * A recording uploaded in the dashboard is used when there is one, and is the
+ * only thing that is certain to be heard: a link opened inside Messenger's or
+ * Facebook's own browser lands in a web view whose speech support ranges from
+ * patchy to absent. Without a recording the browser is asked to speak the two
+ * words, and if it turns out not to, the cheer still happens — silently, which
+ * is the best that can be done there.
  */
 export default function JayaNepal({ label, audio = '' }: { label: string; audio?: string }) {
   const [cheering, setCheering] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const player = useRef<HTMLAudioElement | null>(null);
+  const voice = useRef<SpeechSynthesisVoice | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  // Voices load late, and the first press is usually before they arrive. The
+  // list is kept current here so pressing can stay synchronous — iOS only
+  // allows speech inside the gesture that asked for it.
+  useEffect(() => watchVoices((voices) => { voice.current = nepaliVoice(voices); }), []);
+
+  // Built up front so a press only has to start it. A web view is far more
+  // willing to play audio it has already fetched.
+  useEffect(() => {
+    if (!audio) { player.current = null; return; }
+    const element = new Audio(audio);
+    element.preload = 'auto';
+    player.current = element;
+    return () => { element.pause(); player.current = null; };
+  }, [audio]);
 
   useEffect(() => () => {
     if (timer.current) clearTimeout(timer.current);
-    if (typeof window !== 'undefined') window.speechSynthesis?.cancel();
-    audioRef.current?.pause();
+    synthesis()?.cancel();
   }, []);
 
-  // The emblem elsewhere on the page sets off the very same cheer.
-  useEffect(() => {
-    const onAsk = () => cheerRef.current();
-    window.addEventListener(JAYA_EVENT, onAsk);
-    return () => window.removeEventListener(JAYA_EVENT, onAsk);
-  }, []);
+  const speakIt = () => {
+    speak('जय नेपाल', { voice: voice.current, rate: 0.9, pitch: 1.05 });
+  };
 
   const say = () => {
-    if (audio) {
-      const player = audioRef.current ?? new Audio(audio);
-      audioRef.current = player;
-      player.currentTime = 0;
-      void player.play().catch(() => {});
-      return;
-    }
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    const element = player.current;
+    if (!element) { speakIt(); return; }
 
-    const synth = window.speechSynthesis;
-    synth.cancel();
-    const voices = synth.getVoices();
-    const voice =
-      voices.find((v) => /^ne\b|^ne[-_]/i.test(v.lang ?? '')) ??
-      voices.find((v) => /^(hi|mr|sa)\b|^(hi|mr|sa)[-_]/i.test(v.lang ?? '')) ??
-      null;
-
-    const utterance = new SpeechSynthesisUtterance('जय नेपाल');
-    if (voice) { utterance.voice = voice; utterance.lang = voice.lang; }
-    else utterance.lang = 'ne-NP';
-    utterance.rate = 0.9;
-    utterance.pitch = 1.05;
-    synth.speak(utterance);
+    element.currentTime = 0;
+    // If the recording will not play — no gesture credit, a file that failed
+    // to load — the browser's own voice is still worth a try.
+    void element.play().catch(speakIt);
   };
 
   const cheer = () => {
@@ -71,6 +70,13 @@ export default function JayaNepal({ label, audio = '' }: { label: string; audio?
   };
   const cheerRef = useRef(cheer);
   cheerRef.current = cheer;
+
+  // The emblem elsewhere on the page sets off the very same cheer.
+  useEffect(() => {
+    const onAsk = () => cheerRef.current();
+    window.addEventListener(JAYA_EVENT, onAsk);
+    return () => window.removeEventListener(JAYA_EVENT, onAsk);
+  }, []);
 
   return (
     <>
