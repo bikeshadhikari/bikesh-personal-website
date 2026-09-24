@@ -4,6 +4,7 @@ import Link from 'next/link';
 import PoliticalSection from '@/components/site/PoliticalSection';
 import PoliticalNav from '@/components/site/PoliticalNav';
 import PoliticalBackdrop from '@/components/site/PoliticalBackdrop';
+import JayaNepal from '@/components/site/JayaNepal';
 import NoticePopup from '@/components/site/NoticePopup';
 import { getActiveNotice } from '@/lib/content';
 import Icon from '@/components/Icon';
@@ -93,16 +94,7 @@ export default async function PoliticalPage() {
         <div className="pol-hero-art" aria-hidden="true">
           <span className="pol-orb pol-orb-1" />
           <span className="pol-orb pol-orb-2" />
-          <span className="pol-tree">
-            <svg viewBox="0 0 64 64" width="100%" height="100%" fill="none"
-                 stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
-              <path d="M32 58V34" />
-              <path d="M32 34 20 24M32 40 44 30M32 28 24 16M32 22 40 12" />
-              <circle cx="32" cy="18" r="11" />
-              <circle cx="20" cy="27" r="8" />
-              <circle cx="44" cy="27" r="8" />
-            </svg>
-          </span>
+          <span className="pol-hero-tree" />
         </div>
 
         <div className="pol-wrap pol-hero-inner">
@@ -153,6 +145,11 @@ export default async function PoliticalPage() {
           ))
         )}
       </main>
+
+      <JayaNepal
+        label={polSetting(s, 'pol_jaya_label')}
+        audio={setting(s, 'pol_jaya_audio')}
+      />
 
       <footer className="pol-footer">
         <div className="pol-wrap">

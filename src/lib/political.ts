@@ -16,15 +16,16 @@ import type { PoliticalPhoto, PoliticalSection } from './types';
 export const POLITICAL_DEFAULTS: Record<string, string> = {
   pol_name: 'विकेश अधिकारी',
   pol_roles: 'IT • शिक्षाकर्मी • प्राविधिक • वक्ता • योजनाकार',
-  pol_quote: 'सिक्नेहरूलाई कर्मशील बनाउने र कर्मशीलहरूलाई नेतृत्वतर्फ अघि बढाउने।',
+  pol_quote: 'सिक्नेहरूलाई कर्मशील बनाउने र कर्मशीलहरूलाई नेतृत्वतर्फ अघि बढाउने ।',
   pol_intro:
-    'प्रविधि, शिक्षा, सामाजिक सेवा, युवा नेतृत्व र राजनीतिक अध्ययनलाई जोड्दै अघि बढेको '
-    + 'एक युवाको सार्वजनिक यात्रा। अध्ययन, संवाद, सहभागिता र जिम्मेवारी — यही यात्राको आधार।',
+    'प्रविधि, शिक्षा, समाजसेवा, युवा नेतृत्व र राजनीतिक अध्ययनलाई एकसाथ जोड्दै अघि बढेको '
+    + 'एक युवाको सार्वजनिक यात्रा । अध्ययन, संवाद, सहभागिता र जिम्मेवारी — यही यात्राको आधार हो ।',
   pol_listen_label: 'नपढी सुन्नका लागि यहाँ क्लिक गर्नुहोस्',
   pol_footer_note: 'समुन्नत नेपाल, सम्मानित नेपाली',
+  pol_jaya_label: 'जय नेपाल भन्नुहोस्',
   pol_meta_description:
-    'प्रविधि, शिक्षा, सामाजिक सेवा र युवा नेतृत्वबाट सार्वजनिक जीवनसम्म — '
-    + 'विकेश अधिकारीको राजनीतिक यात्रा, विचार र संलग्नता।',
+    'प्रविधि, शिक्षा, समाजसेवा र युवा नेतृत्वदेखि सार्वजनिक जीवनसम्म — '
+    + 'विकेश अधिकारीको राजनीतिक यात्रा, विचार र संलग्नताको विस्तृत परिचय ।',
 };
 
 /** A political page setting, falling back to what the page ships with. */
@@ -78,7 +79,7 @@ async function heal<T>(run: () => Promise<T>, fallback: T): Promise<T> {
 async function seedSections(): Promise<void> {
   const [{ count }] = await sql<{ count: string }[]>`
     SELECT COUNT(*)::text AS count FROM political_sections`;
-  if (Number(count) > 0) return;
+  if (Number(count) > 0) { await refreshUntouched(); return; }
 
   await sql`INSERT INTO political_sections ${sql(
     SECTION_SEED.map((s, i) => ({
@@ -94,6 +95,30 @@ async function seedSections(): Promise<void> {
     })),
     'number', 'title', 'subtitle', 'body', 'figures', 'image', 'audio', 'sort_order', 'enabled',
   )}`;
+}
+
+/**
+ * Bring the shipped wording up to date where nobody has changed it.
+ *
+ * A section whose updated_at still equals its created_at has never been saved
+ * from the dashboard, so replacing its text loses nothing. The moment the
+ * owner edits a section it is theirs, and this leaves it alone for good.
+ */
+async function refreshUntouched(): Promise<void> {
+  const rows = await sql<{ id: number; number: string }[]>`
+    SELECT id, number FROM political_sections WHERE updated_at = created_at`;
+  if (rows.length === 0) return;
+
+  for (const row of rows) {
+    const shipped = SECTION_SEED.find((x) => x.number === row.number);
+    if (!shipped) continue;
+    await sql`
+      UPDATE political_sections
+      SET title = ${shipped.title}, subtitle = ${shipped.subtitle},
+          body = ${shipped.body}, figures = ${shipped.figures},
+          updated_at = created_at
+      WHERE id = ${row.id} AND updated_at = created_at`;
+  }
 }
 
 export const getPoliticalSections = cache(async (): Promise<PoliticalSection[]> =>

@@ -57,7 +57,10 @@
   position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
   contain: strict;
 }
-.political > *:not(.pol-backdrop) { position: relative; z-index: 1; }
+/* Lift the page's blocks above the backdrop by naming them. A blanket rule on
+   every child also caught the fixed greeting button and made it relative,
+   which dropped it to the bottom of a very long page. */
+.pol-hero, .pol-nav, .pol-footer, #pol-main { position: relative; z-index: 1; }
 
 .pol-glow { position: absolute; border-radius: 50%; filter: blur(70px); }
 .pol-glow-1 {
@@ -81,29 +84,43 @@
 .pol-layer-far { animation: pol-float-b 60s ease-in-out infinite; }
 .pol-layer-near { animation: pol-float-a 44s ease-in-out infinite reverse; }
 
-.pol-sym { position: absolute; color: var(--green); display: block; }
-.pol-sym-1 { top: 12vh; left: 4vw;  width: clamp(90px, 11vw, 170px); aspect-ratio: 1; opacity: .09; animation: pol-turn 50s linear infinite; }
-.pol-sym-2 { top: 58vh; left: 8vw;  width: clamp(80px, 9vw, 140px);  aspect-ratio: 8/9; opacity: .15; animation: pol-wave 14s ease-in-out infinite; }
-.pol-sym-3 { top: 130vh; right: 6vw; width: clamp(110px, 13vw, 200px); aspect-ratio: 1; opacity: .08; animation: pol-turn 66s linear infinite reverse; }
-.pol-sym-4 { top: 24vh; right: 5vw; width: clamp(90px, 10vw, 155px); aspect-ratio: 8/9; opacity: .17; animation: pol-wave 11s ease-in-out infinite; }
-.pol-sym-5 { top: 92vh; left: 46vw; width: clamp(80px, 10vw, 150px); aspect-ratio: 1; opacity: .08; animation: pol-turn 58s linear infinite; }
-.pol-sym-6 { top: 168vh; left: 12vw; width: clamp(80px, 9vw, 135px); aspect-ratio: 8/9; opacity: .14; animation: pol-wave 16s ease-in-out infinite reverse; }
+/* The party flag and the tree, as supplied. Sizes are set from the artwork's
+   own proportions so neither is ever squashed. */
+.pol-mark {
+  position: absolute; display: block;
+  background-repeat: no-repeat; background-size: contain; background-position: center;
+}
+.pol-banner {
+  background-image: url('/political/flag.png');
+  aspect-ratio: 620 / 416;
+  mix-blend-mode: multiply;
+}
+.pol-tree {
+  background-image: url('/political/tree.png');
+  aspect-ratio: 420 / 421;
+}
 
-/* The cloth of a flag lifts and falls rather than the whole flag moving. */
-.pol-flag-cloth { transform-origin: 9px 26px; animation: pol-cloth 6s ease-in-out infinite; }
-@keyframes pol-cloth {
-  0%, 100% { transform: skewY(0deg) scaleY(1); }
-  35%      { transform: skewY(-2.5deg) scaleY(1.03); }
-  70%      { transform: skewY(2deg) scaleY(.98); }
+.pol-mark-1 { top: 11vh;  left: 3vw;   width: clamp(96px, 12vw, 190px); opacity: .1;  animation: pol-sway-a 26s ease-in-out infinite; }
+.pol-mark-2 { top: 57vh;  left: 6vw;   width: clamp(130px, 15vw, 250px); opacity: .16; animation: pol-wave 14s ease-in-out infinite; }
+.pol-mark-3 { top: 128vh; right: 5vw;  width: clamp(120px, 14vw, 215px); opacity: .09; animation: pol-sway-b 34s ease-in-out infinite; }
+.pol-mark-4 { top: 22vh;  right: 4vw;  width: clamp(150px, 17vw, 290px); opacity: .2;  animation: pol-wave 11s ease-in-out infinite; }
+.pol-mark-5 { top: 90vh;  left: 45vw;  width: clamp(90px, 11vw, 165px);  opacity: .08; animation: pol-sway-a 30s ease-in-out infinite reverse; }
+.pol-mark-6 { top: 166vh; left: 10vw;  width: clamp(130px, 15vw, 245px); opacity: .15; animation: pol-wave 16s ease-in-out infinite reverse; }
+
+@keyframes pol-sway-a {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-3deg); }
+  50%      { transform: translate3d(10px, -16px, 0) rotate(3deg); }
 }
+@keyframes pol-sway-b {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(2deg); }
+  50%      { transform: translate3d(-12px, 14px, 0) rotate(-2deg); }
+}
+
+/* The flag lifts and falls as if caught by wind. */
 @keyframes pol-wave {
-  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
-  50%      { transform: translate3d(-10px, 14px, 0) rotate(-2deg); }
-}
-@keyframes pol-turn {
-  0%   { transform: rotate(0deg) translate3d(0, 0, 0); }
-  50%  { transform: rotate(180deg) translate3d(14px, -18px, 0); }
-  100% { transform: rotate(360deg) translate3d(0, 0, 0); }
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg) skewY(0deg); }
+  30%      { transform: translate3d(-8px, 8px, 0) rotate(-2deg) skewY(1.5deg); }
+  65%      { transform: translate3d(6px, 14px, 0) rotate(1.5deg) skewY(-1.5deg); }
 }
 @keyframes pol-float-a {
   0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
@@ -139,10 +156,11 @@
   background: radial-gradient(circle, rgba(227, 160, 8, .3), transparent 70%);
   animation: pol-drift 34s ease-in-out infinite reverse;
 }
-.pol-tree {
-  position: absolute; right: 4%; bottom: -6%;
-  width: clamp(200px, 26vw, 380px); aspect-ratio: 1;
-  color: var(--green); opacity: .07;
+.pol-hero-tree {
+  position: absolute; right: 4%; bottom: -8%;
+  width: clamp(200px, 26vw, 380px); aspect-ratio: 420 / 421;
+  background: url('/political/tree.png') center / contain no-repeat;
+  opacity: .12;
   animation: pol-sway 18s ease-in-out infinite;
 }
 @keyframes pol-drift {
@@ -491,4 +509,106 @@
   .pol-nav, .pol-flag, .listen, .pol-hero-actions, .pol-social { display: none !important; }
   .political { background: #fff; font-size: 12pt; }
   .pol-section { page-break-inside: avoid; }
+}
+
+/* ==========================================================================
+   जय नेपाल — a greeting the reader can set off
+   ========================================================================== */
+
+.jaya-btn {
+  position: fixed; right: 0; top: 62%; z-index: 35;
+  display: flex; align-items: center; gap: .5rem;
+  padding: .7rem 1rem .7rem .85rem;
+  border: 0; border-radius: 14px 0 0 14px;
+  background: linear-gradient(135deg, var(--crimson), #a50d26);
+  color: #fff; cursor: pointer;
+  font-family: var(--pol-sans); font-size: .9rem; font-weight: 700;
+  box-shadow: 0 14px 34px -14px rgba(160, 12, 36, .9);
+  transform: translateY(-50%);
+  transition: padding-right .3s ease, box-shadow .3s ease, background-color .3s ease;
+}
+.jaya-btn:hover { padding-right: 1.3rem; box-shadow: 0 18px 40px -14px rgba(160, 12, 36, 1); }
+.jaya-btn:active { transform: translateY(-50%) scale(.97); }
+
+.jaya-hand { font-size: 1.35rem; line-height: 1; animation: jaya-wave 2.6s ease-in-out infinite; transform-origin: 70% 80%; }
+.jaya-text { white-space: nowrap; }
+
+@keyframes jaya-wave {
+  0%, 60%, 100% { transform: rotate(0deg); }
+  68%  { transform: rotate(16deg); }
+  76%  { transform: rotate(-12deg); }
+  84%  { transform: rotate(14deg); }
+  92%  { transform: rotate(-8deg); }
+}
+
+@media (max-width: 620px) {
+  .jaya-btn { top: auto; bottom: 1rem; right: 1rem; border-radius: 999px; transform: none; padding: .65rem 1rem; }
+  .jaya-btn:active { transform: scale(.97); }
+  .jaya-text { font-size: .84rem; }
+}
+
+/* The cheer itself, in the middle of the screen. */
+.jaya-cheer {
+  position: fixed; inset: 0; z-index: 60;
+  display: grid; place-content: center; justify-items: center;
+  gap: clamp(.6rem, 2vw, 1.2rem);
+  pointer-events: none;
+}
+
+/* The burst needs a real size, or the hand overflows a zero-height box and
+   the words underneath land on top of it. */
+.jaya-burst {
+  position: relative; display: grid; place-items: center;
+  width: clamp(7rem, 26vw, 12rem); height: clamp(7rem, 26vw, 12rem);
+}
+
+.jaya-big {
+  font-size: clamp(5rem, 22vw, 10rem); line-height: 1;
+  filter: drop-shadow(0 18px 34px rgba(6, 45, 24, .45));
+  animation: jaya-pop .5s cubic-bezier(.18, 1.5, .5, 1) both, jaya-shake 1.7s .5s ease-in-out;
+  transform-origin: 70% 85%;
+}
+
+@keyframes jaya-pop {
+  from { opacity: 0; transform: scale(.3) translateY(30px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes jaya-shake {
+  0%, 100% { rotate: 0deg; }
+  12% { rotate: 18deg; } 26% { rotate: -14deg; }
+  40% { rotate: 16deg; } 54% { rotate: -11deg; }
+  68% { rotate: 12deg; } 82% { rotate: -6deg; }
+}
+
+/* Flecks in the flag's colours, thrown outward from the middle. */
+.jaya-fleck {
+  position: absolute; width: 11px; height: 11px; border-radius: 2px;
+  background: var(--crimson);
+  animation: jaya-throw 1.5s var(--delay, 0ms) cubic-bezier(.16, .8, .3, 1) both;
+}
+.jaya-fleck:nth-child(3n)   { background: var(--green); border-radius: 50%; }
+.jaya-fleck:nth-child(3n+1) { background: var(--saffron); }
+.jaya-fleck:nth-child(4n)   { width: 8px; height: 16px; }
+
+@keyframes jaya-throw {
+  0%   { opacity: 0; transform: rotate(var(--angle)) translateY(0) rotate(0deg) scale(.4); }
+  16%  { opacity: 1; }
+  100% { opacity: 0; transform: rotate(var(--angle)) translateY(calc(var(--distance) * -1)) rotate(520deg) scale(1); }
+}
+
+.jaya-shout {
+  margin: 0; padding: .55rem 1.4rem; border-radius: 999px;
+  font-family: var(--pol-serif); font-size: clamp(1.5rem, 6vw, 2.6rem); font-weight: 700;
+  color: #fff; background: linear-gradient(135deg, var(--crimson), var(--green));
+  box-shadow: 0 18px 40px -18px rgba(6, 45, 24, .7);
+  animation: jaya-rise .55s .15s cubic-bezier(.18, 1.3, .5, 1) both;
+}
+@keyframes jaya-rise {
+  from { opacity: 0; transform: translateY(24px) scale(.9); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jaya-hand, .jaya-big, .jaya-fleck, .jaya-shout { animation: none; }
+  .jaya-fleck { opacity: 0; }
 }

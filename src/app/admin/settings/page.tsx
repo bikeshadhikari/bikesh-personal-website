@@ -83,6 +83,10 @@ const GROUPS: SettingsGroup[] = [
                           default: 'नपढी सुन्नका लागि यहाँ क्लिक गर्नुहोस्' },
       pol_footer_note: { type: 'text', label: 'Closing line', full: true,
                          default: 'समुन्नत नेपाल, सम्मानित नेपाली' },
+      pol_jaya_label: { type: 'text', label: 'Greeting button text', full: true,
+                        default: 'जय नेपाल भन्नुहोस्' },
+      pol_jaya_audio: { type: 'file', label: 'Greeting recording', folder: 'political',
+                        hint: 'Optional MP3 of “जय नेपाल”. Without one the browser speaks it.' },
     },
   },
   {

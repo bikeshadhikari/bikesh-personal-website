@@ -25,9 +25,12 @@ no UI framework and no CSS framework, so the markup stays readable and the pages
   one is uploaded and otherwise has the browser read the Nepali aloud, choosing
   a Nepali voice over any other and saying plainly when the device has none.
   Highlight a passage first and the reading starts there. Party flags and tree
-  symbols drift behind the page on two depths. Each section's picture can sit
-  above the text or beside it on either hand. It takes its own share picture,
-  so the link previews with a portrait of its own.
+  symbols — the supplied artwork, not a drawing of it — drift behind the page
+  on two depths. Each section's picture can sit
+  above the text or beside it on either hand. A greeting button on the edge of
+  the screen brings a waving hand to the middle of the page and says जय नेपाल
+  aloud. It takes its own share picture, so the link previews with a portrait
+  of its own.
 - A gallery that arranges photos of any shape into columns, keeping each picture
   at its own proportions and revealing its title along the bottom on hover.
 - Services, projects and posts sit three to a row and keep that width even when
