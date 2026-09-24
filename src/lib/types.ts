@@ -71,6 +71,14 @@ export type UserRow = {
   is_active: boolean; last_login_at: string | null; created_at: string;
 };
 
+export type Notice = {
+  id: number; title: string; body: string; image: string;
+  link_url: string; link_file: string; link_label: string;
+  dismiss_once: boolean; enabled: boolean;
+  starts_at: string | null; ends_at: string | null;
+  sort_order: number; created_at: string; updated_at: string;
+};
+
 export type GalleryItem = {
   id: number; title: string; caption: string; image: string;
   width: number; height: number; taken_at: string | null;

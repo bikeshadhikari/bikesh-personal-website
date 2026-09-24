@@ -72,6 +72,14 @@ no UI framework and no CSS framework, so the markup stays readable and the pages
   into work, education, volunteer and award tracks.
 - **Gallery** — upload a photo, give it a title and a caption, and it takes its
   place in the arrangement. Any resolution, size or shape works.
+- **Pop-up notices** — a notice shown to every visitor on arrival, which has to
+  be closed before the site can be used: the backdrop does not dismiss it and
+  neither does Escape. A picture, a heading and a message, with a button that
+  opens a PDF you attach or any address you type. The whole picture is always
+  shown, never cropped, and the notice fits any screen from a small phone to a
+  desktop. Set a start and an end date to schedule it, choose whether each
+  visitor sees it once or on every visit, and when more than one is live the
+  lowest sort order wins.
 - **Skills, services, projects, certifications, testimonials, key numbers** — each
   with its own visibility switch and sort order.
 - **Search** — one box in the dashboard header, or press `/` from anywhere in it.

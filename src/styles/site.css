@@ -1626,3 +1626,88 @@ a.chip:hover { text-decoration: none; filter: brightness(1.06); }
   .btn-primary:hover::after { animation: none; }
   .brand-mark { animation: none; }
 }
+
+/* ==========================================================================
+   Pop-up notice — shown on arrival, closed on purpose
+   ========================================================================== */
+
+.notice-backdrop {
+  position: fixed; inset: 0; z-index: 900;
+  display: grid; place-items: center;
+  padding: clamp(.75rem, 3vw, 2rem);
+  background: rgba(14, 12, 26, .62);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  animation: notice-in .28s ease both;
+}
+
+.notice-dialog {
+  position: relative;
+  /* Never wider than the screen, never taller than it either: svh follows the
+     phone's shrinking address bar where vh does not, so the close button
+     cannot end up under the browser chrome. */
+  width: min(560px, 100%);
+  max-height: min(92svh, 92vh);
+  display: flex; flex-direction: column;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-lg), var(--glass-edge);
+  overflow: hidden;
+  animation: notice-rise .35s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+/* The one way out, so it stays put while the notice scrolls under it. */
+.notice-close {
+  position: absolute; top: .7rem; right: .7rem; z-index: 2;
+  display: grid; place-items: center;
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-elevated) 82%, transparent);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  color: var(--text); cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: transform .25s cubic-bezier(.22, 1, .36, 1), background-color .25s ease, color .25s ease;
+}
+.notice-close:hover { background: var(--ink); color: #fff; transform: rotate(90deg); }
+[data-theme="dark"] .notice-close:hover { background: #fff; color: var(--ink); }
+
+/* Long notices scroll inside the dialog rather than growing past the screen. */
+.notice-scroll { overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+
+/* The whole picture, whatever its shape, and never a crop.
+   The box is sized by the picture rather than the picture being fitted to a
+   box: width and height both stay auto and are only capped, so a tall poster
+   and a wide banner each keep their own proportions with no bars around them.
+   The height cap leaves room for the message underneath on a short screen. */
+.notice-image {
+  display: block; margin-inline: auto;
+  width: auto; height: auto;
+  max-width: 100%;
+  max-height: min(58svh, 58vh);
+}
+
+.notice-body { padding: clamp(1.1rem, 4vw, 1.6rem); }
+.notice-body h2 { font-size: clamp(1.15rem, 4vw, 1.5rem); margin-bottom: .5rem; }
+.notice-body p { color: var(--text-soft); margin-bottom: .7rem; }
+.notice-body p:last-of-type { margin-bottom: 0; }
+.notice-link { margin-top: 1.1rem; }
+
+/* With no text at all the picture is the notice, so it keeps the full height. */
+.notice-dialog:not(:has(.notice-body)) .notice-image { max-height: min(90svh, 90vh); }
+
+@keyframes notice-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes notice-rise {
+  from { opacity: 0; transform: translateY(18px) scale(.97); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .notice-backdrop, .notice-dialog { animation: none; }
+  .notice-close:hover { transform: none; }
+}
+
+/* Landscape on a phone leaves almost no height, so the picture gives way to
+   the words rather than filling the screen. */
+@media (max-height: 460px) {
+  .notice-image { max-height: 40svh; }
+  .notice-close { width: 34px; height: 34px; top: .5rem; right: .5rem; }
+}

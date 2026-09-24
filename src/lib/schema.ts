@@ -119,6 +119,23 @@ export async function createSchema(): Promise<void> {
       updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
+    CREATE TABLE IF NOT EXISTS notices (
+      id           SERIAL PRIMARY KEY,
+      title        VARCHAR(200) NOT NULL DEFAULT '',
+      body         TEXT         DEFAULT '',
+      image        VARCHAR(500) DEFAULT '',
+      link_url     VARCHAR(500) DEFAULT '',
+      link_file    VARCHAR(500) DEFAULT '',
+      link_label   VARCHAR(120) DEFAULT '',
+      dismiss_once BOOLEAN NOT NULL DEFAULT TRUE,
+      enabled      BOOLEAN NOT NULL DEFAULT TRUE,
+      starts_at    TIMESTAMPTZ,
+      ends_at      TIMESTAMPTZ,
+      sort_order   INTEGER NOT NULL DEFAULT 0,
+      created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+
     CREATE TABLE IF NOT EXISTS comments (
       id         SERIAL PRIMARY KEY,
       post_id    INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,

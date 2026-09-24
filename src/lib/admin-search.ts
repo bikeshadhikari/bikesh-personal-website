@@ -22,6 +22,7 @@ const CONTENT_TARGETS: [resource: string, columns: string[], titleColumn: string
   ['highlights', ['label', 'value'], 'label'],
   ['categories', ['name', 'description'], 'name'],
   ['gallery', ['title', 'caption'], 'title'],
+  ['notices', ['title', 'body'], 'title'],
 ];
 
 /** Plain-language labels for settings keys, so a search for "favicon" lands somewhere. */

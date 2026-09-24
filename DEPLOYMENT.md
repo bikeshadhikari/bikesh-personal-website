@@ -108,7 +108,9 @@ Sign in at `https://bikeshadhikari.com.np/admin` and work through, in order:
 5. **Gallery** — upload your photos. Shape and size do not matter; each one keeps
    its own proportions and the title you give it shows along the bottom when a
    visitor hovers over it.
-6. **Testimonials** — replace the two placeholders with real quotes from real
+6. **Pop-up notices** — optional. Anything you add here greets every visitor
+   until they close it, so leave it empty unless you have something to announce.
+7. **Testimonials** — replace the two placeholders with real quotes from real
    people, then enable the Testimonials section under Menus & sections. It ships
    switched off on purpose so placeholder text never reaches a visitor.
 

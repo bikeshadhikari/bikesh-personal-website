@@ -47,6 +47,7 @@ export default async function Shell({
       ['services', 'Services', 'layers'],
       ['projects', 'Projects', 'code'],
       ['gallery', 'Gallery', 'eye'],
+      ['notices', 'Pop-up notices', 'sparkle'],
       ['testimonials', 'Testimonials', 'quote'],
       ['highlights', 'Key numbers', 'star'],
     ]],

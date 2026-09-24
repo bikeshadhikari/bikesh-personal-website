@@ -3,7 +3,7 @@ import { cache } from 'react';
 import { sql } from './db';
 import type {
   Category, Certification, Comment, Experience, GalleryItem, Highlight,
-  Paginated, Post, Project, Service, Skill, Testimonial,
+  Notice, Paginated, Post, Project, Service, Skill, Testimonial,
 } from './types';
 import { ensureSchema, isMissingTable } from './schema';
 
@@ -86,6 +86,32 @@ export const getGallery = cache(async (): Promise<GalleryItem[]> => {
     await ensureSchema();
     return sql<GalleryItem[]>`
       SELECT * FROM gallery WHERE enabled ORDER BY sort_order, id DESC`;
+  }
+});
+
+/**
+ * The notice to show on arrival, or nothing.
+ *
+ * A notice counts as live when it is switched on and the clock is inside its
+ * window; either end of that window may be left empty to mean "no limit". When
+ * more than one qualifies the lowest sort order wins, so scheduling a
+ * replacement is a matter of giving it a smaller number.
+ */
+export const getActiveNotice = cache(async (): Promise<Notice | null> => {
+  const query = () => sql<Notice[]>`
+    SELECT * FROM notices
+    WHERE enabled
+      AND (starts_at IS NULL OR starts_at <= NOW())
+      AND (ends_at   IS NULL OR ends_at   >= NOW())
+    ORDER BY sort_order ASC, id DESC
+    LIMIT 1`;
+  try {
+    return (await query())[0] ?? null;
+  } catch (error) {
+    // A site set up before notices existed creates the table on first view.
+    if (!isMissingTable(error)) return null;
+    await ensureSchema();
+    return (await query())[0] ?? null;
   }
 });
 

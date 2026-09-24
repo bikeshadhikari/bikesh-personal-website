@@ -26,6 +26,9 @@ async function uniqueSlug(table: string, slug: string, ignoreId?: number): Promi
 
 export type ListResult = { rows: Row[]; total: number; pages: number; page: number };
 
+/** Tables whose schema carries an updated_at column. */
+const TIMESTAMPED = new Set(['posts', 'notices']);
+
 /** Rows for a dashboard list screen, with search, pagination and derived columns. */
 export async function listRows(
   def: ResourceDef, search = '', page = 1, perPage = 20,
@@ -126,8 +129,11 @@ async function readField(
     }
 
     case 'url': {
+      // A path on this site is as valid a destination as an address
+      // elsewhere: it is how a link points at an uploaded PDF or an
+      // internal page.
       const text = normalizeUrl(String(raw ?? ''));
-      if (text && !/^https?:\/\//i.test(text)) {
+      if (text && !/^(https?:\/\/|\/)/i.test(text)) {
         return { value: text, error: 'That does not look like a valid web address.' };
       }
       return { value: text };
@@ -180,7 +186,7 @@ export async function saveRow(
     delete data.dimensions;
   }
 
-  // Posts carry author, timestamps and a publish date of their own.
+  // Posts carry an author and a publish date of their own.
   if (def.table === 'posts') {
     if (!data.excerpt || String(data.excerpt).trim() === '') {
       data.excerpt = excerptOf(String(data.content ?? ''), 28);
@@ -188,9 +194,13 @@ export async function saveRow(
     if (data.status === 'published' && !data.published_at) {
       data.published_at = new Date().toISOString();
     }
-    data.updated_at = new Date().toISOString();
     if (id === 0) data.author_id = authorId;
   }
+
+  // Any table that keeps an updated_at gets it stamped. A notice uses this to
+  // decide it has changed enough to be worth showing again to someone who
+  // already closed the previous wording.
+  if (TIMESTAMPED.has(def.table)) data.updated_at = new Date().toISOString();
 
   if (Object.keys(errors).length > 0) {
     return { ok: false, errors, values: { ...(existing ?? blankRow(def)), ...data, id } };

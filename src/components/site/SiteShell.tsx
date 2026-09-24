@@ -4,6 +4,8 @@ import Footer from './Footer';
 import Reveal from './Reveal';
 import Backdrop from './Backdrop';
 import PointerGlow from './PointerGlow';
+import NoticePopup from './NoticePopup';
+import { getActiveNotice } from '@/lib/content';
 import { currentUser } from '@/lib/auth';
 import { getSettings, setting, settingBool } from '@/lib/settings';
 
@@ -11,7 +13,7 @@ import { getSettings, setting, settingBool } from '@/lib/settings';
 export default async function SiteShell({
   children, current = 'home', home = false,
 }: { children: React.ReactNode; current?: string; home?: boolean }) {
-  const s = await getSettings();
+  const [s, notice] = await Promise.all([getSettings(), getActiveNotice()]);
   const maintenance = settingBool(s, 'maintenance_mode');
 
   // While maintenance mode is on, only a genuinely signed-in user gets through.
@@ -41,6 +43,21 @@ export default async function SiteShell({
   return (
     <div className={home ? 'is-home' : 'is-inner'}>
       <Backdrop />
+      {notice && (
+        <NoticePopup
+          notice={{
+            id: notice.id,
+            title: notice.title,
+            body: notice.body ?? '',
+            image: notice.image ?? '',
+            // An attached document wins over a typed address.
+            linkUrl: notice.link_file || notice.link_url || '',
+            linkLabel: notice.link_label ?? '',
+            dismissOnce: notice.dismiss_once,
+            version: String(notice.updated_at ?? ''),
+          }}
+        />
+      )}
       {maintenance && owner && (
         <div className="owner-bar" role="status">
           <span className="owner-bar-dot" aria-hidden="true" />
