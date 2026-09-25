@@ -52,6 +52,7 @@ export default async function Shell({
       ['highlights', 'Key numbers', 'star'],
     ]],
     ['Political', [
+      ['play-nepali-congress-quiz', 'Nepali Congress quiz', 'sparkle'],
       ['political_sections', 'Page sections', 'compass'],
       ['political_slides', 'Hero slider', 'eye'],
       ['political_photos', 'Section photos', 'eye'],

@@ -592,3 +592,88 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .
   font-size: .76rem; color: var(--text-muted);
   background: none; padding: 0;
 }
+
+/* --- Nepali Congress quiz module ---------------------------------------- */
+
+.quiz-tabs {
+  display: flex; flex-wrap: wrap; gap: .3rem;
+  margin: 0 0 1.2rem; padding-bottom: .5rem;
+  border-bottom: 1px solid var(--line);
+}
+.quiz-tabs a {
+  padding: .5rem .9rem; border-radius: 10px;
+  color: var(--muted); text-decoration: none; font-weight: 600; font-size: .9rem;
+  transition: background-color .2s ease, color .2s ease;
+}
+.quiz-tabs a:hover { background: var(--surface-2); color: var(--ink); }
+.quiz-tabs a.is-on { background: var(--accent); color: #fff; }
+
+.quiz-status {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .8rem;
+  margin-bottom: 1.2rem; padding: 1rem 1.2rem;
+  border-radius: 14px; border: 1px solid var(--line); background: var(--surface);
+}
+.quiz-status h3 { margin: 0; font-size: 1rem; }
+.quiz-status p { margin: 0; flex: 1 1 260px; color: var(--muted); font-size: .9rem; }
+.quiz-status.is-on { border-left: 4px solid var(--ok, #16a34a); }
+.quiz-status.is-off { border-left: 4px solid var(--danger); }
+
+.quiz-report {
+  margin-top: 1rem; padding: .9rem 1.1rem; border-radius: 12px;
+  border-left: 4px solid var(--accent); background: var(--surface-2);
+  font-size: .9rem;
+}
+.quiz-report.is-ok { border-left-color: var(--ok, #16a34a); }
+.quiz-report.is-bad { border-left-color: var(--danger); }
+.quiz-report p { margin: 0; font-weight: 600; }
+.quiz-report ul { margin: .5rem 0 0; padding-left: 1.1rem; color: var(--muted); }
+.quiz-report li { margin: .2rem 0; line-height: 1.5; }
+
+.quiz-form { display: block; }
+.quiz-form + .quiz-form { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+.quiz-form-foot { margin-top: 1rem; }
+
+.quiz-filters { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
+.quiz-filters input, .quiz-filters select {
+  flex: 1 1 180px; min-width: 0; padding: .55rem .7rem;
+  border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  font: inherit; font-size: .9rem;
+}
+.quiz-filters .btn { flex: 0 0 auto; }
+
+.quiz-facts { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; gap: .5rem; }
+.quiz-facts li {
+  display: flex; align-items: baseline; gap: .6rem;
+  padding: .6rem .8rem; border-radius: 10px; background: var(--surface-2);
+}
+.quiz-facts span { flex: 0 0 72px; font-weight: 700; text-transform: capitalize; }
+.quiz-facts strong { font-size: 1.3rem; color: var(--accent); }
+.quiz-facts small { color: var(--muted); }
+
+/* A bar per day, sized against the busiest one. */
+.quiz-chart {
+  list-style: none; margin: 1rem 0 0; padding: 0;
+  display: flex; align-items: flex-end; gap: .35rem; height: 150px;
+}
+.quiz-chart li {
+  flex: 1 1 0; display: flex; flex-direction: column; align-items: center;
+  justify-content: flex-end; height: 100%; gap: .3rem; min-width: 0;
+}
+.quiz-bar {
+  width: 100%; min-height: 3px; border-radius: 5px 5px 0 0;
+  background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 55%, transparent));
+}
+.quiz-chart small { font-size: .65rem; color: var(--muted); white-space: nowrap; }
+.quiz-chart em { font-size: .7rem; font-style: normal; font-weight: 700; }
+
+.quiz-exports { list-style: none; margin: 0; padding: 0; display: grid; gap: .6rem; }
+.quiz-exports li {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .8rem;
+  padding: .8rem 1rem; border-radius: 12px; background: var(--surface-2);
+}
+.quiz-exports div { flex: 1 1 240px; display: flex; flex-direction: column; }
+.quiz-exports small { color: var(--muted); font-size: .82rem; }
+
+.status-basic { background: rgba(22, 163, 74, .16); color: #15803d; }
+.status-medium { background: rgba(227, 160, 8, .18); color: #a16207; }
+.status-hard { background: rgba(200, 16, 46, .14); color: #b91c1c; }

@@ -189,6 +189,102 @@ export async function createSchema(): Promise<void> {
       updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
+    -- ---------------------------------------------------------------- quiz
+    -- The knowledge game at /play-nepali-congress-quiz. Its own tables rather
+    -- than rows in the site's shared ones, because a question bank meant to
+    -- grow into the thousands and a per-answer log are nothing like the rest
+    -- of the site's content.
+
+    CREATE TABLE IF NOT EXISTS quiz_categories (
+      id         SERIAL PRIMARY KEY,
+      slug       VARCHAR(80)  NOT NULL UNIQUE,
+      name       VARCHAR(120) NOT NULL,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      enabled    BOOLEAN NOT NULL DEFAULT TRUE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS quiz_questions (
+      id            SERIAL PRIMARY KEY,
+      question_id   VARCHAR(40)  NOT NULL UNIQUE,
+      question      TEXT         NOT NULL,
+      option_a      TEXT         NOT NULL DEFAULT '',
+      option_b      TEXT         NOT NULL DEFAULT '',
+      option_c      TEXT         NOT NULL DEFAULT '',
+      option_d      TEXT         NOT NULL DEFAULT '',
+      correct_option CHAR(1)     NOT NULL DEFAULT 'A',
+      difficulty    VARCHAR(10)  NOT NULL DEFAULT 'basic',
+      category      VARCHAR(120) NOT NULL DEFAULT '',
+      explanation   TEXT         DEFAULT '',
+      source        VARCHAR(200) DEFAULT '',
+      source_url    VARCHAR(500) DEFAULT '',
+      image_url     VARCHAR(500) DEFAULT '',
+      audio_url     VARCHAR(500) DEFAULT '',
+      -- Two questions that ask the same fact with the same options share this,
+      -- so one game never puts both to the same player. The supplied bank
+      -- needs it: its 150 rows are 30 facts, each reworded five times.
+      fact_key      VARCHAR(64)  NOT NULL DEFAULT '',
+      -- 'mcq' is scored. 'poll' is reserved for unscored opinion content and
+      -- is never drawn into a game.
+      content_type  VARCHAR(20)  NOT NULL DEFAULT 'mcq',
+      active        BOOLEAN NOT NULL DEFAULT TRUE,
+      deleted_at    TIMESTAMPTZ,
+      verified_date DATE,
+      created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS quiz_questions_pick_idx
+      ON quiz_questions (difficulty, active, content_type, deleted_at);
+    CREATE INDEX IF NOT EXISTS quiz_questions_category_idx ON quiz_questions (category);
+    CREATE INDEX IF NOT EXISTS quiz_questions_fact_idx ON quiz_questions (fact_key);
+
+    CREATE TABLE IF NOT EXISTS quiz_sessions (
+      id            VARCHAR(36) PRIMARY KEY,
+      player_name   VARCHAR(80)  NOT NULL,
+      -- The drawn questions and, when option order is shuffled, the order each
+      -- was shown in. The answer is never kept here: it is read from the
+      -- question row when an answer arrives, so nothing the player's browser
+      -- holds can decide whether they were right.
+      plan          JSONB        NOT NULL DEFAULT '[]',
+      score         INTEGER NOT NULL DEFAULT 0,
+      max_score     INTEGER NOT NULL DEFAULT 0,
+      correct_count INTEGER NOT NULL DEFAULT 0,
+      total_count   INTEGER NOT NULL DEFAULT 0,
+      accuracy      NUMERIC(5,2) NOT NULL DEFAULT 0,
+      level         VARCHAR(60)  NOT NULL DEFAULT '',
+      duration_ms   INTEGER NOT NULL DEFAULT 0,
+      ip_hash       VARCHAR(64)  NOT NULL DEFAULT '',
+      started_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      completed_at  TIMESTAMPTZ
+    );
+    CREATE INDEX IF NOT EXISTS quiz_sessions_started_idx ON quiz_sessions (started_at DESC);
+    CREATE INDEX IF NOT EXISTS quiz_sessions_done_idx ON quiz_sessions (completed_at DESC);
+
+    CREATE TABLE IF NOT EXISTS quiz_answers (
+      id             SERIAL PRIMARY KEY,
+      session_id     VARCHAR(36) NOT NULL REFERENCES quiz_sessions(id) ON DELETE CASCADE,
+      -- The question is kept by id, and questions are only ever soft deleted,
+      -- so a past game still reads correctly after the bank is edited.
+      question_id    INTEGER NOT NULL REFERENCES quiz_questions(id),
+      position       INTEGER NOT NULL DEFAULT 0,
+      selected_option CHAR(1) DEFAULT '',
+      correct_option CHAR(1) NOT NULL DEFAULT 'A',
+      is_correct     BOOLEAN NOT NULL DEFAULT FALSE,
+      points         INTEGER NOT NULL DEFAULT 0,
+      difficulty     VARCHAR(10) NOT NULL DEFAULT 'basic',
+      category       VARCHAR(120) NOT NULL DEFAULT '',
+      response_ms    INTEGER NOT NULL DEFAULT 0,
+      created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      UNIQUE (session_id, question_id)
+    );
+    CREATE INDEX IF NOT EXISTS quiz_answers_session_idx ON quiz_answers (session_id);
+    CREATE INDEX IF NOT EXISTS quiz_answers_question_idx ON quiz_answers (question_id);
+
+    CREATE TABLE IF NOT EXISTS quiz_settings (
+      skey   VARCHAR(120) PRIMARY KEY,
+      svalue TEXT NOT NULL DEFAULT ''
+    );
+
     CREATE TABLE IF NOT EXISTS comments (
       id         SERIAL PRIMARY KEY,
       post_id    INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,

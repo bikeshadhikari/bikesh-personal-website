@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "db:setup": "tsx --conditions=react-server scripts/setup-db.ts"
+    "db:setup": "tsx --conditions=react-server scripts/setup-db.ts",
+    "quiz:seed": "tsx --conditions=react-server scripts/seed-quiz.ts"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
