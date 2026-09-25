@@ -260,18 +260,61 @@
   transition: box-shadow .45s ease;
 }
 
-/* Fitted, never cropped and never stretched: the whole symbol is the point.
-   The box is 70% of the plate, centred: that is the largest square that fits
-   inside a circle, so a picture of any shape fitted into it stays clear of the
-   round edge. Both sides are stated outright, because an image is a replaced
-   element — with its width left to itself it takes its own natural size and
-   ignores the offsets meant to hold it in. */
+/* The same picture, enlarged and blurred, filling the disc edge to edge. It is
+   what the picture's own corners fade into, which is why the join never shows:
+   there is nothing underneath but a softer copy of the same thing. Scaled past
+   the edge so the blur's own thinning rim stays outside the circle. */
+.pol-emblem-wash {
+  position: absolute; inset: 0; z-index: 0;
+  background-position: center; background-size: cover; background-repeat: no-repeat;
+  filter: blur(22px) saturate(1.15);
+  transform: scale(1.35);
+  opacity: .9;
+}
+
+/* A breath of the plate's own light around the rim, so the wash settles into
+   the circle instead of stopping at it. */
+.pol-emblem-plate::after {
+  content: ''; position: absolute; inset: 0; z-index: 1; border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%,
+    rgba(255, 255, 255, 0) 58%,
+    rgba(255, 255, 255, .42) 84%,
+    rgba(255, 255, 255, .78) 100%);
+}
+
+/* The picture itself, whole and never cropped.
+ *
+ * It is sized by its own proportions rather than fitted into a square, so the
+ * element ends up exactly the shape of the picture — which is what lets the
+ * mask follow the picture's real edges. Fitting it into a square box instead
+ * left a wide picture letterboxed inside that box, with its long edges sitting
+ * well inside the fade and staying as hard lines.
+ *
+ * The mask is two fades crossed, one along each axis, which softens all four
+ * edges by the same margin whatever shape the picture is. An ellipse was the
+ * obvious thing to reach for and is wrong here: inscribed in a wide picture it
+ * erases both ends, because everything outside the ellipse goes, and in a wide
+ * box that is most of the picture. Crossed fades take only a thin rim, and the
+ * corners — caught by both fades at once — melt away fastest, which is exactly
+ * where a square edge would otherwise show against the round plate.
+ *
+ * What shows through the softened rim is the blurred copy of the same picture
+ * underneath, which is why none of the join reads as an edge. */
 .pol-emblem img {
-  position: absolute; z-index: 1;
+  position: absolute; z-index: 2;
   top: 50%; left: 50%; transform: translate(-50%, -50%);
-  width: 70%; height: 70%;
-  object-fit: contain; display: block;
-  filter: drop-shadow(0 12px 22px rgba(6, 77, 41, .28));
+  width: auto; height: auto;
+  max-width: 88%; max-height: 88%;
+  display: block;
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0, #000 9%, #000 91%, transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 9%, #000 91%, transparent 100%);
+  mask-image:
+    linear-gradient(to right, transparent 0, #000 9%, #000 91%, transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 9%, #000 91%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+  filter: drop-shadow(0 10px 20px rgba(6, 77, 41, .22));
 }
 
 .pol-emblem-name {
