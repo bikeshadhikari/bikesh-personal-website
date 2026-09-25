@@ -242,34 +242,56 @@
   position: relative;
   display: flex; flex-direction: column; align-items: center; gap: .9rem;
   justify-self: center;
-  width: min(100%, 300px); padding: clamp(1.4rem, 3vw, 2.2rem);
-  border: 0; border-radius: 50%;
-  background: radial-gradient(circle at 50% 38%, #fff 0%, #f3fbf6 62%, #e4f3ea 100%);
-  box-shadow: 0 30px 70px -30px rgba(6, 77, 41, .6), inset 0 0 0 1px var(--green-line);
-  cursor: pointer;
-  transition: transform .45s cubic-bezier(.22, 1, .36, 1), box-shadow .45s ease;
+  width: min(100%, 300px); padding: 0;
+  border: 0; background: none; cursor: pointer;
+  transition: transform .45s cubic-bezier(.22, 1, .36, 1);
   animation: pol-emblem-float 7s ease-in-out infinite;
 }
+
+/* The round plate. A fixed square ratio makes it a true circle whatever the
+   picture inside turns out to be. */
+.pol-emblem-plate {
+  position: relative;
+  display: block;
+  width: 100%; aspect-ratio: 1;
+  border-radius: 50%; overflow: hidden;
+  background: radial-gradient(circle at 50% 38%, #fff 0%, #f3fbf6 62%, #e4f3ea 100%);
+  box-shadow: 0 30px 70px -30px rgba(6, 77, 41, .6), inset 0 0 0 1px var(--green-line);
+  transition: box-shadow .45s ease;
+}
+
+/* Fitted, never cropped and never stretched: the whole symbol is the point.
+   The box is 70% of the plate, centred: that is the largest square that fits
+   inside a circle, so a picture of any shape fitted into it stays clear of the
+   round edge. Both sides are stated outright, because an image is a replaced
+   element — with its width left to itself it takes its own natural size and
+   ignores the offsets meant to hold it in. */
 .pol-emblem img {
-  position: relative; z-index: 1;
-  width: 100%; height: auto; display: block;
+  position: absolute; z-index: 1;
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 70%; height: 70%;
+  object-fit: contain; display: block;
   filter: drop-shadow(0 12px 22px rgba(6, 77, 41, .28));
 }
+
 .pol-emblem-name {
-  position: relative; z-index: 1;
-  font-size: 1.05rem; font-weight: 700; letter-spacing: .06em; color: var(--green-deep);
+  max-width: 100%;
+  font-size: 1.05rem; font-weight: 700; line-height: 1.35;
+  letter-spacing: .04em; text-align: center; text-wrap: balance;
+  color: var(--green-deep);
 }
 
 /* A ring that breathes outward, so the symbol reads as something to press. */
 .pol-emblem-glow {
-  position: absolute; inset: -6px; border-radius: 50%;
+  position: absolute; top: -6px; left: -6px; right: -6px; aspect-ratio: 1;
+  border-radius: 50%;
   border: 2px solid var(--green); opacity: 0;
   animation: pol-emblem-ring 3.2s ease-out infinite;
 }
-.pol-emblem:hover, .pol-emblem:focus-visible {
-  transform: translateY(-6px) scale(1.03);
+.pol-emblem:hover, .pol-emblem:focus-visible { transform: translateY(-6px) scale(1.03); outline: none; }
+.pol-emblem:hover .pol-emblem-plate,
+.pol-emblem:focus-visible .pol-emblem-plate {
   box-shadow: 0 40px 84px -32px rgba(6, 77, 41, .72), inset 0 0 0 1px var(--green);
-  outline: none;
 }
 .pol-emblem:active { transform: translateY(-2px) scale(.99); }
 
