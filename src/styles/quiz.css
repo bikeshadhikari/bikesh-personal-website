@@ -334,3 +334,43 @@
   margin-top: 1rem; padding: .8rem 1rem; border-radius: 12px;
   background: rgba(200, 16, 46, .09); border-left: 4px solid var(--red);
 }
+
+/* --- thank-you, above the score ----------------------------------------- */
+
+.q-thanks {
+  margin: 0 0 1.3rem; padding: 1rem 1.1rem;
+  border-radius: 16px; border: 1px solid rgba(200, 16, 46, .28);
+  background: linear-gradient(160deg, rgba(200, 16, 46, .07), rgba(227, 160, 8, .08));
+}
+.q-thanks-title { margin: 0 0 .5rem; font-weight: 700; color: var(--muted); }
+.q-thanks-name { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--red); }
+.q-thanks-role { margin: .15rem 0 0; font-size: .86rem; line-height: 1.6; color: var(--navy); }
+.q-thanks-appeal {
+  margin: .8rem 0 0; padding-top: .7rem; border-top: 1px dashed rgba(200, 16, 46, .3);
+  font-size: .92rem; font-weight: 700; line-height: 1.7; color: var(--ink);
+}
+
+/* --- the shareable card -------------------------------------------------- */
+
+.q-cardshare { margin: 1.4rem 0 1rem; }
+.q-cardimg {
+  display: block; width: 100%; height: auto; max-width: 420px; margin: 0 auto;
+  border-radius: 16px; border: 1px solid var(--line);
+  box-shadow: 0 24px 50px -28px rgba(22, 55, 95, .6);
+}
+.q-cardhint { margin: .6rem 0 1rem; font-size: .78rem; color: var(--muted); }
+.q-cardnote { margin: .7rem 0 0; font-size: .76rem; line-height: 1.6; color: var(--muted); }
+
+/* The apps whose own browser has no share sheet still need a way out. */
+.q-social {
+  list-style: none; display: flex; flex-wrap: wrap; justify-content: center;
+  gap: .4rem; margin: .8rem 0 0; padding: 0;
+}
+.q-social a, .q-social button {
+  display: inline-block; min-height: 40px; padding: .55rem .85rem;
+  border: 1px solid var(--line); border-radius: 999px; background: #fff;
+  color: var(--navy); font: inherit; font-size: .84rem; font-weight: 700;
+  text-decoration: none; cursor: pointer;
+  transition: background-color .2s ease, border-color .2s ease;
+}
+.q-social a:hover, .q-social button:hover { background: rgba(22, 55, 95, .07); border-color: var(--navy); }

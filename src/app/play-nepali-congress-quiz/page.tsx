@@ -13,6 +13,9 @@ const CLIENT_KEYS = [
   'quiz_transition_basic', 'quiz_transition_medium', 'quiz_transition_final',
   'quiz_result_title', 'quiz_perfect_title',
   'quiz_share_title', 'quiz_share_description', 'quiz_share_hashtag',
+  'quiz_card_headline', 'quiz_card_invite', 'quiz_hashtags',
+  'quiz_thanks_title', 'quiz_candidate_name', 'quiz_candidate_role',
+  'quiz_thanks_appeal',
 ];
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -71,7 +74,9 @@ export default async function QuizPage() {
 
       <footer className="q-foot">
         <strong>{qs(settings, 'quiz_footer')}</strong>
-        <p>{qs(settings, 'quiz_footer_note')}</p>
+        {qs(settings, 'quiz_footer_note').split('\n').filter(Boolean).map((line) => (
+          <p key={line}>{line}</p>
+        ))}
         <ul>
           <li><a href="https://nepalicongress.org/" target="_blank" rel="noopener noreferrer nofollow">nepalicongress.org</a></li>
           <li><a href="https://app.nepalicongress.org/history/" target="_blank" rel="noopener noreferrer nofollow">इतिहास</a></li>

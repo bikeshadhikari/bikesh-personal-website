@@ -374,6 +374,18 @@ function Appearance({ settings }: { settings: Record<string, string> }) {
           <Field name="quiz_level_10" label="Level · 10" value={v('quiz_level_10')} />
           <Field name="quiz_level_11" label="Level · all correct" value={v('quiz_level_11')} />
 
+          <Field name="quiz_thanks_title" label="Thank-you line" value={v('quiz_thanks_title')} />
+          <Field name="quiz_candidate_name" label="Candidate name" value={v('quiz_candidate_name')} />
+          <Field name="quiz_candidate_role" type="textarea" rows={2}
+                 label="Candidate details (one line each)" value={v('quiz_candidate_role')} />
+          <Field name="quiz_thanks_appeal" type="textarea" rows={2}
+                 label="Closing line above the score" value={v('quiz_thanks_appeal')} />
+
+          <Field name="quiz_card_headline" label="Share card headline" value={v('quiz_card_headline')} />
+          <Field name="quiz_card_invite" type="textarea" rows={2}
+                 label="Share card invitation" value={v('quiz_card_invite')} />
+          <Field name="quiz_hashtags" label="Hashtags" value={v('quiz_hashtags')} />
+
           <Field name="quiz_result_title" label="Result heading" value={v('quiz_result_title')} />
           <Field name="quiz_perfect_title" label="Perfect score heading" value={v('quiz_perfect_title')} />
           <Field name="quiz_share_title" label="Share title" value={v('quiz_share_title')} />
@@ -388,8 +400,9 @@ function Appearance({ settings }: { settings: Record<string, string> }) {
           <Field name="quiz_colour_cream" type="color" label="Cream" value={v('quiz_colour_cream')} />
 
           <Field name="quiz_privacy" type="textarea" label="Privacy notice" value={v('quiz_privacy')} rows={2} />
-          <Field name="quiz_footer" type="textarea" label="Footer" value={v('quiz_footer')} rows={2} />
-          <Field name="quiz_footer_note" label="Footer second line" value={v('quiz_footer_note')} />
+          <Field name="quiz_footer" label="Footer name" value={v('quiz_footer')} />
+          <Field name="quiz_footer_note" type="textarea" rows={2}
+                 label="Footer details (one line each)" value={v('quiz_footer_note')} />
         </div>
       </ActionForm>
     </section>

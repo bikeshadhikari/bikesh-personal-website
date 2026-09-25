@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Sound } from '@/lib/quiz-sound';
+import ResultCard from './ResultCard';
 
 type Letter = 'A' | 'B' | 'C' | 'D';
 type Difficulty = 'basic' | 'medium' | 'hard';
@@ -542,7 +543,7 @@ function ResultView({
     `सही: ${result.correct} / ${result.total}`,
     `स्तर: ${result.level}`,
     '',
-    t('quiz_share_hashtag'),
+    t('quiz_hashtags') || t('quiz_share_hashtag'),
   ].join('\n'), [result, maxScore, text]);
 
   const share = async () => {
@@ -585,6 +586,16 @@ function ResultView({
       {result.perfect && <Confetti />}
 
       <p className="q-badge">{result.perfect ? t('quiz_perfect_title') : t('quiz_result_title')}</p>
+
+      <section className="q-thanks">
+        <p className="q-thanks-title">{t('quiz_thanks_title')}</p>
+        <p className="q-thanks-name">{t('quiz_candidate_name')}</p>
+        {t('quiz_candidate_role').split('\n').filter(Boolean).map((line) => (
+          <p className="q-thanks-role" key={line}>{line}</p>
+        ))}
+        <p className="q-thanks-appeal">{t('quiz_thanks_appeal')}</p>
+      </section>
+
       <h1 className="q-player">{result.name}</h1>
 
       <p className="q-score"><strong>{score}</strong> / {result.maxScore || maxScore}</p>
@@ -617,9 +628,31 @@ function ResultView({
             }).join(' ')}
       </p>
 
+      <ResultCard
+        facts={{
+          name: result.name,
+          score: result.score,
+          maxScore: result.maxScore || maxScore,
+          correct: result.correct,
+          total: result.total,
+          level: result.level,
+          stars: starsFor(result.correct, result.total),
+          perfect: result.perfect,
+        }}
+        text={{
+          badge: t('quiz_badge'),
+          headline: t('quiz_card_headline'),
+          invite: t('quiz_card_invite'),
+          candidateName: t('quiz_candidate_name'),
+          candidateRole: t('quiz_candidate_role').split('\n').filter(Boolean).join(' · '),
+          hashtags: t('quiz_hashtags'),
+          url: typeof window === 'undefined' ? '' : window.location.href.split('?')[0],
+        }}
+      />
+
       <div className="q-actions">
         <button type="button" className="q-btn q-btn-solid" onClick={() => void share()}>
-          शेयर गर्नुहोस्
+          लेख शेयर गर्नुहोस्
         </button>
         <button type="button" className="q-btn q-btn-ghost" onClick={() => void copy()}>
           {copied ? '✓ कपी भयो' : 'परिणाम कपी गर्नुहोस्'}
@@ -633,6 +666,12 @@ function ResultView({
       <textarea id="q-share-text" className="q-share-text" readOnly value={shareText} rows={8} />
     </div>
   );
+}
+
+/** Five stars, filled in proportion to how many answers were right. */
+function starsFor(correct: number, total: number): number {
+  if (total <= 0) return 0;
+  return Math.max(1, Math.ceil((correct / total) * 5));
 }
 
 /** Counts up to a number, or lands on it at once when motion is unwelcome. */

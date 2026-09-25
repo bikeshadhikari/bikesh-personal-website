@@ -115,9 +115,21 @@ export const QUIZ_DEFAULTS: Record<string, string> = {
   quiz_share_image: '',
   quiz_share_hashtag: '#NepaliCongressQuiz',
 
+  // The card a player shares, and the thank-you above their score.
+  quiz_card_headline: 'नेपाली कांग्रेस १५ औं महाधिवेशन विशेष',
+  quiz_card_invite: 'मैले त Quiz मा भाग लिएँ । भाग लिनका लागि तपाईं पनि यो लिन्कमा जानुहोस् ।',
+  quiz_hashtags: '#playNCquiz #NepaliCongress',
+
+  quiz_thanks_title: 'धन्यवाद ।',
+  quiz_candidate_name: 'विकेश अधिकारी',
+  quiz_candidate_role:
+    'संघीय महाधिवेशन प्रतिनिधि उम्मेदवार, युवा तर्फ (३५ वर्षमुनि) को क्लस्टरमा\nसिन्धुली क्षेत्र ०१',
+  quiz_thanks_appeal: '१५ औं महाधिवेशनमा विकेश जस्तो अब्बल युवालाई १ भोट । धन्यवाद । जय नेपाल ।',
+
   quiz_privacy: 'यो क्विज सञ्चालनका लागि तपाईंको नाम र खेलसम्बन्धी परिणाम मात्र प्रयोग गरिन्छ ।',
-  quiz_footer: 'Quiz experience by Bikesh Adhikari — IT Professional • Educator • Practitioner • Speaker • Planner',
-  quiz_footer_note: 'संघीय महाधिवेशन प्रतिनिधि उम्मेदवार — युवा तर्फ',
+  quiz_footer: 'विकेश अधिकारी',
+  quiz_footer_note:
+    'संघीय महाधिवेशन प्रतिनिधि उम्मेदवार, युवा तर्फ (३५ वर्षमुनि) को क्लस्टरमा\nसिन्धुली क्षेत्र ०१',
 };
 
 export type QuizSettings = Record<string, string>;
