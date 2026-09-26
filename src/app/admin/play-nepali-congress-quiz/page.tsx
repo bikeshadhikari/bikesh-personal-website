@@ -354,6 +354,15 @@ function Appearance({ settings }: { settings: Record<string, string> }) {
       <div className="panel-head"><h3>Wording, levels and colours</h3></div>
       <ActionForm action={saveSettingsAction} submitLabel="Save">
         <div className="field-grid">
+          <Field name="quiz_emblem" label="Emblem picture (URL)" value={v('quiz_emblem')}
+                 hint="Shown in a round plate above everything on the opening screen. Any shape — it is fitted and its edges faded into the circle. Upload in Media, then paste the address here." />
+          <Field name="quiz_emblem_caption" label="Emblem caption" value={v('quiz_emblem_caption')} />
+          <Field name="quiz_emblem_audio" label="जय नेपाल recording (URL)" value={v('quiz_emblem_audio')}
+                 hint="Optional. Without one the browser speaks the words, which not every in-app browser can do." />
+
+          <Field name="quiz_candidate_badge" label="Candidacy badge" value={v('quiz_candidate_badge')} />
+          <Field name="quiz_candidate_sub" label="Candidacy second line" value={v('quiz_candidate_sub')} />
+
           <Field name="quiz_badge" label="Badge over the title" value={v('quiz_badge')} />
           <Field name="quiz_title" label="Title" value={v('quiz_title')} />
           <Field name="quiz_subtitle" label="Subtitle" value={v('quiz_subtitle')} />

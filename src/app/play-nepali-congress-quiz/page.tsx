@@ -15,6 +15,8 @@ const CLIENT_KEYS = [
   'quiz_share_title', 'quiz_share_description', 'quiz_share_hashtag',
   'quiz_card_headline', 'quiz_card_invite', 'quiz_hashtags', 'quiz_share_url',
   'quiz_welcome_role', 'quiz_welcome_name', 'quiz_welcome_line',
+  'quiz_emblem', 'quiz_emblem_caption', 'quiz_emblem_audio',
+  'quiz_candidate_name', 'quiz_candidate_badge', 'quiz_candidate_sub',
   'quiz_thanks_title', 'quiz_candidate_name', 'quiz_candidate_role',
   'quiz_thanks_appeal',
 ];
@@ -74,10 +76,11 @@ export default async function QuizPage() {
       <QuizGame text={text} privacyNote={qs(settings, 'quiz_privacy')} />
 
       <footer className="q-foot">
-        <strong>{qs(settings, 'quiz_footer')}</strong>
-        {qs(settings, 'quiz_footer_note').split('\n').filter(Boolean).map((line) => (
-          <p key={line}>{line}</p>
-        ))}
+        <strong className="q-foot-name">{qs(settings, 'quiz_candidate_name')}</strong>
+        <span className="q-cand-badge">
+          <strong>{qs(settings, 'quiz_candidate_badge')}</strong>
+          <small>{qs(settings, 'quiz_candidate_sub')}</small>
+        </span>
         <ul>
           <li><a href="https://nepalicongress.org/" target="_blank" rel="noopener noreferrer nofollow">nepalicongress.org</a></li>
           <li><a href="https://app.nepalicongress.org/history/" target="_blank" rel="noopener noreferrer nofollow">इतिहास</a></li>

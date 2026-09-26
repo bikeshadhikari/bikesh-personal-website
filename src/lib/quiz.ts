@@ -67,11 +67,20 @@ export const QUIZ_DEFAULTS: Record<string, string> = {
   quiz_ends_at: '',
   quiz_closed_message: 'यो खेल हाल उपलब्ध छैन।',
 
-  quiz_badge: '🇳🇵 १५औँ महाधिवेशन विशेष',
+  quiz_badge: '१५औँ महाधिवेशन विशेष',
   quiz_title: 'कति जान्नुहुन्छ?',
   quiz_subtitle: 'नेपाली कांग्रेस ज्ञान क्विज',
   quiz_hero_text: 'हरेक खेलमा नयाँ प्रश्न । ११ वटा प्रश्न, तीन तह — आधारभूत, मध्यम र कठिन ।',
-  quiz_chips: '🧠 इतिहास\n📜 विचार\n🏛️ लोकतन्त्र\n👥 नेतृत्व\n🇳🇵 नेपाल',
+  quiz_chips: 'इतिहास\nविचार\nलोकतन्त्र\nनेतृत्व\nनेपाल',
+  // The emblem over everything else, and the greeting it gives.
+  quiz_emblem: '/political/tree.png',
+  quiz_emblem_caption: 'थिचेर जय नेपाल भन्नुहोस्',
+  quiz_emblem_audio: '',
+
+  // The candidacy, beside the title and again in the footer.
+  quiz_candidate_badge: 'संघीय महाधिवेशन प्रतिनिधि उम्मेदवार',
+  quiz_candidate_sub: 'युवा तर्फ — ३५ वर्षमुनि, सिन्धुली, क्षेत्र नं ०१',
+
   quiz_name_label: 'तपाईंको नाम',
   quiz_name_placeholder: 'नाम लेख्नुहोस्',
   quiz_start_button: '🔥 खेल सुरु गर्नुहोस्',

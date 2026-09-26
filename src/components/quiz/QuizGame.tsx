@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Sound } from '@/lib/quiz-sound';
 import ResultCard from './ResultCard';
+import QuizEmblem from './QuizEmblem';
 
 type Letter = 'A' | 'B' | 'C' | 'D';
 type Difficulty = 'basic' | 'medium' | 'hard';
@@ -359,9 +360,30 @@ export default function QuizGame({ text, privacyNote }: { text: QuizText; privac
           const on = sound.current?.toggle() ?? false; setSoundOn(on);
         }} />
 
+        <QuizEmblem
+          image={t('quiz_emblem')}
+          caption={t('quiz_emblem_caption')}
+          audio={t('quiz_emblem_audio')}
+        />
+
         <p className="q-badge">{t('quiz_badge')}</p>
-        <h1 className="q-title">{t('quiz_title')}</h1>
-        <p className="q-subtitle">{t('quiz_subtitle')}</p>
+
+        {/* The title and whose quiz it is, side by side where there is room
+            and stacked where there is not. */}
+        <div className="q-headrow">
+          <div className="q-headline">
+            <h1 className="q-title">{t('quiz_title')}</h1>
+            <p className="q-subtitle">{t('quiz_subtitle')}</p>
+          </div>
+
+          <div className="q-cand">
+            <p className="q-cand-name">{t('quiz_candidate_name')}</p>
+            <span className="q-cand-badge">
+              <strong>{t('quiz_candidate_badge')}</strong>
+              <small>{t('quiz_candidate_sub')}</small>
+            </span>
+          </div>
+        </div>
 
         <ul className="q-chips">
           {t('quiz_chips').split('\n').filter(Boolean).map((chip) => (

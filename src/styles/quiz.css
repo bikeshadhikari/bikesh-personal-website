@@ -398,3 +398,108 @@
 .q-welcome-line {
   margin: 0 0 1.6rem; font-size: 1.02rem; font-weight: 700; line-height: 1.7; color: var(--navy);
 }
+
+/* --- emblem over the opening card --------------------------------------- */
+
+.q-emblem-wrap { position: relative; display: flex; justify-content: center; margin-bottom: 1rem; }
+
+.q-emblem {
+  display: flex; flex-direction: column; align-items: center; gap: .45rem;
+  padding: 0; border: 0; background: none; cursor: pointer;
+  transition: transform .35s cubic-bezier(.22, 1, .36, 1);
+}
+.q-emblem:hover, .q-emblem:focus-visible { transform: translateY(-3px); outline: none; }
+.q-emblem:active { transform: translateY(0) scale(.98); }
+
+/* Small enough to sit over the title, large enough to read a logo in. */
+.q-emblem-plate {
+  position: relative; display: block;
+  width: clamp(96px, 26vw, 128px); aspect-ratio: 1;
+  border-radius: 50%; overflow: hidden;
+  background: radial-gradient(circle at 50% 38%, #fff 0%, #f6faf7 62%, #eaf3ec 100%);
+  box-shadow: 0 14px 30px -16px rgba(22, 55, 95, .55), inset 0 0 0 1px rgba(22, 55, 95, .12);
+}
+/* Fitted to the largest square inside the circle and feathered at the edges,
+   so an uploaded square logo shows no corners against the round plate. */
+.q-emblem-plate img {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 78%; height: 78%; object-fit: contain; display: block;
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0, #000 9%, #000 91%, transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 9%, #000 91%, transparent 100%);
+  mask-image:
+    linear-gradient(to right, transparent 0, #000 9%, #000 91%, transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 9%, #000 91%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+.q-emblem-caption {
+  font-size: .74rem; font-weight: 700; line-height: 1.4; color: var(--navy);
+  text-align: center; max-width: 190px;
+}
+.q-emblem:focus-visible .q-emblem-plate { box-shadow: 0 0 0 3px var(--navy); }
+
+.q-cheer {
+  position: absolute; inset: auto 0 auto 0; top: 0; z-index: 4;
+  display: flex; flex-direction: column; align-items: center; gap: .2rem;
+  pointer-events: none;
+  animation: q-cheer-pop 2.2s ease-out forwards;
+}
+.q-cheer-hand { font-size: 3rem; line-height: 1; }
+.q-cheer-text { font-weight: 800; color: var(--red); font-size: 1.05rem; }
+@keyframes q-cheer-pop {
+  0%   { opacity: 0; transform: translateY(14px) scale(.7); }
+  18%  { opacity: 1; transform: translateY(-6px) scale(1.05); }
+  78%  { opacity: 1; transform: translateY(-14px) scale(1); }
+  100% { opacity: 0; transform: translateY(-30px) scale(.95); }
+}
+
+/* --- title beside the candidacy ----------------------------------------- */
+
+.q-headrow {
+  display: flex; flex-wrap: wrap; align-items: flex-start;
+  gap: .9rem 1.2rem; margin-bottom: 1rem;
+}
+.q-headline { flex: 1 1 240px; min-width: 0; }
+.q-headline .q-title { margin: 0; }
+.q-headline .q-subtitle { margin: .3rem 0 0; }
+
+.q-cand { flex: 0 1 260px; min-width: 0; text-align: left; }
+.q-cand-name {
+  margin: 0 0 .4rem; font-size: 1.22rem; font-weight: 800; line-height: 1.25;
+  color: #0b6b3a;
+}
+
+/* The candidacy plate, the same shape the political page uses. */
+.q-cand-badge {
+  display: inline-flex; flex-direction: column; gap: .15rem;
+  padding: .5rem .8rem; border-radius: 12px;
+  background: linear-gradient(135deg, var(--red), #a50d26);
+  color: #fff;
+  box-shadow: 0 12px 26px -14px rgba(200, 16, 46, .85);
+}
+.q-cand-badge strong { font-size: .84rem; font-weight: 800; line-height: 1.35; }
+.q-cand-badge small { font-size: .74rem; font-weight: 600; opacity: .94; line-height: 1.4; }
+
+.q-foot-name {
+  display: block; margin-bottom: .5rem;
+  font-size: 1.05rem; font-weight: 800; color: #0b6b3a;
+}
+.q-foot .q-cand-badge { margin-bottom: .6rem; text-align: left; }
+
+@media (max-width: 520px) {
+  .q-headrow { gap: .8rem; }
+  .q-cand { flex: 1 1 100%; }
+  .q-cand-badge { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .q-cheer { animation-duration: 2.2s; }
+}
+
+/* The opening card carries the title and the candidacy side by side, which
+   needs more width than a question does. */
+.q-intro { max-width: 760px; }
+.q-intro .q-title { font-size: clamp(1.9rem, 7vw, 2.75rem); }
+.q-headline { flex: 2 1 330px; }
+.q-cand { flex: 1 1 250px; max-width: 300px; }
