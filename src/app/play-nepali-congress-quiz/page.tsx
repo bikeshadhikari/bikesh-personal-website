@@ -13,7 +13,8 @@ const CLIENT_KEYS = [
   'quiz_transition_basic', 'quiz_transition_medium', 'quiz_transition_final',
   'quiz_result_title', 'quiz_perfect_title',
   'quiz_share_title', 'quiz_share_description', 'quiz_share_hashtag',
-  'quiz_card_headline', 'quiz_card_invite', 'quiz_hashtags',
+  'quiz_card_headline', 'quiz_card_invite', 'quiz_hashtags', 'quiz_share_url',
+  'quiz_welcome_role', 'quiz_welcome_name', 'quiz_welcome_line',
   'quiz_thanks_title', 'quiz_candidate_name', 'quiz_candidate_role',
   'quiz_thanks_appeal',
 ];

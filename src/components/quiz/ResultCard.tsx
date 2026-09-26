@@ -17,8 +17,6 @@ export type CardText = {
   badge: string;
   headline: string;
   invite: string;
-  candidateName: string;
-  candidateRole: string;
   hashtags: string;
   url: string;
 };
@@ -115,19 +113,19 @@ export default function ResultCard(
 
     // The headline only: the badge said very nearly the same thing, and twice
     // over it read as a mistake rather than as emphasis.
-    let y = 104;
+    let y = 110;
     centre(text.headline, y, 46, NAVY, '800');
 
     // The flag, flying.
-    const flagTop = y + 44;
-    await drawWavingFlag(ctx, W / 2 - 210, flagTop, 420, 280);
+    const flagTop = y + 50;
+    await drawWavingFlag(ctx, W / 2 - 220, flagTop, 440, 300);
 
     // Clear of the pole, which hangs below the cloth.
-    y = flagTop + 280 + 92;
+    y = flagTop + 300 + 100;
 
     // Who played.
     centre(facts.name, y, 62, NAVY, '800');
-    y += 76;
+    y += 82;
 
     // The score, the piece people actually look at.
     ctx.textAlign = 'center';
@@ -147,15 +145,15 @@ export default function ResultCard(
     ctx.fillText(` / ${facts.maxScore}`, startX + scoreWidth, y + 46);
     ctx.textAlign = 'center';
 
-    y += 108;
+    y += 115;
     centre(`${facts.correct} / ${facts.total} सही`, y, 40, '#5d6b7e', '600');
 
     // Stars, filled to the level reached.
-    y += 74;
+    y += 80;
     drawStars(ctx, W / 2, y, facts.stars);
 
     // The level, on a badge.
-    y += 84;
+    y += 92;
     ctx.font = `800 40px ${family}`;
     const levelWidth = ctx.measureText(facts.level).width + 86;
     roundedRect(ctx, W / 2 - levelWidth / 2, y - 44, levelWidth, 70, 35);
@@ -166,15 +164,11 @@ export default function ResultCard(
     ctx.fill();
     centre(facts.level, y + 4, 40, '#2a1e00', '800');
 
-    // The invitation to play.
-    y += 96;
-    y = wrap(text.invite, y, 34, NAVY, '600');
-
-    // Who made it, stated plainly.
-    y += 18;
-    centre(text.candidateName, y, 40, RED, '800');
-    y += 50;
-    y = wrap(text.candidateRole, y, 27, '#5d6b7e', '600', W - 180);
+    // The invitation to play. The card names the player and nobody else:
+    // whose quiz it is belongs on the page, not on the picture someone posts
+    // about their own score.
+    y += 110;
+    wrap(text.invite, y, 34, NAVY, '600');
 
     // Hashtags and the link, at the foot.
     centre(text.hashtags, H - 96, 30, NAVY, '700');

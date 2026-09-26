@@ -374,3 +374,27 @@
   transition: background-color .2s ease, border-color .2s ease;
 }
 .q-social a:hover, .q-social button:hover { background: rgba(22, 55, 95, .07); border-color: var(--navy); }
+
+/* --- the greeting, between pressing start and the first question -------- */
+
+.q-welcome { text-align: center; padding: 2.4rem 1.4rem; }
+.q-welcome-flag {
+  display: block; width: clamp(140px, 45vw, 190px); margin: 0 auto 1.4rem;
+  animation: q-flag 2.6s ease-in-out infinite;
+  transform-origin: 8% 50%;
+}
+.q-welcome-flag img { width: 100%; height: auto; display: block; }
+@keyframes q-flag {
+  0%, 100% { transform: rotate(-1.5deg) skewY(1deg); }
+  50%      { transform: rotate(1.5deg) skewY(-1deg); }
+}
+.q-welcome-role {
+  margin: 0 0 .5rem; font-size: .88rem; line-height: 1.7; color: var(--muted); font-weight: 600;
+}
+.q-welcome-name {
+  margin: 0 0 .7rem; font-size: clamp(1.5rem, 7vw, 2rem); font-weight: 800; color: var(--red);
+  animation: q-pop .5s cubic-bezier(.22, 1, .36, 1) both;
+}
+.q-welcome-line {
+  margin: 0 0 1.6rem; font-size: 1.02rem; font-weight: 700; line-height: 1.7; color: var(--navy);
+}

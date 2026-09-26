@@ -381,7 +381,14 @@ function Appearance({ settings }: { settings: Record<string, string> }) {
           <Field name="quiz_thanks_appeal" type="textarea" rows={2}
                  label="Closing line above the score" value={v('quiz_thanks_appeal')} />
 
+          <Field name="quiz_welcome_role" type="textarea" rows={2}
+                 label="Greeting · role line" value={v('quiz_welcome_role')} />
+          <Field name="quiz_welcome_name" label="Greeting · name" value={v('quiz_welcome_name')} />
+          <Field name="quiz_welcome_line" label="Greeting · welcome line" value={v('quiz_welcome_line')} />
+
           <Field name="quiz_card_headline" label="Share card headline" value={v('quiz_card_headline')} />
+          <Field name="quiz_share_url" label="Link printed on the card" value={v('quiz_share_url')}
+                 hint="Leave empty to use whatever address the player is on." />
           <Field name="quiz_card_invite" type="textarea" rows={2}
                  label="Share card invitation" value={v('quiz_card_invite')} />
           <Field name="quiz_hashtags" label="Hashtags" value={v('quiz_hashtags')} />

@@ -31,7 +31,10 @@ type Result = {
 
 export type QuizText = Record<string, string>;
 
-type Phase = 'intro' | 'loading' | 'playing' | 'transition' | 'result';
+type Phase = 'intro' | 'welcome' | 'loading' | 'playing' | 'transition' | 'result';
+
+/** How long the greeting is held while the questions are being fetched. */
+const WELCOME_MS = 2600;
 
 const SAVE_KEY = 'ncq:game';
 const DIFF_LABEL: Record<Difficulty, string> = {
@@ -127,6 +130,12 @@ export default function QuizGame({ text, privacyNote }: { text: QuizText; privac
   const question = questions[at];
   const answered = picked !== null;
 
+  useEffect(() => {
+    if (phase !== 'playing' || answered) { sound.current?.stopPulse(); return; }
+    sound.current?.startPulse();
+    return () => sound.current?.stopPulse();
+  }, [phase, answered, at]);
+
   /* ------------------------------------------------------------- start */
 
   const begin = async (playerName: string) => {
@@ -142,7 +151,10 @@ export default function QuizGame({ text, privacyNote }: { text: QuizText; privac
     // let an AudioContext open.
     sound.current?.wake();
     cue('start');
-    setPhase('loading');
+    // The greeting shows straight away and the questions are fetched behind
+    // it, so the wait costs the player nothing.
+    setPhase('welcome');
+    const shown = Date.now();
 
     try {
       const response = await fetch('/api/quiz/start', {
@@ -156,6 +168,11 @@ export default function QuizGame({ text, privacyNote }: { text: QuizText; privac
         setPhase('intro');
         return;
       }
+
+      // Hold the greeting for what is left of its time, never longer.
+      const left = WELCOME_MS - (Date.now() - shown);
+      if (left > 0) await new Promise((resolve) => window.setTimeout(resolve, left));
+
       setSessionId(data.sessionId);
       setQuestions(data.questions);
       setMaxScore(data.maxScore);
@@ -195,6 +212,8 @@ export default function QuizGame({ text, privacyNote }: { text: QuizText; privac
     if (answered || !question || submitting) return;
     setPicked(letter);
     setSubmitting(true);
+    sound.current?.stopPulse();
+    cue('lock');
 
     try {
       const response = await fetch('/api/quiz/answer', {
@@ -395,6 +414,21 @@ export default function QuizGame({ text, privacyNote }: { text: QuizText; privac
     );
   }
 
+  if (phase === 'welcome') {
+    return (
+      <div className="q-card q-welcome" role="status" aria-live="polite">
+        <span className="q-welcome-flag" aria-hidden="true">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/political/flag.png" alt="" />
+        </span>
+        <p className="q-welcome-role">{t('quiz_welcome_role')}</p>
+        <p className="q-welcome-name">{t('quiz_welcome_name')}</p>
+        <p className="q-welcome-line">{t('quiz_welcome_line')}</p>
+        <span className="q-bar"><span /></span>
+      </div>
+    );
+  }
+
   if (phase === 'loading') {
     return (
       <div className="q-card q-loading" role="status" aria-live="polite">
@@ -544,6 +578,7 @@ function ResultView({
     `स्तर: ${result.level}`,
     '',
     t('quiz_hashtags') || t('quiz_share_hashtag'),
+    shareUrl(t('quiz_share_url')),
   ].join('\n'), [result, maxScore, text]);
 
   const share = async () => {
@@ -643,10 +678,8 @@ function ResultView({
           badge: t('quiz_badge'),
           headline: t('quiz_card_headline'),
           invite: t('quiz_card_invite'),
-          candidateName: t('quiz_candidate_name'),
-          candidateRole: t('quiz_candidate_role').split('\n').filter(Boolean).join(' · '),
           hashtags: t('quiz_hashtags'),
-          url: typeof window === 'undefined' ? '' : window.location.href.split('?')[0],
+          url: shareUrl(t('quiz_share_url')),
         }}
       />
 
@@ -666,6 +699,17 @@ function ResultView({
       <textarea id="q-share-text" className="q-share-text" readOnly value={shareText} rows={8} />
     </div>
   );
+}
+
+/**
+ * The address to put on a shared card.
+ *
+ * The configured one wins so a card made on a preview build still sends people
+ * to the real page; the browser's own address is only the fallback.
+ */
+function shareUrl(configured: string): string {
+  if (configured) return configured;
+  return typeof window === 'undefined' ? '' : window.location.href.split('?')[0];
 }
 
 /** Five stars, filled in proportion to how many answers were right. */

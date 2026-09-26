@@ -116,9 +116,19 @@ export const QUIZ_DEFAULTS: Record<string, string> = {
   quiz_share_hashtag: '#NepaliCongressQuiz',
 
   // The card a player shares, and the thank-you above their score.
-  quiz_card_headline: 'नेपाली कांग्रेस १५ औं महाधिवेशन विशेष',
-  quiz_card_invite: 'मैले त Quiz मा भाग लिएँ । भाग लिनका लागि तपाईं पनि यो लिन्कमा जानुहोस् ।',
+  quiz_card_headline: 'नेपाली कांग्रेस १५ औं महाधिवेशन विशेष QUIZ',
+  quiz_card_invite:
+    'मैले त Nepali Congress बारे ज्ञान मापन Quiz मा भाग लिएँ । भाग लिनका लागि तपाईं पनि यो लिन्कमा जानुहोस् ।',
   quiz_hashtags: '#playNCquiz #NepaliCongress',
+  // Written out rather than read from the browser's address bar, so a card
+  // made on a preview build still points people at the real page.
+  quiz_share_url: 'https://www.bikeshadhikari.com.np/play-nepali-congress-quiz',
+
+  // The greeting between pressing start and the first question.
+  quiz_welcome_role:
+    'संघीय महाधिवेशन प्रतिनिधि, सिन्धुली क्षेत्र ०१, को युवा तर्फ (३५ वर्षमुनि) का उम्मेदवार',
+  quiz_welcome_name: 'विकेश अधिकारी',
+  quiz_welcome_line: 'हजुरहरूलाई QUIZ मा स्वागत गर्नुहुन्छ',
 
   quiz_thanks_title: 'धन्यवाद ।',
   quiz_candidate_name: 'विकेश अधिकारी',
