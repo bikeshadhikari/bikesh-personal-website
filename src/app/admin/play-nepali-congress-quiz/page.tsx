@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation';
 import { currentUser } from '@/lib/auth';
 import Shell from '@/components/admin/Shell';
 import { ActionForm, ImportForms } from '@/components/admin/QuizForms';
+import FileUpload from '@/components/admin/FileUpload';
+import { AUDIO_ACCEPT } from '@/lib/upload-types';
 import { getQuizSettings, planShape, qs, qsFlag } from '@/lib/quiz';
 import {
   gamesPerDay, listQuestions, listSessions, mostMissed, quizStats, readiness,
@@ -280,11 +282,30 @@ function Field(
   { name, label, value, hint, type = 'text', rows, options }:
   {
     name: string; label: string; value: string; hint?: string;
-    type?: 'text' | 'textarea' | 'number' | 'checkbox' | 'color' | 'datetime-local';
+    type?: 'text' | 'textarea' | 'number' | 'checkbox' | 'color' | 'datetime-local'
+      | 'image' | 'audio';
     rows?: number; options?: [string, string][];
   },
 ) {
   const id = `f-${name}`;
+
+  // A picture or a recording goes up through the media library, so the form
+  // only ever carries the address it comes back with.
+  if (type === 'image' || type === 'audio') {
+    return (
+      <div className="field field-full">
+        <label htmlFor={`f-${name}`}>{label}</label>
+        <FileUpload
+          name={name}
+          value={value}
+          folder="quiz"
+          isImage={type === 'image'}
+          accept={type === 'audio' ? AUDIO_ACCEPT : undefined}
+        />
+        {hint && <p className="hint">{hint}</p>}
+      </div>
+    );
+  }
   if (type === 'checkbox') {
     return (
       <div className="field">
@@ -354,11 +375,11 @@ function Appearance({ settings }: { settings: Record<string, string> }) {
       <div className="panel-head"><h3>Wording, levels and colours</h3></div>
       <ActionForm action={saveSettingsAction} submitLabel="Save">
         <div className="field-grid">
-          <Field name="quiz_emblem" label="Emblem picture (URL)" value={v('quiz_emblem')}
-                 hint="Shown in a round plate above everything on the opening screen. Any shape — it is fitted and its edges faded into the circle. Upload in Media, then paste the address here." />
+          <Field name="quiz_emblem" type="image" label="Emblem picture" value={v('quiz_emblem')}
+                 hint="Shown in a round plate above everything on the opening screen. Any shape — it is fitted and its edges faded into the circle." />
           <Field name="quiz_emblem_caption" label="Emblem caption" value={v('quiz_emblem_caption')} />
-          <Field name="quiz_emblem_audio" label="जय नेपाल recording (URL)" value={v('quiz_emblem_audio')}
-                 hint="Optional. Without one the browser speaks the words, which not every in-app browser can do." />
+          <Field name="quiz_emblem_audio" type="audio" label="जय नेपाल recording" value={v('quiz_emblem_audio')}
+                 hint="MP3, M4A, MP4, WAV, OGG or a voice memo straight off your phone. Strongly recommended: without one the browser has to speak the words, and the browser inside Messenger or Instagram often cannot. Up to 4 MB." />
 
           <Field name="quiz_candidate_badge" label="Candidacy badge" value={v('quiz_candidate_badge')} />
           <Field name="quiz_candidate_sub" label="Candidacy second line" value={v('quiz_candidate_sub')} />
@@ -406,8 +427,8 @@ function Appearance({ settings }: { settings: Record<string, string> }) {
           <Field name="quiz_perfect_title" label="Perfect score heading" value={v('quiz_perfect_title')} />
           <Field name="quiz_share_title" label="Share title" value={v('quiz_share_title')} />
           <Field name="quiz_share_description" type="textarea" label="Share description" value={v('quiz_share_description')} rows={2} />
-          <Field name="quiz_share_image" label="Share picture URL" value={v('quiz_share_image')}
-                 hint="Leave empty and a card is drawn instead." />
+          <Field name="quiz_share_image" type="image" label="Share picture" value={v('quiz_share_image')}
+                 hint="Used when the link itself is pasted somewhere. Leave empty and a card is drawn instead. The card a player shares after playing is drawn separately and is not affected." />
           <Field name="quiz_share_hashtag" label="Hashtag" value={v('quiz_share_hashtag')} />
 
           <Field name="quiz_colour_red" type="color" label="Red" value={v('quiz_colour_red')} />

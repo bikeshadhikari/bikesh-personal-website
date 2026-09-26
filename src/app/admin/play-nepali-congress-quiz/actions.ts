@@ -7,6 +7,44 @@ import { withSchema } from '@/lib/schema';
 import { QUIZ_DEFAULTS, getQuizSettings, planShape, saveQuizSettings } from '@/lib/quiz';
 import { readiness } from '@/lib/quiz-admin';
 import { importQuestions, parseCsv, review } from '@/lib/quiz-import';
+import { MEDIA_PREFIX, deleteUpload } from '@/lib/upload';
+
+/**
+ * Settings that hold a picture or a recording rather than words.
+ *
+ * Their value arrives from the uploader under `<key>_url`, not under the key
+ * itself, because the file goes up in the browser and only the address it was
+ * given comes back with the form.
+ */
+const MEDIA_KEYS = new Set([
+  'quiz_emblem', 'quiz_emblem_audio', 'quiz_share_image', 'quiz_logo', 'quiz_hero_image',
+]);
+
+/**
+ * An address a media setting may hold.
+ *
+ * Wider than the site's own check, which takes uploads and absolute https
+ * links only: these settings also ship pointing at files that travel with the
+ * site, and a default of /political/tree.png must survive being saved.
+ */
+function acceptQuizMedia(value: string): string {
+  const trimmed = value.trim();
+  if (trimmed === '') return '';
+
+  if (trimmed.startsWith(MEDIA_PREFIX)) {
+    return /^\/api\/media\/[0-9a-f]{1,64}$/i.test(trimmed) ? trimmed : '';
+  }
+  // A path within this site, and nothing that climbs out of it.
+  if (trimmed.startsWith('/') && !trimmed.startsWith('//') && !trimmed.includes('..')) {
+    return trimmed.slice(0, 500);
+  }
+  try {
+    const url = new URL(trimmed);
+    return url.protocol === 'https:' ? url.toString() : '';
+  } catch {
+    return '';
+  }
+}
 
 /** Every action here changes the game, so every action checks the seat first. */
 async function requireEditor(): Promise<void> {
@@ -24,8 +62,22 @@ export async function saveSettingsAction(
 ): Promise<ActionState> {
   await requireEditor();
 
+  const current = await getQuizSettings();
   const values: Record<string, string> = {};
+
   for (const key of Object.keys(QUIZ_DEFAULTS)) {
+    if (MEDIA_KEYS.has(key)) {
+      if (!formData.has(`${key}_url`)) continue;
+      const next = acceptQuizMedia(String(formData.get(`${key}_url`) ?? ''));
+      const previous = current[key] ?? '';
+      // A replaced upload is no longer referenced by anything, so it goes.
+      if (previous && previous !== next && previous.startsWith(MEDIA_PREFIX)) {
+        await deleteUpload(previous);
+      }
+      values[key] = next;
+      continue;
+    }
+
     if (!formData.has(key) && !formData.has(`${key}__present`)) continue;
     const raw = formData.get(key);
     // A checkbox that is off sends nothing, so its presence marker decides.
@@ -34,7 +86,7 @@ export async function saveSettingsAction(
 
   // Switching the game on is refused while the bank cannot fill a round.
   if (values.quiz_enabled === '1') {
-    const settings = { ...(await getQuizSettings()), ...values };
+    const settings = { ...current, ...values };
     const check = await readiness(planShape(settings));
     if (!check.ok) {
       return {
