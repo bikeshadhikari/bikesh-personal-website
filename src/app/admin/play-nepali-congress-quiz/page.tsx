@@ -428,7 +428,7 @@ function Appearance({ settings }: { settings: Record<string, string> }) {
           <Field name="quiz_share_title" label="Share title" value={v('quiz_share_title')} />
           <Field name="quiz_share_description" type="textarea" label="Share description" value={v('quiz_share_description')} rows={2} />
           <Field name="quiz_share_image" type="image" label="Share picture" value={v('quiz_share_image')}
-                 hint="Used when the link itself is pasted somewhere. Leave empty and a card is drawn instead. The card a player shares after playing is drawn separately and is not affected." />
+                 hint="What Facebook, Messenger and WhatsApp show when the link itself is pasted. A picture of the opening screen ships with the site; upload here to replace it. Keep it under about 300 KB — WhatsApp quietly shows nothing at all for anything much larger. The card a player shares after playing is drawn separately and is not affected." />
           <Field name="quiz_share_hashtag" label="Hashtag" value={v('quiz_share_hashtag')} />
 
           <Field name="quiz_colour_red" type="color" label="Red" value={v('quiz_colour_red')} />

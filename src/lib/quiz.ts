@@ -121,7 +121,11 @@ export const QUIZ_DEFAULTS: Record<string, string> = {
   quiz_share_title: 'कति जान्नुहुन्छ? — नेपाली कांग्रेस ज्ञान क्विज',
   quiz_share_description:
     '१५औँ महाधिवेशन विशेष — प्रश्न बैंकबाट हरेक खेलमा नयाँ MCQ चुनौती ।',
-  quiz_share_image: '',
+  // A picture of the opening screen, drawn by scripts/make-quiz-card.cjs.
+  // Nepali cannot be written by the server's image renderer, which places
+  // glyphs in code-point order and misspells every Devanagari word, so the
+  // card is photographed from the page in a browser instead.
+  quiz_share_image: '/quiz/share.jpg',
   quiz_share_hashtag: '#NepaliCongressQuiz',
 
   // The card a player shares, and the thank-you above their score.

@@ -10,7 +10,8 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "db:setup": "tsx --conditions=react-server scripts/setup-db.ts",
-    "quiz:seed": "tsx --conditions=react-server scripts/seed-quiz.ts"
+    "quiz:seed": "tsx --conditions=react-server scripts/seed-quiz.ts",
+    "quiz:card": "node scripts/make-quiz-card.cjs"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
