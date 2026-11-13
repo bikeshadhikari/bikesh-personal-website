@@ -12,7 +12,7 @@ export default async function SetupPage() {
   if ((await isInstalled()) && (await hasAnyUser())) redirect('/admin');
 
   const checks: [string, boolean][] = [
-    ['Database connection string is set', Boolean(process.env.DATABASE_URL)],
+    ['Database connection string is set', Boolean(process.env.PERSONAL_DATABASE_URL || process.env.DATABASE_URL)],
     ['Session secret is set', Boolean(process.env.AUTH_SECRET && process.env.AUTH_SECRET.length >= 16)],
     ['Setup key is set', Boolean(process.env.SETUP_SECRET)],
   ];

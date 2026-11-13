@@ -23,7 +23,9 @@ declare global {
 }
 
 function connect(): postgres.Sql {
-  const url = process.env.DATABASE_URL;
+  // Prefer the Neon-integration variable: Vercel updates it automatically when the
+  // database password is rotated. DATABASE_URL stays as a fallback for other hosts.
+  const url = process.env.PERSONAL_DATABASE_URL || process.env.DATABASE_URL;
   if (!url) {
     throw new Error(
       'DATABASE_URL is not set. Add a Postgres database to the project and paste its pooled connection string.',
