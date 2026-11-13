@@ -1,4 +1,5 @@
-import { Noto_Sans_Devanagari, Noto_Serif_Devanagari } from 'next/font/google';
+import type { CSSProperties } from 'react';
+import { devaSansStack, devaSerifStack } from '@/fonts';
 import '@/styles/political.css';
 
 /**
@@ -7,20 +8,11 @@ import '@/styles/political.css';
  * have, which on Windows is usually a poor match for the headings this page
  * leans on.
  */
-const devaSans = Noto_Sans_Devanagari({
-  subsets: ['devanagari', 'latin'],
-  weight: ['400', '500', '600', '700'],
-  display: 'swap',
-  variable: '--font-deva-sans',
-});
-
-const devaSerif = Noto_Serif_Devanagari({
-  subsets: ['devanagari', 'latin'],
-  weight: ['400', '600', '700'],
-  display: 'swap',
-  variable: '--font-deva-serif',
-});
+const fontVars = {
+  '--font-deva-sans': devaSansStack,
+  '--font-deva-serif': devaSerifStack,
+} as CSSProperties;
 
 export default function PoliticalLayout({ children }: { children: React.ReactNode }) {
-  return <div className={`${devaSans.variable} ${devaSerif.variable}`}>{children}</div>;
+  return <div style={fontVars}>{children}</div>;
 }

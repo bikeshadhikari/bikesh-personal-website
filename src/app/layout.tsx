@@ -1,21 +1,9 @@
 import type { Metadata, Viewport } from 'next';
-import { Plus_Jakarta_Sans, Source_Serif_4 } from 'next/font/google';
+import { sans, serif } from '@/fonts';
 import { getSettings, setting, settingBool, socialLinks } from '@/lib/settings';
 import { jsonForScript, safeColor, siteOrigin, toneHues } from '@/lib/utils';
 import '@/styles/site.css';
 
-const sans = Plus_Jakarta_Sans({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
-  variable: '--font-sans-loaded',
-  display: 'swap',
-});
-const serif = Source_Serif_4({
-  subsets: ['latin'],
-  weight: ['400', '600'],
-  variable: '--font-serif-loaded',
-  display: 'swap',
-});
 
 export async function generateMetadata(): Promise<Metadata> {
   const s = await getSettings();
