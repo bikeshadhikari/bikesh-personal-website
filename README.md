@@ -33,6 +33,18 @@ no UI framework and no CSS framework, so the markup stays readable and the pages
   the screen brings a waving hand to the middle of the page and says जय नेपाल
   aloud. It takes its own share picture, so the link previews with a portrait
   of its own.
+- **Simplified Tech by Bikesh** at `/tech` — a microsite that stands on its own:
+  its own header, footer, wordmark, favicon, colours and theme, and none of the
+  main site's menu. English and नेपाली (`?lang=ne`), with a switch in the header.
+  The home page opens on a catalogue band and a hero split two-thirds / one-third
+  (the newest or pinned post large, the next two beside it), then a scrolling
+  shop-style row per collection, every post newest first, and a collections grid.
+  Each post has a title, a short description, an optional article, a main link,
+  a video link and any number of **copy blocks** — numbered boxes with a heading,
+  an instruction and a Copy button. Any code block inside an article gets a Copy
+  button too. Cards close corner brackets in on hover, slide the summary over the
+  picture and draw a line under "Open". YouTube, Instagram, Facebook and TikTok
+  sit in the header and footer, with a YouTube Subscribe button.
 - A gallery that arranges photos of any shape into columns, keeping each picture
   at its own proportions and revealing its title along the bottom on hover.
 - Services, projects and posts sit three to a row and keep that width even when
@@ -74,6 +86,12 @@ no UI framework and no CSS framework, so the markup stays readable and the pages
   something off removes it from the navigation, makes its address return the
   not-found page, and drops it from the sitemap and RSS feed. Nothing is
   hard-coded in a template.
+- **Simplified Tech** — its own group in the sidebar: *Site settings* (name,
+  handle, taglines, logo, favicon, opens in dark or light, default language,
+  accent, home page sections, menu links, social links, footer, SEO), *Posts &
+  links*, *Copy blocks* and *Collections*. Every text has an English and a
+  नेपाली field; an empty नेपाली field falls back to the English. Switch the whole
+  microsite off, or rename its main-menu item, under Menus & sections.
 - **Blog** — write, edit, schedule, feature and delete posts with a formatting
   toolbar; manage categories; approve or reject comments. Each post shows its
   views alongside the time readers actually spent on it: 12 views and 40

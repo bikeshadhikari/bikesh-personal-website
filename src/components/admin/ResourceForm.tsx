@@ -10,7 +10,8 @@ import type { Row } from '@/lib/crud';
 import Icon from '../Icon';
 
 export default function ResourceForm({
-  resource, def, record, isEdit, categoryOptions, pageOptions = [], sectionOptions = [], viewHref, saved,
+  resource, def, record, isEdit, categoryOptions, pageOptions = [], sectionOptions = [], relationOptions = {},
+  viewHref, saved, children,
 }: {
   resource: string;
   def: ResourceDef;
@@ -19,6 +20,8 @@ export default function ResourceForm({
   categoryOptions: SelectOption[];
   pageOptions?: SelectOption[];
   sectionOptions?: SelectOption[];
+  relationOptions?: Record<string, SelectOption[]>;
+  children?: React.ReactNode;
   viewHref?: string;
   saved?: boolean;
 }) {
@@ -65,6 +68,7 @@ export default function ResourceForm({
                 categoryOptions={categoryOptions}
                 pageOptions={pageOptions}
                 sectionOptions={sectionOptions}
+                relationOptions={relationOptions}
                 withDimensions={hasDimensions && field.type === 'image'}
                 initialWidth={Number(values.width ?? 0)}
                 initialHeight={Number(values.height ?? 0)}
@@ -72,6 +76,8 @@ export default function ResourceForm({
             ))}
           </div>
         </div>
+
+        {children}
 
         {seo.length > 0 && (
           <details className="form-panel collapsible" open={seo.some(([n]) => errors[n])}>

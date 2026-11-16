@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next';
 import { navItems, menuHref, menuEnabled } from '@/lib/menu';
 import { getCategories, getProjects, getPublishedSlugs } from '@/lib/content';
 import { siteOrigin } from '@/lib/utils';
+import { getTechCollections, getTechLinks } from '@/lib/tech';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,6 +36,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     for (const c of await getCategories()) {
       entries.push({ url: `${base}/blog/category/${c.slug}`, lastModified: now, priority: 0.4 });
     }
+  }
+
+  if (await menuEnabled('tech')) {
+    const [{ rows }, collections] = await Promise.all([getTechLinks({ limit: 200 }), getTechCollections()]);
+    for (const l of rows) entries.push({ url: `${base}/tech/${l.slug}`, lastModified: now, priority: 0.7 });
+    for (const c of collections) entries.push({ url: `${base}/tech/c/${c.slug}`, lastModified: now, priority: 0.5 });
   }
 
   return entries;

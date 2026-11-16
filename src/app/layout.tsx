@@ -72,7 +72,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   };
 
   return (
-    <html lang="en" data-default-mode={setting(s, 'default_mode', 'light')} className={`${sans.variable} ${serif.variable}`}>
+    <html lang="en" suppressHydrationWarning data-default-mode={setting(s, 'default_mode', 'light')} className={`${sans.variable} ${serif.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <style dangerouslySetInnerHTML={{ __html:

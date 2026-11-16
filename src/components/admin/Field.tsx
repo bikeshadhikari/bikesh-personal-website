@@ -11,7 +11,7 @@ export type SelectOption = { value: string; label: string };
 
 /** Renders one dashboard control from a Resource field definition. */
 export default function Field({
-  name, field, value, error, categoryOptions = [], pageOptions = [], sectionOptions = [],
+  name, field, value, error, categoryOptions = [], pageOptions = [], sectionOptions = [], relationOptions = {},
   withDimensions = false, initialWidth = 0, initialHeight = 0,
 }: {
   name: string;
@@ -21,6 +21,7 @@ export default function Field({
   categoryOptions?: SelectOption[];
   pageOptions?: SelectOption[];
   sectionOptions?: SelectOption[];
+  relationOptions?: Record<string, SelectOption[]>;
   withDimensions?: boolean;
   initialWidth?: number;
   initialHeight?: number;
@@ -49,10 +50,12 @@ export default function Field({
 
       {field.type === 'select' && (
         <select id={id} name={name} defaultValue={text}>
-          {field.options === 'categories' || field.options === 'political_sections'
+          {typeof field.options === 'string'
             ? [
                 { value: '', label: '— none —' },
-                ...(field.options === 'categories' ? categoryOptions : sectionOptions),
+                ...(relationOptions[field.options]
+                  ?? (field.options === 'categories' ? categoryOptions
+                    : field.options === 'political_sections' ? sectionOptions : [])),
               ].map((o) => (
                 <option key={o.value} value={o.value}>{o.label}</option>
               ))

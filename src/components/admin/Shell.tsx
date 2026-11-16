@@ -51,6 +51,12 @@ export default async function Shell({
       ['testimonials', 'Testimonials', 'quote'],
       ['highlights', 'Key numbers', 'star'],
     ]],
+    ['Simplified Tech', [
+      ...(isAdmin ? ([['tech-settings', 'Site settings', 'compass']] as NavEntry[]) : []),
+      ['tech_links', 'Posts & links', 'quote'],
+      ['tech_blocks', 'Copy blocks', 'code'],
+      ['tech_collections', 'Collections', 'tag'],
+    ]],
     ['Political', [
       ['play-nepali-congress-quiz', 'Nepali Congress quiz', 'sparkle'],
       ['political_sections', 'Page sections', 'compass'],
