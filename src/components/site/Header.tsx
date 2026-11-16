@@ -42,7 +42,7 @@ export default async function Header({ current = 'home' }: { current?: string })
                     className={active ? 'active' : undefined}
                     aria-current={active ? 'page' : undefined}
                   >
-                    {item.label}
+                    <NavLabel label={item.label} />
                   </Link>
                 </li>
               );
@@ -69,5 +69,21 @@ export default async function Header({ current = 'home' }: { current?: string })
       </div>
       <ScrollProgress />
     </header>
+  );
+}
+
+/**
+ * A label like "Simplified Tech by Bikesh" is a brand, not a page name: set
+ * the name on one line and the "by" line small beneath it, so it stays as
+ * compact as the other items instead of wrapping into three lines.
+ */
+function NavLabel({ label }: { label: string }) {
+  const at = label.search(/\s(by|with)\s/i);
+  if (at < 0) return <>{label}</>;
+  return (
+    <span className="nav-brand-label">
+      <span>{label.slice(0, at)}</span>
+      <small>{label.slice(at + 1)}</small>
+    </span>
   );
 }
