@@ -683,3 +683,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .
 .tech-block-list li { display: flex; gap: .9rem; align-items: flex-start; padding: .7rem .9rem; border: 1px solid var(--border); border-radius: 12px; }
 .tech-block-list .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; opacity: .6; padding-top: .1rem; }
 .tech-block-list p { margin: .2rem 0 0; font-size: .85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60ch; }
+.tech-steps { margin: 0; padding-left: 1.2rem; display: grid; gap: .7rem; }
+.tech-steps li { line-height: 1.55; }
+.welcome-actions .btn, .welcome-actions .btn:hover { text-decoration: none; }
+.data-table td.nowrap { white-space: nowrap; }
