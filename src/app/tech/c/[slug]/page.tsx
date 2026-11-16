@@ -56,9 +56,9 @@ export default async function TechCollectionPage({ params, searchParams }: Props
       </section>
 
       <nav className="st-frame st-chips" aria-label={t.collections}>
-        <Link href={L('/tech')} className="st-chip">{t.allLinks}</Link>
+        <Link href={L('/tech')} className="st-chip st-hl st-hl-tight">{t.allLinks}</Link>
         {all.map((c) => (
-          <Link key={c.id} href={L(`/tech/c/${c.slug}`)} className={`st-chip${c.id === collection.id ? ' is-active' : ''}`}
+          <Link key={c.id} href={L(`/tech/c/${c.slug}`)} className={`st-chip st-hl st-hl-tight${c.id === collection.id ? ' is-active' : ''}`}
                 aria-current={c.id === collection.id ? 'page' : undefined}>
             {tr(c, 'name', lang)} <em>{num(c.link_count, lang)}</em>
           </Link>

@@ -34,6 +34,7 @@ export type TechLink = {
   title: string;
   title_ne: string;
   slug: string;
+  short_link: string;
   collection_id: number | null;
   collection_name: string | null;
   collection_name_ne: string | null;
@@ -131,6 +132,7 @@ export const TECH_DEFAULTS: Record<string, string> = {
   st_tiktok: 'https://www.tiktok.com/@bikesh.adh',
   st_email: '',
   st_show_subscribe: '1',
+  st_show_header_socials: '1',
   st_subscribe_label: 'Subscribe',
   st_subscribe_label_ne: 'सब्स्क्राइब',
 
@@ -305,7 +307,7 @@ async function heal<T>(run: () => Promise<T>, fallback: T): Promise<T> {
 const LIVE = () => sql`l.status = 'published' AND (l.published_at IS NULL OR l.published_at <= NOW())`;
 
 const LINK_COLUMNS = () => sql`
-  l.id, l.title, l.title_ne, l.slug, l.collection_id, l.kicker, l.kicker_ne,
+  l.id, l.title, l.title_ne, l.slug, l.short_link, l.collection_id, l.kicker, l.kicker_ne,
   l.summary, l.summary_ne, l.cover_image, l.badge, l.external_url, l.external_label,
   l.video_url, l.is_featured, l.published_at, l.views, l.meta_description,
   c.name AS collection_name, c.name_ne AS collection_name_ne, c.slug AS collection_slug,

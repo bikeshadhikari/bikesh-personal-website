@@ -322,10 +322,7 @@ html.st-locked { overflow: hidden; }
   .st-grid > .st-card:nth-child(3n) { border-right: 1px solid var(--st-line); }
   .st-grid > .st-card:nth-child(2n) { border-right: 0; }
 }
-@media (max-width: 460px) {
-  .st-grid { grid-template-columns: 1fr; }
-  .st-grid > .st-card { border-right: 0 !important; }
-}
+
 
 .st-card { position: relative; display: flex; flex-direction: column; gap: .7rem; min-width: 0; isolation: isolate; }
 .st-card::before {
@@ -638,3 +635,246 @@ html.st-locked { overflow: hidden; }
 @media (hover: none) {
   .st-card-peek { display: none; }
 }
+
+/* --- header social icons ------------------------------------------------ */
+
+.st-head-social {
+  display: inline-grid; place-items: center; width: 38px; height: 38px; border-radius: 9px;
+  color: var(--st-soft); transition: color .2s, background .25s, transform .25s var(--st-ease);
+}
+.st-head-social svg { width: 19px; height: 19px; }
+.st-head-social:hover { color: #fff; transform: translateY(-2px); }
+.st-head-social.st-social-instagram:hover { background: linear-gradient(45deg, #f9ce34, #ee2a7b 50%, #6228d7); }
+.st-head-social.st-social-facebook:hover { background: #1877f2; }
+.st-head-social.st-social-tiktok:hover { background: #111; box-shadow: -2px -2px 0 #25f4ee, 2px 2px 0 #fe2c55; }
+.st-head-social.st-social-youtube:hover { background: #ff0000; }
+.st-tools > .st-head-social:first-of-type { margin-left: .15rem; }
+
+/* Between a laptop and a big screen, the menu gives way before the icons do. */
+@media (max-width: 1320px) { .st-nav li:nth-child(n + 4) { display: none; } }
+
+/* The slim bar under the header, phones only */
+.st-mobile-strip { display: none; }
+
+/* --- phones -------------------------------------------------------------- */
+
+.st { -webkit-tap-highlight-color: transparent; }
+
+@media (max-width: 640px) {
+  .st { --st-pad: 14px; font-size: 15px; }
+  .st-tools .st-head-social { display: none; }
+  .st-tools { gap: 0; }
+  .st-icon-btn { width: 42px; height: 42px; }
+
+  .st-mobile-strip {
+    display: flex; align-items: center; gap: .5rem;
+    padding: .55rem var(--st-pad); border-bottom: 1px solid var(--st-line); background: var(--st-bg-2);
+  }
+  .st-strip-sub {
+    display: inline-flex; align-items: center; gap: .45rem; flex: none;
+    padding: .38rem .75rem .38rem .45rem; border-radius: 999px;
+    background: var(--st-btn); color: var(--st-invert); font-weight: 700; font-size: .85rem;
+  }
+  .st .st-strip-sub .st-yt-ico { width: 24px; height: 17px; }
+  .st-strip-icons { display: flex; gap: .15rem; margin-right: auto; }
+  .st-mobile-strip .st-head-social { width: 36px; height: 36px; }
+  .st-mobile-strip .st-lang { padding: .35rem .7rem; font-size: .82rem; flex: none; }
+
+  /* catalogue band */
+  .st-catalogue { padding-top: 1rem; padding-bottom: .8rem; border-bottom-width: 3px; }
+  .st-catalogue-title { font-size: 1.75rem; }
+  .st-catalogue-note { font-size: .62rem; text-align: left; display: flex; gap: .8rem; }
+
+  /* hero: the big card leads with a wide picture, the two others become rows */
+  .st-hero-main.st-card { padding-top: 1rem; padding-bottom: 1.4rem; gap: 1rem; }
+  .st-hero-media { aspect-ratio: 16 / 10; }
+  .st-hero-label { margin-bottom: .7rem; font-size: .7rem; }
+  .st-hero-title { font-size: 2.15rem; }
+  .st-hero-summary { margin: .8rem 0 1.1rem; font-size: 1rem; }
+  .st-hero-main .st-btn-lg { width: 100%; padding: .9rem 1rem; }
+  .st-hero-small.st-card { grid-template-columns: 96px minmax(0, 1fr); gap: .85rem; padding-top: .9rem; padding-bottom: .9rem; }
+  .st-hero-small .st-card-media { aspect-ratio: 1; height: auto; min-height: 0; }
+  .st-hero-small .st-card-title { font-size: 1rem; }
+  .st-hero-small .st-card-foot { display: none; }
+  .st-hero-small-body { gap: .3rem; justify-content: center; }
+
+  .st-chips { padding-top: .75rem; padding-bottom: .75rem; }
+  .st-chip { padding: .45rem .8rem; font-size: .85rem; }
+
+  /* sections and the two-up product grid */
+  .st-section, .st-shelf { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+  .st-section-head { margin-bottom: 1rem; }
+  .st-section-head h2 { font-size: 1.35rem; }
+  .st-grid > .st-card { padding: .75rem; gap: .45rem; }
+  .st-card-title { font-size: .95rem; line-height: 1.28; }
+  .st-card-meta { font-size: .66rem; margin-top: .2rem; }
+  .st-card-foot { padding-top: .6rem; font-size: .88rem; }
+  .st-badge { top: 6px; right: 6px; font-size: .6rem; }
+  .st-cover-glyph { font-size: 1.5rem; }
+
+  .st-shelf-track { grid-auto-columns: 46%; gap: .6rem; padding-top: .6rem; }
+  .st-shelf-track > .st-card { padding: .55rem; }
+  .st-shelf-track .st-card-title { font-size: .92rem; }
+  .st-shelf-tools > .st-mono { display: none; }
+  .st-shelf-note { font-size: .88rem; }
+
+  .st-collections { grid-template-columns: 1fr 1fr; gap: .6rem; }
+  .st-collection { padding: .6rem; gap: .6rem; }
+  .st-collection-body strong { font-size: 1rem; }
+  .st-collection-body span { font-size: .8rem; }
+  .st-collection-no { top: 1rem; left: 1rem; }
+  .st-collection-foot { padding-top: .5rem; }
+
+  /* post page: title first, picture small beside the actions */
+  .st-detail-side { padding: 1rem var(--st-pad); order: 2; border-bottom: 0; border-top: 1px solid var(--st-line); }
+  .st-detail-main { padding: 1.1rem var(--st-pad) 1.5rem; }
+  .st-detail-sticky { grid-template-columns: 84px minmax(0, 1fr); gap: .75rem 1rem; align-items: center; }
+  .st-detail-cover { grid-row: span 2; }
+  .st-detail-cover .st-cover-glyph { font-size: 1rem; }
+  .st-detail-actions .st-btn { padding: .55rem .8rem; font-size: .88rem; }
+  .st-crumbs { margin-bottom: 1rem; font-size: .75rem; }
+  .st-detail-count { margin-bottom: .9rem; font-size: .78rem; }
+  .st-detail-title { font-size: 2.1rem; }
+  .st-detail-summary { margin-top: .9rem; font-size: 1.02rem; }
+  .st-prose { margin-top: 1.5rem; padding-top: 1.25rem; font-size: 1rem; }
+  .st-prose pre { padding: 1rem; padding-top: 3rem; }
+
+  .st-blocks { margin-top: 1.75rem; }
+  .st-block { grid-template-columns: 1fr; gap: .25rem; padding: 1.25rem 0; }
+  .st-block-main h3 { font-size: 1.12rem; }
+  .st-block-desc { font-size: .95rem; }
+  .st-codebox { margin-top: .8rem; }
+  .st-codebox-head { padding: .45rem .45rem .45rem .9rem; }
+  .st-codebox-body { padding: 1rem; font-size: .84rem; max-height: 22rem; }
+  .st-copy { padding: .6rem 1rem; font-size: .92rem; }
+
+  /* newsletter and footer */
+  .st-news-copy, .st-news-form { padding: 1.75rem var(--st-pad); }
+  .st-news-copy h2 { font-size: 1.9rem; }
+  .st-news-copy p { font-size: 1rem; margin-top: .8rem; }
+  .st-footer-grid { gap: 1.5rem 1rem; padding-top: 2rem; }
+  .st-footer ul a { font-size: .98rem; }
+  .st-footer-base { font-size: .68rem; }
+  .st-search-overlay { padding-top: 70px; }
+}
+
+/* On a phone the post's picture belongs after its title */
+@media (max-width: 900px) {
+  .st-detail { display: flex; flex-direction: column; }
+  .st-detail-side { order: 2; border-bottom: 0; border-top: 1px solid var(--st-line); }
+}
+
+/* ==========================================================================
+   The highlight hover — used on everything you can point at.
+   The item fills with an accent band that bleeds a little past its edges,
+   corner brackets close in around it, and a small mono label rises above it
+   (from data-hl). Add class="st-hl" (and data-hl="Label") to anything.
+   ========================================================================== */
+
+.st-hl {
+  --hl-bleed: 6px;
+  --hl-gap: 6px;
+  --hl-len: 10px;
+  --hl-fill: color-mix(in srgb, var(--st-accent) 30%, var(--st-bg));
+  position: relative;
+  transition: background-color .3s ease, box-shadow .3s ease, color .2s ease;
+}
+.st-hl::before {
+  content: '';
+  position: absolute;
+  inset: calc(-1 * (var(--hl-bleed) + var(--hl-gap)));
+  z-index: 3;
+  pointer-events: none;
+  --c: var(--st-accent);
+  background:
+    linear-gradient(var(--c), var(--c)) left top / var(--hl-len) 1.5px,
+    linear-gradient(var(--c), var(--c)) left top / 1.5px var(--hl-len),
+    linear-gradient(var(--c), var(--c)) right top / var(--hl-len) 1.5px,
+    linear-gradient(var(--c), var(--c)) right top / 1.5px var(--hl-len),
+    linear-gradient(var(--c), var(--c)) left bottom / var(--hl-len) 1.5px,
+    linear-gradient(var(--c), var(--c)) left bottom / 1.5px var(--hl-len),
+    linear-gradient(var(--c), var(--c)) right bottom / var(--hl-len) 1.5px,
+    linear-gradient(var(--c), var(--c)) right bottom / 1.5px var(--hl-len);
+  background-repeat: no-repeat;
+  opacity: 0;
+  transform: scale(1.06);
+  transition: opacity .25s ease, transform .4s var(--st-ease);
+}
+.st-hl[data-hl]::after {
+  content: attr(data-hl);
+  position: absolute;
+  left: calc(-1 * (var(--hl-bleed) + var(--hl-gap)));
+  bottom: calc(100% + var(--hl-bleed) + var(--hl-gap) + 3px);
+  z-index: 4;
+  pointer-events: none;
+  font-family: var(--st-mono);
+  font-size: .7rem;
+  font-weight: 500;
+  letter-spacing: .02em;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--st-accent-ink);
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity .25s ease, transform .35s var(--st-ease);
+}
+.st[data-st-theme="dark"] .st-hl[data-hl]::after { color: color-mix(in srgb, var(--st-accent) 55%, #e6f7f2); }
+
+@media (hover: hover) {
+  .st-hl:hover {
+    z-index: 5;
+    color: var(--st-text);
+    background-color: var(--hl-fill);
+    box-shadow: 0 0 0 var(--hl-bleed) var(--hl-fill);
+  }
+  .st-hl:hover::before { opacity: 1; transform: none; }
+  .st-hl:hover::after { opacity: 1; transform: none; }
+}
+.st-hl:focus-visible { outline: none; z-index: 5; background-color: var(--hl-fill); box-shadow: 0 0 0 var(--hl-bleed) var(--hl-fill); }
+.st-hl:focus-visible::before, .st-hl:focus-visible::after { opacity: 1; transform: none; }
+
+/* Sizes per kind of item */
+.st-hl-tight { --hl-bleed: 3px; --hl-gap: 4px; --hl-len: 7px; }
+.st-hl-card { --hl-bleed: 0px; --hl-gap: 4px; --hl-len: 14px; --hl-fill: color-mix(in srgb, var(--st-accent) 11%, var(--st-bg)); }
+.st-hl-soft { --hl-fill: color-mix(in srgb, var(--st-accent) 18%, var(--st-bg)); }
+
+/* Containers that used to scroll would clip the brackets and labels */
+.st-nav ul { overflow: visible; }
+.st-nav a.st-hl:hover { background-color: var(--hl-fill); }
+.st-footer ul a { display: inline-block; }
+.st-chip.st-hl:hover { border-color: transparent; }
+.st-chips { padding-top: 1.1rem; padding-bottom: 1.1rem; }
+
+/* Cards: the old soft glow gives way to the band, the brackets stay */
+.st-card.st-hl::before { display: none; }
+.st-card:hover::before { opacity: 0; }
+@media (hover: hover) {
+  .st-card.st-hl-card:hover { background-color: var(--hl-fill); box-shadow: 0 0 0 6px var(--hl-fill); }
+  .st-shelf-track > .st-card.st-hl-card:hover { box-shadow: 0 0 0 1px var(--st-accent), var(--st-shadow); }
+}
+.st-collection { overflow: visible; }
+.st-collection-art { overflow: hidden; }
+
+/* Copy block rows, as in a catalogue: number, heading and an arrow */
+.st-block { display: block; }
+.st-block-head {
+  display: grid; grid-template-columns: 4.5rem minmax(0, 1fr) auto; align-items: center; gap: 0;
+  padding: .7rem 0; border-radius: 2px;
+}
+.st-block-head .st-block-no { padding-top: 0; }
+.st-block-arrow { opacity: 0; transform: translate(-6px, 6px); transition: opacity .25s, transform .35s var(--st-ease); color: var(--st-text); padding-right: .25rem; }
+.st .st-block-arrow svg { width: 1.25em; height: 1.25em; }
+@media (hover: hover) { .st-block-head:hover .st-block-arrow { opacity: 1; transform: none; } }
+.st-block-body { margin-left: 4.5rem; }
+.st-block-body .st-codebox { margin-top: .6rem; }
+@media (max-width: 640px) {
+  .st-block-head { grid-template-columns: 2.4rem minmax(0, 1fr) auto; }
+  .st-block-body { margin-left: 0; }
+}
+
+.st-block-head { width: 100%; text-align: left; border: 0; background: transparent; cursor: pointer; font: inherit; color: inherit; }
+.st-block-text { display: grid; gap: .25rem; min-width: 0; }
+.st-block-title { font-size: 1.3rem; letter-spacing: -.02em; font-weight: 600; line-height: 1.25; }
+.st-block-text .st-block-desc { margin: 0; }
+.st-block { padding: 1.1rem 0 1.6rem; }
+@media (max-width: 640px) { .st-block-title { font-size: 1.1rem; } .st-block { padding: .9rem 0 1.25rem; } }

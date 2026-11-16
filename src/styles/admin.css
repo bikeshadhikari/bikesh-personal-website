@@ -683,3 +683,29 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .
 .tech-block-list li { display: flex; gap: .9rem; align-items: flex-start; padding: .7rem .9rem; border: 1px solid var(--border); border-radius: 12px; }
 .tech-block-list .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; opacity: .6; padding-top: .1rem; }
 .tech-block-list p { margin: .2rem 0 0; font-size: .85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60ch; }
+.tech-steps { margin: 0; padding-left: 1.2rem; display: grid; gap: .7rem; }
+.tech-steps li { line-height: 1.55; }
+.welcome-actions .btn, .welcome-actions .btn:hover { text-decoration: none; }
+.data-table td.nowrap { white-space: nowrap; }
+
+/* An address typed by hand, with the site in front */
+.prefixed-input { display: flex; align-items: stretch; border: 1px solid var(--border-strong, var(--border)); border-radius: 12px; overflow: hidden; background: var(--bg-elevated, transparent); }
+.prefixed-input:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent); }
+.prefixed-input-prefix { display: flex; align-items: center; padding: 0 .2rem 0 .85rem; color: var(--text-muted); font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .85rem; white-space: nowrap; background: var(--bg-inset, transparent); }
+.prefixed-input input { flex: 1; min-width: 0; border: 0 !important; box-shadow: none !important; border-radius: 0 !important; font-family: ui-monospace, Menlo, Consolas, monospace; }
+.prefixed-input-preview { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin: .45rem 0 0; font-size: .85rem; }
+.prefixed-input-preview code { padding: .2rem .5rem; border-radius: 6px; background: var(--bg-inset, rgba(0,0,0,.05)); word-break: break-all; }
+@media (max-width: 560px) { .prefixed-input { flex-direction: column; } .prefixed-input-prefix { padding: .4rem .8rem 0; } }
+
+/* Copy blocks edited inside a Simplified Tech post */
+.blocks-list { list-style: none; margin: 0 0 1rem; padding: 0; display: grid; gap: .6rem; }
+.block-item { border: 1px solid var(--border); border-radius: 14px; background: var(--bg-elevated, transparent); }
+.block-item.is-hidden { opacity: .6; }
+.block-bar { display: flex; align-items: center; gap: .75rem; padding: .6rem .7rem .6rem .9rem; }
+.block-no { font-family: ui-monospace, Menlo, Consolas, monospace; color: var(--text-muted); font-size: .9rem; }
+.block-toggle { flex: 1; min-width: 0; display: grid; text-align: left; background: none; border: 0; padding: 0; cursor: pointer; color: inherit; font: inherit; }
+.block-toggle small { color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.block-tools { display: flex; gap: .3rem; flex: none; }
+.block-tools .btn { min-width: 2.2rem; justify-content: center; }
+.block-fields { padding: .4rem .9rem 1rem; border-top: 1px solid var(--border); }
+@media (max-width: 640px) { .block-bar { flex-wrap: wrap; } .block-tools { width: 100%; justify-content: flex-end; } }

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useActionState } from 'react';
+import { useActionState, useMemo } from 'react';
 import Field, { type SelectOption } from './Field';
 import { ConfirmButton } from './ShellClient';
 import { deleteResourceAction, saveResourceAction, type FormState } from '@/app/admin/actions';
@@ -31,7 +31,10 @@ export default function ResourceForm({
   const hasDimensions = Object.values(def.fields).some((f) => f.type === 'dimensions');
   const main = Object.entries(def.fields).filter(([, f]) => f.group !== 'seo');
   const seo = Object.entries(def.fields).filter(([, f]) => f.group === 'seo');
-  const values = state?.errors ? { ...record } : record;
+  const values = state?.values ? { ...record, ...state.values } : record;
+  // React clears a form after every submit; remounting the fields refills them
+  // with what was typed whenever the save comes back with errors.
+  const round = useMemo(() => (state ? Math.random().toString(36).slice(2) : 'first'), [state]);
 
   return (
     <>
@@ -57,7 +60,7 @@ export default function ResourceForm({
         <input type="hidden" name="_id" value={String(record.id ?? 0)} />
 
         <div className="form-panel">
-          <div className="field-grid">
+          <div className="field-grid" key={round}>
             {main.map(([name, field]) => (
               <Field
                 key={name}
@@ -85,7 +88,7 @@ export default function ResourceForm({
               <h3>Search engine settings</h3>
               <span className="muted">Optional. Leave empty to use the title and summary.</span>
             </summary>
-            <div className="field-grid">
+            <div className="field-grid" key={`seo-${round}`}>
               {seo.map(([name, field]) => (
                 <Field key={name} name={name} field={field} value={values[name]} error={errors[name]} />
               ))}

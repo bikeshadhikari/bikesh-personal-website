@@ -32,6 +32,13 @@ export default async function Shell({
       ['', 'Dashboard', 'layers'],
       ...(isAdmin ? ([['menus', 'Menus & sections', 'check']] as NavEntry[]) : []),
     ]],
+    // Everything for the /tech microsite in one place, straight under the dashboard.
+    ['Simplified Tech by Bikesh', [
+      ['tech', 'Overview', 'layers'],
+      ['tech_links', 'Posts & links', 'quote'],
+      ['tech_collections', 'Categories', 'tag'],
+      ...(isAdmin ? ([['tech-settings', 'Site settings', 'compass']] as NavEntry[]) : []),
+    ]],
     ['Blog', [
       ['posts', 'Blog posts', 'quote'],
       ['categories', 'Categories', 'tag'],
@@ -50,12 +57,6 @@ export default async function Shell({
       ['notices', 'Pop-up notices', 'sparkle'],
       ['testimonials', 'Testimonials', 'quote'],
       ['highlights', 'Key numbers', 'star'],
-    ]],
-    ['Simplified Tech', [
-      ...(isAdmin ? ([['tech-settings', 'Site settings', 'compass']] as NavEntry[]) : []),
-      ['tech_links', 'Posts & links', 'quote'],
-      ['tech_blocks', 'Copy blocks', 'code'],
-      ['tech_collections', 'Collections', 'tag'],
     ]],
     ['Political', [
       ['play-nepali-congress-quiz', 'Nepali Congress quiz', 'sparkle'],

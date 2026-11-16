@@ -8,9 +8,9 @@ export default function Pager({ page, pages, lang, t, base, L }: {
   const at = (p: number) => L(p === 1 ? base : `${base}${base.includes('?') ? '&' : '?'}page=${p}`);
   return (
     <nav className="st-pager st-mono" aria-label={t.page}>
-      {page > 1 ? <Link href={at(page - 1)}>← {t.prev}</Link> : <span />}
+      {page > 1 ? <Link className="st-hl st-hl-tight" href={at(page - 1)}>← {t.prev}</Link> : <span />}
       <span>{t.page} {num(page, lang)} / {num(pages, lang)}</span>
-      {page < pages ? <Link href={at(page + 1)}>{t.next} →</Link> : <span />}
+      {page < pages ? <Link className="st-hl st-hl-tight" href={at(page + 1)}>{t.next} →</Link> : <span />}
     </nav>
   );
 }

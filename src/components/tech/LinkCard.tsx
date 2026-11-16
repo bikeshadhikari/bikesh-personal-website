@@ -51,7 +51,7 @@ export default function LinkCard({
   const kicker = tr(link, 'kicker', lang) || collection;
 
   return (
-    <article className={`st-card st-card-${variant}`}>
+    <article className={`st-card st-hl st-hl-card st-card-${variant}`}>
       <span className="st-corner st-corner-tl" aria-hidden="true" />
       <span className="st-corner st-corner-tr" aria-hidden="true" />
       <span className="st-corner st-corner-bl" aria-hidden="true" />
