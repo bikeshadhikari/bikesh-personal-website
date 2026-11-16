@@ -73,9 +73,9 @@ export default async function TechHome({ searchParams }: Props) {
       {/* Collection chips */}
       {collections.length > 0 && (
         <nav className="st-frame st-chips" aria-label={t.collections}>
-          <Link href={L('/tech')} className="st-chip is-active">{t.allLinks} <em>{num(latest.total, lang)}</em></Link>
+          <Link href={L('/tech')} className="st-chip st-hl st-hl-tight is-active">{t.allLinks} <em>{num(latest.total, lang)}</em></Link>
           {collections.map((c) => (
-            <Link key={c.id} href={L(`/tech/c/${c.slug}`)} className="st-chip">
+            <Link key={c.id} href={L(`/tech/c/${c.slug}`)} className="st-chip st-hl st-hl-tight">
               {tr(c, 'name', lang)} <em>{num(c.link_count, lang)}</em>
             </Link>
           ))}
@@ -124,7 +124,7 @@ export default async function TechHome({ searchParams }: Props) {
             {await Promise.all(collections.map(async (c, i) => {
               const sample = c.cover_image ? [] : (await getTechLinks({ collectionId: c.id, limit: 3 })).rows;
               return (
-                <Link key={c.id} href={L(`/tech/c/${c.slug}`)} className="st-collection">
+                <Link key={c.id} href={L(`/tech/c/${c.slug}`)} className="st-collection st-hl st-hl-soft" data-hl={t.open}>
                   <span className="st-collection-no st-mono">{num(String(i + 1).padStart(2, '0'), lang)}</span>
                   <span className="st-collection-art">
                     {c.cover_image
@@ -154,7 +154,7 @@ function HeroMain({ link, lang, href, label, t }: {
 }) {
   const title = tr(link, 'title', lang);
   return (
-    <article className="st-hero-main st-card">
+    <article className="st-hero-main st-card st-hl st-hl-card">
       <span className="st-corner st-corner-tl" aria-hidden="true" />
       <span className="st-corner st-corner-tr" aria-hidden="true" />
       <span className="st-corner st-corner-bl" aria-hidden="true" />
@@ -185,7 +185,7 @@ function HeroSide({ link, lang, href, t }: {
 }) {
   const collection = tr({ name: link.collection_name, name_ne: link.collection_name_ne }, 'name', lang);
   return (
-    <article className="st-hero-small st-card">
+    <article className="st-hero-small st-card st-hl st-hl-card">
       <span className="st-corner st-corner-tl" aria-hidden="true" />
       <span className="st-corner st-corner-tr" aria-hidden="true" />
       <span className="st-corner st-corner-bl" aria-hidden="true" />

@@ -35,7 +35,7 @@ export default function Shelf({
           <button type="button" className="st-icon-btn" onClick={() => move(1)} aria-label="Next">
             <TechIcon name="chevron-right" />
           </button>
-          <Link href={seeAll.href} className="st-see-all">{seeAll.label} <TechIcon name="arrow-right" /></Link>
+          <Link href={seeAll.href} className="st-see-all st-hl st-hl-tight" data-hl={count}>{seeAll.label} <TechIcon name="arrow-right" /></Link>
         </div>
       </div>
       <div className="st-shelf-track" ref={track}>{children}</div>

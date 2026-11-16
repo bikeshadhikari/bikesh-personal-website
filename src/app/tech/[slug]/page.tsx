@@ -6,6 +6,7 @@ import CopyButton from '@/components/tech/CopyButton';
 import ArticleBody from '@/components/tech/ArticleBody';
 import TechIcon from '@/components/tech/TechIcon';
 import ShareLink from '@/components/tech/ShareLink';
+import BlockHead from '@/components/tech/BlockHead';
 import { currentUser } from '@/lib/auth';
 import {
   countTechView, getRelatedTechLinks, getTechBlocks, getTechLink, getTechSettings, num, resolveLang,
@@ -63,7 +64,7 @@ export default async function TechLinkPage({ params, searchParams }: Props) {
         <aside className="st-detail-side">
           <div className="st-detail-sticky">
             <div className="st-detail-cover"><Cover link={link} lang={lang} eager /></div>
-            <Link href={L('/tech')} className="st-back"><TechIcon name="arrow-left" /> {t.backTo}</Link>
+            <Link href={L('/tech')} className="st-back st-hl st-hl-tight" data-hl={t.allLinks}><TechIcon name="arrow-left" /> {t.backTo}</Link>
             <div className="st-detail-actions">
               {link.external_url && (
                 <a className="st-btn st-btn-light" href={link.external_url} target="_blank" rel="noopener noreferrer">
@@ -82,10 +83,10 @@ export default async function TechLinkPage({ params, searchParams }: Props) {
 
         <article className="st-detail-main">
           <p className="st-mono st-crumbs">
-            <Link href={L('/tech')}>{stl(s, 'st_name', lang)}</Link>
+            <Link className="st-hl st-hl-tight" href={L('/tech')}>{stl(s, 'st_name', lang)}</Link>
             <span>/</span>
             {link.collection_slug
-              ? <Link href={L(`/tech/c/${link.collection_slug}`)}>{collection}</Link>
+              ? <Link className="st-hl st-hl-tight" href={L(`/tech/c/${link.collection_slug}`)}>{collection}</Link>
               : <span>{t.allLinks}</span>}
             {kicker && <><span>/</span><span className="is-here">{kicker}</span></>}
           </p>
@@ -109,10 +110,18 @@ export default async function TechLinkPage({ params, searchParams }: Props) {
                   const body = tr(b, 'body', lang);
                   return (
                     <li key={b.id} className="st-block">
-                      <span className="st-block-no st-mono">{num(String(i + 1).padStart(2, '0'), lang)}</span>
-                      <div className="st-block-main">
-                        {tr(b, 'title', lang) && <h3>{tr(b, 'title', lang)}</h3>}
-                        {tr(b, 'description', lang) && <p className="st-block-desc">{tr(b, 'description', lang)}</p>}
+                      <BlockHead
+                        no={num(String(i + 1).padStart(2, '0'), lang)}
+                        title={tr(b, 'title', lang)}
+                        description={tr(b, 'description', lang)}
+                        url={b.url}
+                        text={body}
+                        linkId={link.id}
+                        openLabel={t.visit}
+                        copyLabel={`${t.copy} ${b.label || 'Prompt'}`.toLowerCase()}
+                        copiedLabel={t.copied}
+                      />
+                      <div className="st-block-body">
                         <div className="st-codebox">
                           <div className="st-codebox-head">
                             <span className="st-mono">{b.label || 'Prompt'}</span>
@@ -145,7 +154,7 @@ export default async function TechLinkPage({ params, searchParams }: Props) {
         <section className="st-frame st-section">
           <div className="st-section-head">
             <h2>{t.related}</h2>
-            <Link href={L('/tech')} className="st-see-all">{t.allLinks} <TechIcon name="arrow-right" /></Link>
+            <Link href={L('/tech')} className="st-see-all st-hl st-hl-tight" data-hl={t.open}>{t.allLinks} <TechIcon name="arrow-right" /></Link>
           </div>
           <div className="st-grid">
             {related.map((l) => (

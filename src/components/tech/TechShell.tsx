@@ -97,7 +97,7 @@ export default async function TechShell({
             <ul>
               {nav.map((item) => (
                 <li key={item.key}>
-                  <Link href={item.href} className={current === item.key ? 'is-active' : undefined}
+                  <Link href={item.href} className={`st-hl st-hl-tight${current === item.key ? ' is-active' : ''}`} data-hl={t.open}
                         aria-current={current === item.key ? 'page' : undefined}>
                     <span className="st-slash" aria-hidden="true">/</span>{item.label}
                   </Link>
@@ -116,7 +116,8 @@ export default async function TechShell({
               showTheme={stBool(s, 'st_show_theme_toggle')}
             />
             {stBool(s, 'st_show_lang_toggle') && (
-              <Link className="st-lang" href={langHref} hrefLang={other} title={t.languageLabel}>
+              <Link className="st-lang st-hl st-hl-tight" href={langHref} hrefLang={other} title={t.languageLabel}
+                    data-hl={t.languageLabel}>
                 {t.language}
               </Link>
             )}
@@ -133,7 +134,7 @@ export default async function TechShell({
             )}
             {stBool(s, 'st_show_header_socials') && socials.filter((x) => x.key !== 'youtube').map((x) => (
               <a key={x.key} href={x.url} target="_blank" rel="noopener noreferrer" aria-label={x.label}
-                 title={x.label} className={`st-head-social st-social-${x.key}`}>
+                 title={x.label} data-hl={x.label} className={`st-head-social st-hl st-hl-tight st-social-${x.key}`}>
                 <TechIcon name={x.icon} />
               </a>
             ))}
@@ -198,18 +199,18 @@ export default async function TechShell({
           <div>
             <p className="st-mono st-footer-head">{t.collections}</p>
             <ul>
-              <li><Link href={L('/tech')}>{t.allLinks}</Link></li>
+              <li><Link className="st-hl st-hl-tight" data-hl={t.open} href={L('/tech')}>{t.allLinks}</Link></li>
               {collections.slice(0, 6).map((c) => (
-                <li key={c.id}><Link href={L(`/tech/c/${c.slug}`)}>{tr(c, 'name', lang)}</Link></li>
+                <li key={c.id}><Link className="st-hl st-hl-tight" data-hl={t.items(c.link_count)} href={L(`/tech/c/${c.slug}`)}>{tr(c, 'name', lang)}</Link></li>
               ))}
             </ul>
           </div>
           <div>
             <p className="st-mono st-footer-head">{t.explore}</p>
             <ul>
-              <li><Link href={L('/tech/search')}>{t.search}</Link></li>
-              {customNavLinks(s, lang).map((l, i) => <li key={i}><Link href={L(l.href)}>{l.label}</Link></li>)}
-              {stBool(s, 'st_show_main_site_link') && <li><Link href="/">{t.mainSite}</Link></li>}
+              <li><Link className="st-hl st-hl-tight" data-hl={t.open} href={L('/tech/search')}>{t.search}</Link></li>
+              {customNavLinks(s, lang).map((l, i) => <li key={i}><Link className="st-hl st-hl-tight" data-hl={t.open} href={L(l.href)}>{l.label}</Link></li>)}
+              {stBool(s, 'st_show_main_site_link') && <li><Link className="st-hl st-hl-tight" data-hl={t.open} href="/">{t.mainSite}</Link></li>}
             </ul>
           </div>
           <div>
@@ -217,7 +218,7 @@ export default async function TechShell({
             <div className="st-socials">
               {socials.map((x) => (
                 <a key={x.key} href={x.url} target="_blank" rel="noopener noreferrer" aria-label={x.label}
-                   className={`st-social st-social-${x.key}`}>
+                   data-hl={x.label} className={`st-social st-hl st-hl-tight st-social-${x.key}`}>
                   <TechIcon name={x.icon} />
                 </a>
               ))}
