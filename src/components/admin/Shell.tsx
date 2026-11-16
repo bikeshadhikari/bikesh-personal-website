@@ -37,7 +37,6 @@ export default async function Shell({
       ['tech', 'Overview', 'layers'],
       ['tech_links', 'Posts & links', 'quote'],
       ['tech_collections', 'Categories', 'tag'],
-      ['tech_blocks', 'Copy blocks', 'code'],
       ...(isAdmin ? ([['tech-settings', 'Site settings', 'compass']] as NavEntry[]) : []),
     ]],
     ['Blog', [

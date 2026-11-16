@@ -131,15 +131,21 @@ export default function Field({
         <input type="number" id={id} name={name} defaultValue={text} min={field.min} max={field.max} />
       )}
 
-      {(field.type === 'text' || field.type === 'slug' || field.type === 'url') && (
+      {(field.type === 'text' || field.type === 'slug' || field.type === 'url') && !field.prefix && (
         <input
           type={field.type === 'url' ? 'url' : 'text'}
           id={id}
           name={name}
           defaultValue={text}
           required={field.required}
+          placeholder={field.placeholder}
           data-slug={field.type === 'slug' ? 'true' : undefined}
         />
+      )}
+
+      {(field.type === 'text' || field.type === 'slug') && field.prefix && (
+        <PrefixedInput id={id} name={name} value={text} prefix={field.prefix}
+                       placeholder={field.placeholder} slug={field.type === 'slug'} />
       )}
 
       {field.hint && <p className="field-hint">{field.hint}</p>}
@@ -173,5 +179,39 @@ function IconPicker({ id, name, value }: { id: string; name: string; value: stri
         <Icon name={chosen || 'sparkle'} />
       </span>
     </div>
+  );
+}
+
+/**
+ * An address typed by hand: the site and path in front, the owner's words
+ * after, and a live preview of the link it makes, with a copy button.
+ */
+function PrefixedInput({ id, name, value, prefix, placeholder, slug }: {
+  id: string; name: string; value: string; prefix: string; placeholder?: string; slug: boolean;
+}) {
+  const [typed, setTyped] = useState(value);
+  const [copied, setCopied] = useState(false);
+  const host = (process.env.NEXT_PUBLIC_SITE_URL || '').replace(/^https?:\/\//, '').replace(/\/$/, '');
+  // The same rule the server applies, so the preview is what will be saved.
+  const clean = typed.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  const full = `${host}${prefix}${clean}`;
+  return (
+    <>
+      <div className="prefixed-input">
+        <span className="prefixed-input-prefix">{host}{prefix}</span>
+        <input type="text" id={id} name={name} value={typed} placeholder={placeholder}
+               onChange={(e) => setTyped(e.target.value)} autoComplete="off" spellCheck={false}
+               data-slug={slug ? 'true' : undefined} />
+      </div>
+      {clean && (
+        <p className="prefixed-input-preview">
+          <code>{full}</code>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={async () => {
+            try { await navigator.clipboard.writeText(`https://${full}`); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch { /* ignore */ }
+          }}>{copied ? 'Copied' : 'Copy link'}</button>
+        </p>
+      )}
+    </>
   );
 }

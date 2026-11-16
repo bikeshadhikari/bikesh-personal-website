@@ -51,7 +51,7 @@ export default async function TechOverviewPage() {
     { label: 'Published posts', value: c.published, icon: 'quote', href: '/admin/tech_links' },
     { label: 'Drafts', value: c.drafts, icon: 'clock', href: '/admin/tech_links' },
     { label: 'Categories', value: c.categories, icon: 'tag', href: '/admin/tech_collections' },
-    { label: 'Copy blocks', value: c.blocks, icon: 'code', href: '/admin/tech_blocks' },
+    { label: 'Copy blocks', value: c.blocks, icon: 'code', href: '/admin/tech_links' },
     { label: 'Views', value: c.views, icon: 'eye', href: '/admin/tech_links' },
     { label: 'Copies', value: c.copies, icon: 'check', href: '/admin/tech_links' },
   ];
@@ -152,7 +152,8 @@ export default async function TechOverviewPage() {
           <ol className="tech-steps">
             <li><strong>Category.</strong> Make one under <Link href="/admin/tech_collections">Categories</Link>, or use an existing one.</li>
             <li><strong>Post.</strong> Press <em>+ Post</em> beside a category. Give it a title, a short description and a cover picture — in English, and in नेपाली if you like.</li>
-            <li><strong>Copy blocks.</strong> Save, then press <em>+ Add a copy block</em> at the bottom of the post for each prompt, command or text to copy.</li>
+            <li><strong>Link.</strong> Type your own <em>Post link</em> (e.g. wifi-speed-prompt), and a <em>Short link</em> like <code>/wifi</code> for reels if you want one.</li>
+            <li><strong>Copy blocks.</strong> In the same form, press <em>+ Add a copy block</em> for each prompt, command or text to copy. Use ↑ ↓ to set their order.</li>
             <li><strong>Publish.</strong> Leave the status on Published. The newest post becomes the big card at the top of the site.</li>
           </ol>
         </section>

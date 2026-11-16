@@ -26,6 +26,10 @@ export type Field = {
   options?: Record<string, string> | RelationKey;
   default?: string | number | boolean;
   group?: 'seo';
+  /** Shown in front of the input, e.g. the address the text will live at. */
+  prefix?: string;
+  /** Sits on a line of its own, close to the field above. */
+  placeholder?: string;
 };
 
 export type ListColumn = {
@@ -337,6 +341,7 @@ export const RESOURCES: Record<string, ResourceDef> = {
       { key: 'cover_image', label: 'Cover', type: 'thumb' },
       { key: 'title', label: 'Title', primary: true, viewPath: 'tech' },
       { key: 'collection_name', label: 'Category', type: 'chip' },
+      { key: 'slug', label: 'Link', type: 'mono' },
       { key: 'block_count', label: 'Copy blocks', type: 'number' },
       { key: 'status', label: 'Status', type: 'status' },
       { key: 'views', label: 'Views', type: 'number' },
@@ -345,9 +350,12 @@ export const RESOURCES: Record<string, ResourceDef> = {
     ],
     fields: {
       title: { type: 'text', label: 'Title (English)', required: true, full: true },
+      slug: { type: 'slug', label: 'Post link', from: 'title', full: true, prefix: '/tech/', placeholder: 'wifi-speed-prompt',
+              hint: 'Type your own link — letters, numbers and hyphens, e.g. wifi-speed-prompt. Leave empty and it is made from the title.' },
+      short_link: { type: 'text', label: 'Short link (optional)', full: true, prefix: '/', placeholder: 'wifi',
+                    hint: 'A short address for reels and bios, e.g. wifi → bikeshadhikari.com.np/wifi opens this post. Must not be the name of an existing page.' },
       title_ne: { type: 'text', label: 'Title (नेपाली)', full: true,
                   hint: 'Leave empty and the English title is shown to Nepali readers too. The same goes for every नेपाली field.' },
-      slug: { type: 'slug', label: 'URL slug', from: 'title', hint: 'The address: /tech/your-slug. Leave empty and it is made from the title.' },
       collection_id: { type: 'select', label: 'Category', options: 'tech_collections',
                        hint: 'e.g. AI Prompts, Software Installation Guides, New Tools. Add or rename them under Simplified Tech → Categories.' },
       kicker: { type: 'text', label: 'Small label (English)', hint: 'One or two words above the title, e.g. Speed, Prompt, Tool.' },

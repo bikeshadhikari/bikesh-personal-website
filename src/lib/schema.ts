@@ -490,7 +490,9 @@ export async function createSchema(): Promise<void> {
       created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
+    ALTER TABLE tech_links ADD COLUMN IF NOT EXISTS short_link VARCHAR(80) NOT NULL DEFAULT '';
     CREATE INDEX IF NOT EXISTS idx_tech_links_status ON tech_links (status, published_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_tech_links_short  ON tech_links (short_link) WHERE short_link <> '';
     CREATE INDEX IF NOT EXISTS idx_tech_blocks_link  ON tech_blocks (link_id, sort_order);
 
     CREATE TABLE IF NOT EXISTS login_attempts (

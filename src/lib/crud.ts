@@ -4,6 +4,7 @@ import { withSchema } from './schema';
 import { getResource, type Field, type ResourceDef } from './resources';
 import { acceptMediaUrl, deleteUpload } from './upload';
 import { normalizeUrl, sanitizeHtml, slugify, excerptOf } from './utils';
+import { checkShortLink, syncTechBlocks } from './tech-admin';
 
 export type Row = Record<string, unknown>;
 
@@ -222,6 +223,11 @@ export async function saveRow(
   if (def.table === 'tech_links' && data.status === 'published' && !data.published_at) {
     data.published_at = new Date().toISOString();
   }
+  if (def.table === 'tech_links') {
+    const short = await checkShortLink(String(formData.get('short_link') ?? ''), id);
+    data.short_link = short.value;
+    if (short.error) errors.short_link = short.error;
+  }
 
   // Posts carry an author and a publish date of their own.
   if (def.table === 'posts') {
@@ -245,16 +251,24 @@ export async function saveRow(
 
   // Wrapped because a write is where a database behind this build shows it:
   // reading with SELECT * survives a missing column, writing to one does not.
+  let savedId = id;
   if (id > 0) {
     const columns = Object.keys(data);
     await withSchema(() =>
       sql`UPDATE ${sql(def.table)} SET ${sql(data as never, ...columns)} WHERE id = ${id}`);
-    return { ok: true, id };
+  } else {
+    const inserted = await withSchema(() => sql<{ id: number }[]>`
+      INSERT INTO ${sql(def.table)} ${sql(data as never, ...Object.keys(data))} RETURNING id`);
+    savedId = inserted[0].id;
   }
 
-  const inserted = await withSchema(() => sql<{ id: number }[]>`
-    INSERT INTO ${sql(def.table)} ${sql(data as never, ...Object.keys(data))} RETURNING id`);
-  return { ok: true, id: inserted[0].id };
+  // A Simplified Tech post carries its copy blocks in the same form.
+  const blocks = formData.get('_blocks');
+  if (def.table === 'tech_links' && typeof blocks === 'string') {
+    await syncTechBlocks(savedId, blocks);
+  }
+
+  return { ok: true, id: savedId };
 }
 
 export async function deleteRow(resource: string, id: number): Promise<boolean> {

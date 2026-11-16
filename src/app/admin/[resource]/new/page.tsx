@@ -5,6 +5,7 @@ import { getResource } from '@/lib/resources';
 import { blankRow } from '@/lib/crud';
 import { pageChoices } from '@/lib/menu';
 import { relationChoices } from '@/lib/relations';
+import BlocksEditor from '@/components/admin/BlocksEditor';
 
 export const dynamic = 'force-dynamic';
 
@@ -51,7 +52,9 @@ export default async function NewResourcePage({ params, searchParams }: Props) {
         pageOptions={pages}
         sectionOptions={relations.political_sections ?? []}
         relationOptions={relations}
-      />
+      >
+        {resource === 'tech_links' && <BlocksEditor initial={[]} />}
+      </ResourceForm>
     </Shell>
   );
 }

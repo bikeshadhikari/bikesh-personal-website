@@ -55,7 +55,8 @@ export default async function TechLinkPage({ params, searchParams }: Props) {
   const kicker = tr(link, 'kicker', lang);
   const collection = tr({ name: link.collection_name, name_ne: link.collection_name_ne }, 'name', lang);
   const content = tr(link, 'content', lang);
-  const url = `${siteOrigin()}/tech/${link.slug}`;
+  // A short link, when there is one, is what gets shared.
+  const url = link.short_link ? `${siteOrigin()}/${link.short_link}` : `${siteOrigin()}/tech/${link.slug}`;
 
   return (
     <TechShell lang={lang} path={`/tech/${link.slug}`}

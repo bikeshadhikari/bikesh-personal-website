@@ -13,7 +13,13 @@ import { saveSettings } from '@/lib/settings';
 import { acceptMediaUrl, deleteUpload } from '@/lib/upload';
 import { isValidEmail, normalizeUrl, safeColor, sanitizeEmbed } from '@/lib/utils';
 
-export type FormState = { ok: boolean; message: string; errors?: Record<string, string> } | null;
+export type FormState = {
+  ok: boolean;
+  message: string;
+  errors?: Record<string, string>;
+  /** What was typed, so a form that comes back with errors does not come back empty. */
+  values?: Record<string, unknown>;
+} | null;
 
 /** Everything the public site reads is server-rendered, so a save clears it all. */
 function refreshSite(): void {
@@ -63,7 +69,13 @@ export async function saveResourceAction(_prev: FormState, formData: FormData): 
 
   const result = await saveRow(resource, id, formData, user.id);
   if (!result.ok) {
-    return { ok: false, message: 'Please correct the highlighted fields below.', errors: result.errors };
+    // Typed text goes back as typed, not as it would have been cleaned up.
+    const typed: Record<string, unknown> = { ...result.values };
+    for (const name of Object.keys(def.fields)) {
+      const raw = formData.get(name);
+      if (typeof raw === 'string' && def.fields[name].type !== 'checkbox') typed[name] = raw;
+    }
+    return { ok: false, message: 'Please correct the highlighted fields below.', errors: result.errors, values: typed };
   }
 
   refreshSite();
