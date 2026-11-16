@@ -94,6 +94,7 @@ const GROUPS: SettingsGroup[] = [
       st_tiktok: { type: 'url', label: 'TikTok', default: d('st_tiktok') },
       st_email: { type: 'text', label: 'Email', hint: 'Optional. Shown in the footer.' },
       st_show_subscribe: { type: 'checkbox', label: 'Show the YouTube Subscribe button in the header', default: true },
+      st_show_header_socials: { type: 'checkbox', label: 'Show Instagram, Facebook and TikTok in the header too', default: true },
       st_subscribe_label: { type: 'text', label: 'Subscribe button (English)', default: d('st_subscribe_label') },
       st_subscribe_label_ne: { type: 'text', label: 'Subscribe button (नेपाली)', default: d('st_subscribe_label_ne') },
     },

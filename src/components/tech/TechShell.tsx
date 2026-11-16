@@ -131,6 +131,12 @@ export default async function TechShell({
                 {stl(s, 'st_subscribe_label', lang)}
               </a>
             )}
+            {stBool(s, 'st_show_header_socials') && socials.filter((x) => x.key !== 'youtube').map((x) => (
+              <a key={x.key} href={x.url} target="_blank" rel="noopener noreferrer" aria-label={x.label}
+                 title={x.label} className={`st-head-social st-social-${x.key}`}>
+                <TechIcon name={x.icon} />
+              </a>
+            ))}
             <TechMobileMenu
               label={t.menu}
               closeLabel={t.close}
@@ -143,6 +149,30 @@ export default async function TechShell({
           </div>
         </div>
       </header>
+
+      {/* On a phone the header has room only for the essentials, so the
+          channel links ride in a slim bar just below it. */}
+      {(socials.length > 0 || stBool(s, 'st_show_lang_toggle')) && (
+        <div className="st-mobile-strip">
+          {youtube && stBool(s, 'st_show_subscribe') && (
+            <a className="st-strip-sub" href={youtubeSubscribeUrl(youtube.url)} target="_blank" rel="noopener noreferrer">
+              <TechIcon name="youtube-filled" className="st-yt-ico" />
+              <span>{stl(s, 'st_subscribe_label', lang)}</span>
+            </a>
+          )}
+          <span className="st-strip-icons">
+            {socials.filter((x) => x.key !== 'youtube' || !stBool(s, 'st_show_subscribe')).map((x) => (
+              <a key={x.key} href={x.url} target="_blank" rel="noopener noreferrer" aria-label={x.label}
+                 className={`st-head-social st-social-${x.key}`}>
+                <TechIcon name={x.icon} />
+              </a>
+            ))}
+          </span>
+          {stBool(s, 'st_show_lang_toggle') && (
+            <Link className="st-lang" href={langHref} hrefLang={other} title={t.languageLabel}>{t.language}</Link>
+          )}
+        </div>
+      )}
 
       <main id="st-main" className="st-main">{children}</main>
 

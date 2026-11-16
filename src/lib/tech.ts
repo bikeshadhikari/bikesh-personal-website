@@ -131,6 +131,7 @@ export const TECH_DEFAULTS: Record<string, string> = {
   st_tiktok: 'https://www.tiktok.com/@bikesh.adh',
   st_email: '',
   st_show_subscribe: '1',
+  st_show_header_socials: '1',
   st_subscribe_label: 'Subscribe',
   st_subscribe_label_ne: 'सब्स्क्राइब',
 
