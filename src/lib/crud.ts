@@ -34,7 +34,7 @@ export type ListResult = { rows: Row[]; total: number; pages: number; page: numb
  * that saved without being stamped was silently overwritten on the next visit
  * and an edit made in the dashboard never reached the page.
  */
-const TIMESTAMPED = new Set(['posts', 'notices', 'political_sections']);
+const TIMESTAMPED = new Set(['posts', 'notices', 'political_sections', 'tech_links']);
 
 /** Rows for a dashboard list screen, with search, pagination and derived columns. */
 export async function listRows(
@@ -63,6 +63,20 @@ export async function listRows(
     : def.table === 'categories'
       ? `SELECT c.*, (SELECT COUNT(*)::int FROM posts p WHERE p.category_id = c.id) AS post_count
          FROM categories c WHERE ${where} ORDER BY ${def.order}`
+      : def.table === 'tech_links'
+        ? `SELECT t.*, c.name AS collection_name,
+             (SELECT COUNT(*)::int FROM tech_blocks b WHERE b.link_id = t.id) AS block_count
+           FROM tech_links t LEFT JOIN tech_collections c ON c.id = t.collection_id
+           WHERE ${where.replace(/\b(title|title_ne|summary)\b/g, 't.$1')}
+           ORDER BY ${def.order.replace(/\b(published_at|id)\b/g, 't.$1')}`
+      : def.table === 'tech_blocks'
+        ? `SELECT b.*, l.title AS link_title FROM tech_blocks b LEFT JOIN tech_links l ON l.id = b.link_id
+           WHERE ${where.replace(/\b(title|title_ne|body)\b/g, 'b.$1')}
+           ORDER BY ${def.order.replace(/\b(link_id|sort_order|id)\b/g, 'b.$1')}`
+      : def.table === 'tech_collections'
+        ? `SELECT c.*, (SELECT COUNT(*)::int FROM tech_links l WHERE l.collection_id = c.id) AS post_count,
+             (SELECT COUNT(*)::int FROM tech_links l WHERE l.collection_id = c.id) AS link_count
+           FROM tech_collections c WHERE ${where} ORDER BY ${def.order}`
       : `SELECT * FROM ${def.table} WHERE ${where} ORDER BY ${def.order}`;
 
   const rows = await withSchema(() => sql.unsafe<Row[]>(
@@ -110,10 +124,10 @@ async function readField(
 
     case 'select': {
       const text = String(raw ?? '');
-      if (name === 'category_id' || name === 'section_id') {
+      if (typeof field.options === 'string') {
         return { value: text === '' ? null : Number(text) };
       }
-      if (field.options && field.options !== 'categories') {
+      if (field.options && typeof field.options === 'object') {
         const keys = Object.keys(field.options);
         return { value: keys.includes(text) ? text : (field.default ?? keys[0]) };
       }
@@ -203,6 +217,10 @@ export async function saveRow(
     data.width = Math.max(0, Number(formData.get('width') ?? 0) || 0);
     data.height = Math.max(0, Number(formData.get('height') ?? 0) || 0);
     delete data.dimensions;
+  }
+
+  if (def.table === 'tech_links' && data.status === 'published' && !data.published_at) {
+    data.published_at = new Date().toISOString();
   }
 
   // Posts carry an author and a publish date of their own.

@@ -66,6 +66,7 @@ export default function Editor({
         <button type="button" onClick={() => exec('insertUnorderedList')} title="Bullet list">• List</button>
         <button type="button" onClick={() => exec('insertOrderedList')} title="Numbered list">1. List</button>
         <button type="button" onClick={() => exec('formatBlock', 'blockquote')} title="Quote">&ldquo;</button>
+        <button type="button" onClick={() => exec('formatBlock', 'pre')} title="Code or copyable text block">{'</>'}</button>
         <button
           type="button"
           title="Link"

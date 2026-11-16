@@ -27,11 +27,12 @@ function specFor(name: string, field: FieldDef) {
 }
 
 export default function SettingsForm({
-  groups, values, intro,
+  groups, values, intro, previewHref = '/',
 }: {
   groups: SettingsGroup[];
   values: Record<string, string>;
   intro?: string;
+  previewHref?: string;
 }) {
   const [state, action, pending] = useActionState<FormState, FormData>(saveSettingsGroupAction, null);
   const errors = state?.errors ?? {};
@@ -74,7 +75,7 @@ export default function SettingsForm({
           <button className="btn btn-primary" type="submit" disabled={pending}>
             {pending ? 'Saving…' : 'Save changes'}
           </button>
-          <a className="btn btn-link" href="/" target="_blank" rel="noopener noreferrer">Preview the site</a>
+          <a className="btn btn-link" href={previewHref} target="_blank" rel="noopener noreferrer">Preview the site</a>
         </div>
       </form>
     </>

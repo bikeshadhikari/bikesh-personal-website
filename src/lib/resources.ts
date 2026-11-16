@@ -9,6 +9,9 @@ export type FieldType =
   | 'select' | 'checkbox' | 'date' | 'datetime' | 'color' | 'image' | 'file' | 'audio'
   | 'icon' | 'dimensions' | 'pages';
 
+/** Dropdowns filled from another table rather than a fixed list. */
+export type RelationKey = 'categories' | 'political_sections' | 'tech_collections' | 'tech_links';
+
 export type Field = {
   type: FieldType;
   label: string;
@@ -20,7 +23,7 @@ export type Field = {
   max?: number;
   from?: string;
   folder?: string;
-  options?: Record<string, string> | 'categories' | 'political_sections';
+  options?: Record<string, string> | RelationKey;
   default?: string | number | boolean;
   group?: 'seo';
 };
@@ -322,6 +325,106 @@ export const RESOURCES: Record<string, ResourceDef> = {
                  hint: 'Shown under the photo. Optional.' },
       sort_order: { type: 'number', label: 'Sort order', default: 0 },
       enabled: { type: 'checkbox', label: 'Show this photo', default: true },
+    },
+  },
+
+  tech_links: {
+    table: 'tech_links', label: 'Posts & links', singular: 'Post',
+    icon: 'quote', group: 'Simplified Tech',
+    order: 'published_at DESC NULLS LAST, id DESC',
+    search: ['title', 'title_ne', 'summary'],
+    list: [
+      { key: 'cover_image', label: 'Cover', type: 'thumb' },
+      { key: 'title', label: 'Title', primary: true, viewPath: 'tech' },
+      { key: 'collection_name', label: 'Collection', type: 'chip' },
+      { key: 'block_count', label: 'Copy blocks', type: 'number' },
+      { key: 'status', label: 'Status', type: 'status' },
+      { key: 'views', label: 'Views', type: 'number' },
+      { key: 'copies', label: 'Copies', type: 'number' },
+      { key: 'published_at', label: 'Published', type: 'date' },
+    ],
+    fields: {
+      title: { type: 'text', label: 'Title (English)', required: true, full: true },
+      title_ne: { type: 'text', label: 'Title (नेपाली)', full: true,
+                  hint: 'Leave empty and the English title is shown to Nepali readers too. The same goes for every नेपाली field.' },
+      slug: { type: 'slug', label: 'URL slug', from: 'title', hint: 'The address: /tech/your-slug. Leave empty and it is made from the title.' },
+      collection_id: { type: 'select', label: 'Collection', options: 'tech_collections',
+                       hint: 'Manage the list under Simplified Tech → Collections.' },
+      kicker: { type: 'text', label: 'Small label (English)', hint: 'One or two words above the title, e.g. Speed, Prompt, Tool.' },
+      kicker_ne: { type: 'text', label: 'Small label (नेपाली)' },
+      badge: { type: 'text', label: 'Badge', hint: 'A tag on the card, e.g. FREE or NEW. Optional.' },
+      cover_image: { type: 'image', label: 'Cover image', folder: 'tech', full: true,
+                     hint: 'Square works best (1080×1080). Used on cards, the hero and when the link is shared.' },
+      summary: { type: 'textarea', label: 'Short description (English)', rows: 3, full: true,
+                 hint: 'Two lines under the title, and the text that slides over the card on hover.' },
+      summary_ne: { type: 'textarea', label: 'Short description (नेपाली)', rows: 3, full: true },
+      content: { type: 'richtext', label: 'Article (English)', full: true,
+                 hint: 'Optional. Write a full blog post here. Any code block gets its own Copy button.' },
+      content_ne: { type: 'richtext', label: 'Article (नेपाली)', full: true },
+      external_url: { type: 'url', label: 'Main link', hint: 'Optional. A tool, download or page this post points to.' },
+      external_label: { type: 'text', label: 'Main link button text', hint: 'e.g. Open the tool. Leave empty for “Open the link”.' },
+      video_url: { type: 'url', label: 'Video link', hint: 'Optional. The reel, short or YouTube video this came from.' },
+      status: { type: 'select', label: 'Status', default: 'published', options: { draft: 'Draft', published: 'Published' } },
+      published_at: { type: 'datetime', label: 'Publish date', hint: 'A future date keeps it hidden until then.' },
+      is_featured: { type: 'checkbox', label: 'Pin as the big hero card',
+                     hint: 'Off: the newest post takes the big card. On: this one does, until another newer one is pinned.' },
+      meta_description: { type: 'textarea', label: 'SEO description', rows: 2, full: true, group: 'seo' },
+    },
+  },
+
+  tech_blocks: {
+    table: 'tech_blocks', label: 'Copy blocks', singular: 'Copy block',
+    icon: 'code', group: 'Simplified Tech', order: 'link_id DESC, sort_order ASC, id ASC',
+    search: ['title', 'body', 'title_ne'], toggle: 'enabled',
+    list: [
+      { key: 'title', label: 'Block', primary: true },
+      { key: 'link_title', label: 'Post', type: 'chip' },
+      { key: 'label', label: 'Label', type: 'mono' },
+      { key: 'sort_order', label: 'Order', type: 'number' },
+      { key: 'enabled', label: 'Live', type: 'toggle' },
+    ],
+    fields: {
+      link_id: { type: 'select', label: 'Post', options: 'tech_links', required: true,
+                 hint: 'Which post this block appears in. Blocks are numbered 01, 02… in sort order.' },
+      label: { type: 'text', label: 'Box label', default: 'Prompt', hint: 'Shown on the box: Prompt, Code, Command, Text…' },
+      title: { type: 'text', label: 'Heading (English)', full: true, hint: 'e.g. The prompt from the reel' },
+      title_ne: { type: 'text', label: 'Heading (नेपाली)', full: true },
+      description: { type: 'textarea', label: 'Instruction (English)', rows: 2, full: true,
+                     hint: 'One line telling the reader what to do with it.' },
+      description_ne: { type: 'textarea', label: 'Instruction (नेपाली)', rows: 2, full: true },
+      body: { type: 'textarea', label: 'Text to copy (English)', rows: 10, full: true, required: true,
+              hint: 'Exactly what the Copy button copies. Line breaks are kept.' },
+      body_ne: { type: 'textarea', label: 'Text to copy (नेपाली)', rows: 10, full: true,
+                 hint: 'Optional. Leave empty and Nepali readers copy the English text.' },
+      url: { type: 'url', label: 'Link', hint: 'Optional. Adds an Open button beside Copy.' },
+      sort_order: { type: 'number', label: 'Sort order', default: 10 },
+      enabled: { type: 'checkbox', label: 'Show this block', default: true },
+    },
+  },
+
+  tech_collections: {
+    table: 'tech_collections', label: 'Collections', singular: 'Collection',
+    icon: 'tag', group: 'Simplified Tech', order: 'sort_order ASC, id ASC',
+    search: ['name', 'name_ne'], toggle: 'enabled',
+    list: [
+      { key: 'name', label: 'Collection', primary: true, viewPath: 'tech/c' },
+      { key: 'slug', label: 'Slug', type: 'mono' },
+      { key: 'link_count', label: 'Posts', type: 'number' },
+      { key: 'in_nav', label: 'In menu', type: 'bool' },
+      { key: 'sort_order', label: 'Order', type: 'number' },
+      { key: 'enabled', label: 'Live', type: 'toggle' },
+    ],
+    fields: {
+      name: { type: 'text', label: 'Name (English)', required: true },
+      name_ne: { type: 'text', label: 'Name (नेपाली)' },
+      slug: { type: 'slug', label: 'URL slug', from: 'name' },
+      description: { type: 'textarea', label: 'Description (English)', rows: 2, full: true },
+      description_ne: { type: 'textarea', label: 'Description (नेपाली)', rows: 2, full: true },
+      cover_image: { type: 'image', label: 'Cover image', folder: 'tech', full: true,
+                     hint: 'Optional. Without one the collection uses its newest post’s cover.' },
+      in_nav: { type: 'checkbox', label: 'Show in the Simplified Tech menu', default: true },
+      sort_order: { type: 'number', label: 'Sort order', default: 10 },
+      enabled: { type: 'checkbox', label: 'Show this collection', default: true },
     },
   },
 

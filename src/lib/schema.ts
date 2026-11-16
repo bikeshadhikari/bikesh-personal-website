@@ -432,6 +432,67 @@ export async function createSchema(): Promise<void> {
       created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
+    -- Simplified Tech: a separate microsite at /tech with its own content.
+    CREATE TABLE IF NOT EXISTS tech_collections (
+      id             SERIAL PRIMARY KEY,
+      name           VARCHAR(160) NOT NULL,
+      name_ne        VARCHAR(160) DEFAULT '',
+      slug           VARCHAR(180) NOT NULL UNIQUE,
+      description    TEXT DEFAULT '',
+      description_ne TEXT DEFAULT '',
+      cover_image    VARCHAR(500) DEFAULT '',
+      in_nav         BOOLEAN NOT NULL DEFAULT TRUE,
+      sort_order     INTEGER NOT NULL DEFAULT 0,
+      enabled        BOOLEAN NOT NULL DEFAULT TRUE,
+      created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS tech_links (
+      id               SERIAL PRIMARY KEY,
+      title            VARCHAR(220) NOT NULL,
+      title_ne         VARCHAR(220) DEFAULT '',
+      slug             VARCHAR(240) NOT NULL UNIQUE,
+      collection_id    INTEGER REFERENCES tech_collections(id) ON DELETE SET NULL,
+      kicker           VARCHAR(80)  DEFAULT '',
+      kicker_ne        VARCHAR(80)  DEFAULT '',
+      summary          TEXT DEFAULT '',
+      summary_ne       TEXT DEFAULT '',
+      content          TEXT DEFAULT '',
+      content_ne       TEXT DEFAULT '',
+      cover_image      VARCHAR(500) DEFAULT '',
+      badge            VARCHAR(40)  DEFAULT '',
+      external_url     VARCHAR(500) DEFAULT '',
+      external_label   VARCHAR(80)  DEFAULT '',
+      video_url        VARCHAR(500) DEFAULT '',
+      status           VARCHAR(20)  NOT NULL DEFAULT 'draft',
+      is_featured      BOOLEAN NOT NULL DEFAULT FALSE,
+      published_at     TIMESTAMPTZ,
+      views            INTEGER NOT NULL DEFAULT 0,
+      copies           INTEGER NOT NULL DEFAULT 0,
+      meta_description VARCHAR(320) DEFAULT '',
+      created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS tech_blocks (
+      id             SERIAL PRIMARY KEY,
+      link_id        INTEGER REFERENCES tech_links(id) ON DELETE CASCADE,
+      title          VARCHAR(220) DEFAULT '',
+      title_ne       VARCHAR(220) DEFAULT '',
+      description    TEXT DEFAULT '',
+      description_ne TEXT DEFAULT '',
+      label          VARCHAR(60)  DEFAULT 'Prompt',
+      body           TEXT NOT NULL DEFAULT '',
+      body_ne        TEXT DEFAULT '',
+      url            VARCHAR(500) DEFAULT '',
+      sort_order     INTEGER NOT NULL DEFAULT 0,
+      enabled        BOOLEAN NOT NULL DEFAULT TRUE,
+      created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_tech_links_status ON tech_links (status, published_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_tech_blocks_link  ON tech_blocks (link_id, sort_order);
+
     CREATE TABLE IF NOT EXISTS login_attempts (
       id         SERIAL PRIMARY KEY,
       identifier VARCHAR(190) NOT NULL,

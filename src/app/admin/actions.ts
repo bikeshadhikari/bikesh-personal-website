@@ -67,6 +67,9 @@ export async function saveResourceAction(_prev: FormState, formData: FormData): 
   }
 
   refreshSite();
+  // A copy block belongs to a post, so closing it goes back to that post.
+  const parent = resource === 'tech_blocks' ? Number(formData.get('link_id') ?? 0) : 0;
+  if (closeAfter && parent > 0) redirect(`/admin/tech_links/${parent}?saved=1`);
   redirect(closeAfter ? `/admin/${resource}` : `/admin/${resource}/${result.id}?saved=1`);
 }
 

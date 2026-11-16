@@ -677,3 +677,9 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .
 .status-basic { background: rgba(22, 163, 74, .16); color: #15803d; }
 .status-medium { background: rgba(227, 160, 8, .18); color: #a16207; }
 .status-hard { background: rgba(200, 16, 46, .14); color: #b91c1c; }
+
+/* Simplified Tech: copy blocks listed under a post */
+.tech-block-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
+.tech-block-list li { display: flex; gap: .9rem; align-items: flex-start; padding: .7rem .9rem; border: 1px solid var(--border); border-radius: 12px; }
+.tech-block-list .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; opacity: .6; padding-top: .1rem; }
+.tech-block-list p { margin: .2rem 0 0; font-size: .85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60ch; }

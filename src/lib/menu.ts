@@ -33,6 +33,8 @@ const LATER_ADDITIONS: Pick<MenuItem, 'slug' | 'label' | 'kind' | 'description' 
     description: 'Photo gallery that arranges itself.', sort_order: 65 },
   { slug: 'political', label: 'राजनीतिक संलग्नता', kind: 'page',
     description: 'The standalone political involvement page.', sort_order: 68 },
+  { slug: 'tech', label: 'Simplified Tech by Bikesh', kind: 'page',
+    description: 'The standalone Simplified Tech microsite at /tech: prompts, tools and explainers.', sort_order: 69 },
 ];
 
 /**
