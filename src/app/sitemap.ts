@@ -40,8 +40,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   if (await menuEnabled('tech')) {
     const [{ rows }, collections] = await Promise.all([getTechLinks({ limit: 200 }), getTechCollections()]);
-    for (const l of rows) entries.push({ url: `${base}/tech/${l.slug}`, lastModified: now, priority: 0.7 });
-    for (const c of collections) entries.push({ url: `${base}/tech/c/${c.slug}`, lastModified: now, priority: 0.5 });
+    // Each page in both languages, so Google shows the right one to each reader.
+    const langs = (path: string) => ({ languages: { en: `${base}${path}`, ne: `${base}${path}?lang=ne` } });
+    entries.push({ url: `${base}/tech/about`, lastModified: now, priority: 0.7, alternates: langs('/tech/about') });
+    for (const l of rows) {
+      entries.push({
+        url: `${base}/tech/${l.slug}`,
+        lastModified: new Date(l.updated_at ?? l.published_at ?? now),
+        priority: 0.7, changeFrequency: 'monthly', alternates: langs(`/tech/${l.slug}`),
+        ...(l.cover_image ? { images: [l.cover_image.startsWith('http') ? l.cover_image : `${base}${l.cover_image}`] } : {}),
+      });
+    }
+    for (const c of collections) entries.push({ url: `${base}/tech/c/${c.slug}`, lastModified: now, priority: 0.5, alternates: langs(`/tech/c/${c.slug}`) });
   }
 
   return entries;

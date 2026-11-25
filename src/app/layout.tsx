@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { sans, serif } from '@/fonts';
-import { getSettings, setting, settingBool, socialLinks } from '@/lib/settings';
+import { getSettings, setting, settingBool } from '@/lib/settings';
+import { graph, personId, personSchema } from '@/lib/seo';
 import { jsonForScript, safeColor, siteOrigin, toneHues } from '@/lib/utils';
 import '@/styles/site.css';
 
@@ -18,7 +19,8 @@ export async function generateMetadata(): Promise<Metadata> {
     metadataBase: new URL(siteUrl),
     title: { default: title, template: `%s — ${setting(s, 'site_name', 'Portfolio')}` },
     description,
-    keywords: setting(s, 'meta_keywords'),
+    keywords: setting(s, 'meta_keywords',
+      'Bikesh Adhikari, @bikesh.adh, Simplified Tech by Bikesh, tech creator in Nepal, Nepali tech explainer, IT educator Nepal'),
     authors: [{ name: setting(s, 'full_name', setting(s, 'site_name')) }],
     robots: indexable ? { index: true, follow: true } : { index: false, follow: false },
     icons: {
@@ -59,17 +61,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const accentAlt = safeColor(setting(s, 'theme_accent_alt', '#0ea5e9'), '#0ea5e9');
   const siteUrl = siteOrigin();
 
-  const personSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: setting(s, 'full_name', setting(s, 'site_name')),
-    jobTitle: setting(s, 'headline'),
+  // One Person for the whole site, shared with /tech, carrying every profile.
+  const schema = graph(personSchema(s), {
+    '@type': 'WebSite',
+    '@id': `${siteUrl}/#website`,
     url: siteUrl,
-    image: setting(s, 'photo') || undefined,
-    email: setting(s, 'contact_email') ? `mailto:${setting(s, 'contact_email')}` : undefined,
-    address: { '@type': 'PostalAddress', addressLocality: setting(s, 'contact_location') },
-    sameAs: socialLinks(s).map((l) => l.url),
-  };
+    name: setting(s, 'site_name', setting(s, 'full_name')),
+    publisher: { '@id': personId() },
+    inLanguage: 'en',
+  });
 
   return (
     <html lang="en" suppressHydrationWarning data-default-mode={setting(s, 'default_mode', 'light')} className={`${sans.variable} ${serif.variable}`}>
@@ -81,7 +81,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           + `}` }} />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: jsonForScript(personSchema) }}
+          dangerouslySetInnerHTML={{ __html: jsonForScript(schema) }}
         />
       </head>
       <body>

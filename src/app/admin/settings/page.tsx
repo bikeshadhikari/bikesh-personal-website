@@ -145,6 +145,12 @@ const GROUPS: SettingsGroup[] = [
       meta_keywords: { type: 'text', label: 'Keywords', full: true },
       og_image: { type: 'image', label: 'Share image', folder: 'site', hint: 'Shown when a link is shared. 1200×630 pixels.' },
       search_indexing: { type: 'checkbox', label: 'Allow search engines to index this site', default: true },
+      seo_job_title: { type: 'text', label: 'How search engines describe your role', default: 'Tech creator and IT educator',
+                       hint: 'Used in the structured data that Google and AI assistants read.' },
+      seo_knows_about: { type: 'text', label: 'Topics you are known for', full: true,
+                         hint: 'Comma separated, e.g. AI prompts, ChatGPT, smartphones, Wi-Fi, IT in Nepal.' },
+      seo_person_description: { type: 'textarea', label: 'One-paragraph description of you', rows: 3, full: true,
+                                hint: 'Shown to search engines and AI assistants. Leave empty for the standard one mentioning Simplified Tech by Bikesh and @bikesh.adh.' },
     },
   },
   {

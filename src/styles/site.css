@@ -1721,3 +1721,10 @@ a.chip:hover { text-decoration: none; filter: brightness(1.06); }
   .notice-image { max-height: 40svh; }
   .notice-close { width: 34px; height: 34px; top: .5rem; right: .5rem; }
 }
+
+/* Questions and answers under an article */
+.article-faq { margin-top: 2.5rem; }
+.article-faq details { border-top: 1px solid var(--border); padding: .9rem 0; }
+.article-faq details:last-child { border-bottom: 1px solid var(--border); }
+.article-faq summary { cursor: pointer; font-weight: 700; color: var(--text); }
+.article-faq details p { margin: .6rem 0 0; }

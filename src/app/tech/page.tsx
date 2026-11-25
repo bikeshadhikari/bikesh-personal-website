@@ -9,6 +9,9 @@ import {
   tr, ui, withLang, type Lang, type TechLink,
 } from '@/lib/tech';
 import { techMetadata } from '@/lib/tech-meta';
+import JsonLd from '@/components/JsonLd';
+import { graph, personSchema, techWebsiteSchema } from '@/lib/seo';
+import { siteOrigin } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -47,6 +50,26 @@ export default async function TechHome({ searchParams }: Props) {
 
   return (
     <TechShell lang={lang} path={page > 1 ? `/tech?page=${page}` : '/tech'} showNewsletter>
+      <JsonLd data={graph(
+        techWebsiteSchema(s),
+        personSchema(s),
+        {
+          '@type': 'CollectionPage',
+          '@id': `${siteOrigin()}/tech#page`,
+          url: `${siteOrigin()}/tech`,
+          name: stl(s, 'st_catalogue_title', lang),
+          isPartOf: { '@id': `${siteOrigin()}/tech#website` },
+          about: { '@id': `${siteOrigin()}/#person` },
+          inLanguage: lang,
+          mainEntity: {
+            '@type': 'ItemList',
+            itemListElement: latest.rows.slice(0, 20).map((l, i) => ({
+              '@type': 'ListItem', position: i + 1, url: `${siteOrigin()}/tech/${l.slug}`, name: tr(l, 'title', lang),
+            })),
+          },
+        },
+      )} />
+
       {/* The catalogue band */}
       <section className="st-frame st-catalogue">
         <h1 className="st-catalogue-title">{stl(s, 'st_catalogue_title', lang)}</h1>

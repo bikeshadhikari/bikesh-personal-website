@@ -9,10 +9,12 @@ import ShareLink from '@/components/tech/ShareLink';
 import BlockHead from '@/components/tech/BlockHead';
 import { currentUser } from '@/lib/auth';
 import {
-  countTechView, getRelatedTechLinks, getTechBlocks, getTechLink, getTechSettings, num, resolveLang,
+  countTechView, getBlogArticleFor, getRelatedTechLinks, getTechBlocks, getTechLink, getTechSettings, num, resolveLang,
   st, stl, techDate, tr, ui, withLang,
 } from '@/lib/tech';
 import { techMetadata } from '@/lib/tech-meta';
+import JsonLd from '@/components/JsonLd';
+import { breadcrumbs, faqSchema, graph, parseFaq, personId, techSiteId } from '@/lib/seo';
 import { excerptOf, siteOrigin } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
@@ -33,6 +35,12 @@ export async function generateMetadata({ params, searchParams }: Props) {
     title: tr(link, 'title', lang),
     description: link.meta_description || tr(link, 'summary', lang) || excerptOf(tr(link, 'content', lang), 30),
     image: link.cover_image || undefined,
+    article: {
+      published: link.published_at ? new Date(link.published_at).toISOString() : null,
+      modified: link.updated_at ? new Date(link.updated_at).toISOString() : null,
+      section: link.collection_name,
+    },
+    keywords: [tr(link, 'title', lang), tr(link, 'kicker', lang), link.collection_name ?? ''].filter(Boolean),
   });
 }
 
@@ -48,7 +56,9 @@ export default async function TechLinkPage({ params, searchParams }: Props) {
   if (!link) notFound();
   if (!owner) void countTechView(link.id);
 
-  const [blocks, related] = await Promise.all([getTechBlocks(link.id), getRelatedTechLinks(link)]);
+  const [blocks, related, article] = await Promise.all([
+    getTechBlocks(link.id), getRelatedTechLinks(link), getBlogArticleFor(link.id),
+  ]);
 
   const title = tr(link, 'title', lang);
   const summary = tr(link, 'summary', lang);
@@ -56,11 +66,45 @@ export default async function TechLinkPage({ params, searchParams }: Props) {
   const collection = tr({ name: link.collection_name, name_ne: link.collection_name_ne }, 'name', lang);
   const content = tr(link, 'content', lang);
   // A short link, when there is one, is what gets shared.
+  const faq = parseFaq(link.faq);
+  const pageUrl = `${siteOrigin()}/tech/${link.slug}`;
+  const schema = graph(
+    {
+      '@type': 'TechArticle',
+      '@id': `${pageUrl}#article`,
+      headline: title,
+      description: link.meta_description || summary,
+      url: pageUrl,
+      mainEntityOfPage: pageUrl,
+      image: link.cover_image || `${pageUrl}/opengraph-image`,
+      datePublished: link.published_at ? new Date(link.published_at).toISOString() : undefined,
+      dateModified: link.updated_at ? new Date(link.updated_at).toISOString() : undefined,
+      author: { '@id': personId() },
+      publisher: { '@id': personId() },
+      isPartOf: { '@id': techSiteId() },
+      articleSection: collection || undefined,
+      inLanguage: lang,
+      ...(link.video_url ? { video: { '@type': 'VideoObject', name: title, url: link.video_url, embedUrl: link.video_url,
+        description: summary || title, thumbnailUrl: link.cover_image || `${pageUrl}/opengraph-image`,
+        uploadDate: link.published_at ? new Date(link.published_at).toISOString() : undefined } } : {}),
+      ...(blocks.length > 0 ? { hasPart: blocks.map((b, i) => ({
+        '@type': 'CreativeWork', position: i + 1, name: tr(b, 'title', lang) || b.label, text: tr(b, 'body', lang),
+      })) } : {}),
+    },
+    breadcrumbs([
+      { name: stl(s, 'st_name', lang), url: `${siteOrigin()}/tech` },
+      ...(link.collection_slug ? [{ name: collection, url: `${siteOrigin()}/tech/c/${link.collection_slug}` }] : []),
+      { name: title, url: pageUrl },
+    ]),
+    faq.length > 0 && faqSchema(faq),
+  );
+
   const url = link.short_link ? `${siteOrigin()}/${link.short_link}` : `${siteOrigin()}/tech/${link.slug}`;
 
   return (
     <TechShell lang={lang} path={`/tech/${link.slug}`}
                current={link.collection_slug ? `c-${link.collection_slug}` : ''} showNewsletter>
+      <JsonLd data={schema} />
       <div className="st-frame st-detail">
         <aside className="st-detail-side">
           <div className="st-detail-sticky">
@@ -142,6 +186,26 @@ export default async function TechLinkPage({ params, searchParams }: Props) {
                   );
                 })}
               </ol>
+            </section>
+          )}
+
+          {article && (
+            <p className="st-full-article">
+              <Link href={`/blog/${article.slug}`} className="st-btn st-btn-ghost st-hl" data-hl={t.readFull}>
+                {t.readFull}: {article.title} <TechIcon name="arrow-right" />
+              </Link>
+            </p>
+          )}
+
+          {faq.length > 0 && (
+            <section className="st-faq" aria-labelledby="st-faq-head">
+              <h2 id="st-faq-head" className="st-mono st-blocks-head">{t.faq}</h2>
+              {faq.map((f, i) => (
+                <details key={i} className="st-faq-item st-hl st-hl-soft" open={i === 0}>
+                  <summary>{f.question}</summary>
+                  <p>{f.answer}</p>
+                </details>
+              ))}
             </section>
           )}
 

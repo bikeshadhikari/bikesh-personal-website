@@ -7,7 +7,7 @@ const RESERVED = new Set([
   'about', 'admin', 'api', 'blog', 'contact', 'experience', 'feed.xml', 'gallery', 'icon.svg',
   'manifest.webmanifest', 'play-nepali-congress-quiz', 'political', 'projects', 'robots.txt',
   'search', 'services', 'setup', 'sitemap.xml', 'tech', 'favicon.ico', 'apple-touch-icon.png',
-  'og-default.png', 'quiz', '_next', 'home', 'login', 'index',
+  'og-default.png', 'quiz', '_next', 'home', 'login', 'index', 'indexnow-key', 'llms.txt', 'llms-full.txt',
 ]);
 
 /** Clean a typed short link and say what is wrong with it, if anything. */

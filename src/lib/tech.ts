@@ -55,6 +55,8 @@ export type TechLink = {
   views: number;
   block_count: number;
   meta_description: string;
+  updated_at?: string | Date | null;
+  faq?: string;
 };
 
 export type TechBlock = {
@@ -92,6 +94,11 @@ export const TECH_DEFAULTS: Record<string, string> = {
   st_meta_description: 'Free prompts, tools and plain-language tech explainers by Bikesh (@bikesh.adh). Copy, paste and get it done.',
   st_meta_description_ne: 'बिकेशका निःशुल्क प्रम्प्ट, टुल र सरल भाषामा प्रविधि व्याख्या। कपी गर्नुहोस्, पेस्ट गर्नुहोस्, काम सक्नुहोस्।',
   st_index: '1',
+  st_keywords: '',
+  st_about_title: 'About Bikesh — tech creator from Nepal',
+  st_about_title_ne: 'बिकेशको बारेमा — नेपालका टेक क्रिएटर',
+  st_about: 'Bikesh Adhikari (@bikesh.adh) is a tech creator from Nepal who explains technology in simple Nepali. Through Simplified Tech by Bikesh and the Tech Explainer series on Instagram, Facebook, YouTube and TikTok, he shares free AI prompts, tools and step-by-step guides that anyone can follow — no jargon, no paid apps needed.\n\nHe is also an IT professional and educator, and every prompt and tool on this site is one he has tested himself.',
+  st_about_ne: 'बिकेश अधिकारी (@bikesh.adh) नेपालका टेक क्रिएटर हुन्, जसले प्रविधिलाई सरल नेपालीमा बुझाउँछन्। Simplified Tech by Bikesh र इन्स्टाग्राम, फेसबुक, युट्युब तथा टिकटकमा चल्ने Tech Explainer शृङ्खलामार्फत उनी निःशुल्क एआई प्रम्प्ट, टुल र चरणबद्ध गाइड बाँड्छन्।\n\nउनी आईटी पेसाकर्मी र शिक्षक पनि हुन्, र यहाँका हरेक प्रम्प्ट र टुल उनले आफैँ परीक्षण गरेका हुन्।',
 
   st_default_theme: 'dark',
   st_show_theme_toggle: '1',
@@ -259,6 +266,7 @@ const UI = {
     language: 'नेपाली', languageLabel: 'Read in Nepali', share: 'Share', copyLink: 'Copy link',
     watch: 'Watch the video', visit: 'Open the link', learn: 'Learn', use: 'Use', about: 'About',
     prev: 'Newer', next: 'Older', explore: 'Explore', page: 'Page',
+    faq: 'Frequently asked questions', aboutMe: 'About Bikesh', readFull: 'Read the full article',
   },
   ne: {
     home: 'गृहपृष्ठ', collections: 'सङ्ग्रहहरू', allLinks: 'सबै लिङ्क', latest: 'पछिल्लो',
@@ -274,6 +282,7 @@ const UI = {
     language: 'English', languageLabel: 'Read in English', share: 'सेयर', copyLink: 'लिङ्क कपी',
     watch: 'भिडियो हेर्नुहोस्', visit: 'लिङ्क खोल्नुहोस्', learn: 'सिक्नुहोस्', use: 'प्रयोग', about: 'बारेमा',
     prev: 'नयाँ', next: 'पुराना', explore: 'अन्वेषण', page: 'पृष्ठ',
+    faq: 'प्रायः सोधिने प्रश्न', aboutMe: 'बिकेशको बारेमा', readFull: 'पूरा लेख पढ्नुहोस्',
   },
 };
 
@@ -309,7 +318,7 @@ const LIVE = () => sql`l.status = 'published' AND (l.published_at IS NULL OR l.p
 const LINK_COLUMNS = () => sql`
   l.id, l.title, l.title_ne, l.slug, l.short_link, l.collection_id, l.kicker, l.kicker_ne,
   l.summary, l.summary_ne, l.cover_image, l.badge, l.external_url, l.external_label,
-  l.video_url, l.is_featured, l.published_at, l.views, l.meta_description,
+  l.video_url, l.is_featured, l.published_at, l.updated_at, l.views, l.meta_description,
   c.name AS collection_name, c.name_ne AS collection_name_ne, c.slug AS collection_slug,
   (SELECT COUNT(*)::int FROM tech_blocks b WHERE b.link_id = l.id AND b.enabled) AS block_count`;
 
@@ -375,7 +384,7 @@ export const getTechHero = cache(async (): Promise<TechLink[]> =>
 
 export const getTechLink = cache(async (slug: string, preview = false): Promise<TechLink | null> =>
   heal(async () => {
-    const rows = await sql<TechLink[]>`SELECT ${LINK_COLUMNS()}, l.content, l.content_ne FROM tech_links l
+    const rows = await sql<TechLink[]>`SELECT ${LINK_COLUMNS()}, l.content, l.content_ne, l.faq FROM tech_links l
       LEFT JOIN tech_collections c ON c.id = l.collection_id
       WHERE l.slug = ${slug} ${preview ? sql`` : sql`AND ${LIVE()}`} LIMIT 1`;
     return rows[0] ?? null;
@@ -393,6 +402,16 @@ export async function getRelatedTechLinks(link: TechLink, limit = 4): Promise<Te
     WHERE ${LIVE()} AND l.id <> ${link.id}
     ORDER BY (l.collection_id IS NOT DISTINCT FROM ${link.collection_id}) DESC,
              l.published_at DESC NULLS LAST LIMIT ${limit}`], []);
+}
+
+/** The blog article the agent wrote for a Simplified Tech post, if it is live. */
+export async function getBlogArticleFor(linkId: number): Promise<{ slug: string; title: string } | null> {
+  return heal(async () => {
+    const rows = await sql<{ slug: string; title: string }[]>`
+      SELECT slug, title FROM posts WHERE source_tech_id = ${linkId} AND status = 'published'
+        AND (published_at IS NULL OR published_at <= NOW()) ORDER BY id DESC LIMIT 1`;
+    return rows[0] ?? null;
+  }, null);
 }
 
 export async function countTechView(id: number): Promise<void> {
