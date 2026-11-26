@@ -100,7 +100,14 @@ no UI framework and no CSS framework, so the markup stays readable and the pages
   (web search for fact-checking), publishes them to the blog and/or
   Simplified Tech cross-linked, fills missing meta descriptions, and pings
   IndexNow (Bing, ChatGPT search, Copilot).
-- Needs `ANTHROPIC_API_KEY` and `CRON_SECRET` in the Vercel environment.
+- Two ways to run it:
+  - **On the Claude subscription (no API charges):** set `AGENT_TOKEN` in
+    Vercel. A Claude Code scheduled task calls `GET /api/agent/work`, writes
+    the articles itself, and sends them to `POST /api/agent/publish`
+    (`/api/agent/fail` and `/api/agent/descriptions` too), with
+    `Authorization: Bearer <AGENT_TOKEN>`.
+  - **On the Anthropic API:** set `ANTHROPIC_API_KEY` and `CRON_SECRET`; the
+    site writes the articles itself on Vercel Cron, billed per use.
 
 **Dashboard** (`/admin`)
 - **Menus & sections** — one switch per page and per home-page block. Switching

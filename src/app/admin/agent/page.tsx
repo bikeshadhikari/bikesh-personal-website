@@ -7,6 +7,7 @@ import { currentUser } from '@/lib/auth';
 import { getSettings } from '@/lib/settings';
 import { AGENT_DEFAULTS, AGENT_MODEL, agentConfigured, listJobs } from '@/lib/agent';
 import { jobAction } from './actions';
+import { remoteEnabled } from '@/lib/agent-remote';
 import { techCollectionChoices } from '@/lib/tech';
 import { formatDate } from '@/lib/utils';
 
@@ -27,7 +28,7 @@ const GROUPS: SettingsGroup[] = [
       agent_seo_pass: { type: 'checkbox', label: 'Fill in missing search descriptions on older posts', default: true },
       agent_indexnow: { type: 'checkbox', label: 'Notify Bing / ChatGPT search / Copilot (IndexNow) of new pages', default: true },
       agent_jobs_per_run: { type: 'number', label: 'Articles per daily run', default: 2, min: 1, max: 5,
-                            hint: 'Each article costs roughly US$0.20–0.60 in Anthropic API usage, paid from your API account.' },
+                            hint: 'On your Claude subscription this uses part of your plan’s usage; with an API key each article costs roughly US$0.20–0.60.' },
     },
   },
   {
@@ -49,7 +50,8 @@ const GROUPS: SettingsGroup[] = [
 export default async function AgentPage() {
   if ((await currentUser())?.role !== 'admin') redirect('/admin');
   const [s, jobs, collections] = await Promise.all([getSettings(), listJobs(), techCollectionChoices()]);
-  const ready = agentConfigured();
+  const apiMode = agentConfigured();
+  const subMode = remoteEnabled();
   const cronReady = Boolean(process.env.CRON_SECRET);
   const queued = jobs.filter((j) => j.status === 'queued').length;
 
@@ -71,22 +73,28 @@ export default async function AgentPage() {
             Every day it turns your Tech Explainer content into detailed English articles, checks facts on the web,
             publishes them to your <Link href="/admin/posts">blog</Link> and <Link href="/admin/tech_links">Simplified Tech</Link>,
             links the two, fills in missing search descriptions and tells search engines about new pages.
-            Model: <code>{AGENT_MODEL}</code>.
+            {' '}{subMode
+              ? <>Runs on your <strong>Claude subscription</strong> through a Claude Code scheduled task, every morning — no API charges.</>
+              : apiMode ? <>Runs on the Anthropic API (<code>{AGENT_MODEL}</code>), billed per article.</> : null}
           </p>
         </div>
         <div className="welcome-actions">
-          <RunButton label={queued ? `Run now (${queued} waiting)` : 'Run now'} />
+          {apiMode
+            ? <RunButton label={queued ? `Run now (${queued} waiting)` : 'Run now'} />
+            : <span className="muted">{queued} waiting for the next run</span>}
         </div>
       </div>
 
-      {!ready && (
+      {!apiMode && !subMode && (
         <div className="alert alert-error">
-          <strong>One step left:</strong> the agent needs an Anthropic API key. In Vercel open your project →
-          Settings → Environment Variables and add <code>ANTHROPIC_API_KEY</code> (create the key at
-          console.anthropic.com → API keys). Then redeploy. Until then nothing is written.
+          <strong>One step left — free, on your Claude subscription:</strong> in Vercel open your project →
+          Settings → Environment Variables and add <code>AGENT_TOKEN</code> with a long random value (at least
+          24 characters, e.g. from a password generator). Redeploy. Give the same value to the Claude Code scheduled
+          task when it asks for the credential for this site. Nothing is written until then.
+          <br /><small>Alternatively, <code>ANTHROPIC_API_KEY</code> makes the website write the articles itself, billed per use.</small>
         </div>
       )}
-      {!cronReady && (
+      {apiMode && !cronReady && (
         <div className="alert alert-error">
           <strong>Daily run not active:</strong> add an environment variable <code>CRON_SECRET</code> in Vercel
           (any long random text) and redeploy. Vercel uses it to start the daily run. “Run now” works without it.

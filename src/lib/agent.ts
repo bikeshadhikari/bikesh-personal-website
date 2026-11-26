@@ -43,7 +43,7 @@ export const AGENT_DEFAULTS: Record<string, string> = {
 export function agentSetting(s: SettingsMap, key: string): string {
   return setting(s, key, AGENT_DEFAULTS[key] ?? '');
 }
-const on = (s: SettingsMap, key: string) => ['1', 'true', 'yes', 'on'].includes(agentSetting(s, key).toLowerCase());
+export const on = (s: SettingsMap, key: string) => ['1', 'true', 'yes', 'on'].includes(agentSetting(s, key).toLowerCase());
 
 export function agentConfigured(): boolean {
   return Boolean(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN);
@@ -60,7 +60,7 @@ export type AgentJob = {
 /* The writer                                                                 */
 /* -------------------------------------------------------------------------- */
 
-const ArticleSchema = z.object({
+export const ArticleSchema = z.object({
   title: z.string().min(8).max(120),
   slug: z.string().min(3).max(90),
   meta_title: z.string().max(80),
@@ -75,10 +75,10 @@ const ArticleSchema = z.object({
     title: z.string(), description: z.string(), label: z.string(), body: z.string(),
   })).max(12),
 });
-type Article = z.infer<typeof ArticleSchema>;
+export type Article = z.infer<typeof ArticleSchema>;
 
 /** The writer's standing brief. Kept byte-stable so it is cached between runs. */
-const SYSTEM_PROMPT = `You write the long-form English articles for Bikesh Adhikari, a tech creator from Nepal who publishes as "Simplified Tech by Bikesh" (handle @bikesh.adh) and runs the Tech Explainer series of short videos on Instagram, Facebook, YouTube and TikTok. His videos are in Nepali; your articles turn each one into a detailed English write-up that ranks in search and that AI search engines can quote.
+export const SYSTEM_PROMPT = `You write the long-form English articles for Bikesh Adhikari, a tech creator from Nepal who publishes as "Simplified Tech by Bikesh" (handle @bikesh.adh) and runs the Tech Explainer series of short videos on Instagram, Facebook, YouTube and TikTok. His videos are in Nepali; your articles turn each one into a detailed English write-up that ranks in search and that AI search engines can quote.
 
 Brand
 - Name it exactly "Simplified Tech by Bikesh" when you name it; never "by Bks". The handle is @bikesh.adh.
@@ -105,7 +105,7 @@ Output
 - faq: 3–6 real questions people search for, each answered in 1–3 sentences.
 - copy_blocks: only the prompts, commands or texts from the source that a reader should copy (heading, one-line instruction, a label such as Prompt/Command/Text, and the exact body). Empty list if there are none.`;
 
-const publishTool = {
+export const publishTool = {
   name: 'publish_article',
   description: 'Publish the finished article. Call exactly once, with every field filled in.',
   strict: true,
@@ -246,9 +246,9 @@ async function writeDescriptions(pages: { key: string; title: string; text: stri
 /* Material                                                                   */
 /* -------------------------------------------------------------------------- */
 
-const strip = (html: string) => html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+export const strip = (html: string) => html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 
-async function materialFor(job: AgentJob): Promise<string> {
+export async function materialFor(job: AgentJob): Promise<string> {
   const parts: string[] = [];
   if (job.tech_link_id) {
     const [link] = await sql<{ title: string; summary: string; content: string; slug: string; video_url: string;
@@ -319,7 +319,7 @@ async function authorId(): Promise<number | null> {
 const faqJson = (a: Article) => JSON.stringify(a.faq.filter((f) => f.question.trim() && f.answer.trim()).slice(0, 8));
 
 /** Put one job's article on the site. Returns the addresses it created or changed. */
-async function publish(job: AgentJob, a: Article, s: SettingsMap): Promise<string[]> {
+export async function publish(job: AgentJob, a: Article, s: SettingsMap): Promise<string[]> {
   const base = siteOrigin();
   const status = on(s, 'agent_auto_publish') ? 'published' : 'draft';
   const html = sanitizeHtml(a.article_html);
@@ -391,7 +391,7 @@ async function publish(job: AgentJob, a: Article, s: SettingsMap): Promise<strin
 /* -------------------------------------------------------------------------- */
 
 /** Published Simplified Tech posts that have no article yet. */
-async function queueTechPosts(): Promise<number> {
+export async function queueTechPosts(): Promise<number> {
   const rows = await sql<{ id: number; title: string }[]>`
     SELECT l.id, l.title FROM tech_links l
     WHERE l.status = 'published' AND l.blog_post_id IS NULL
@@ -407,7 +407,7 @@ const decode = (t: string) => t.replace(/&amp;/g, '&').replace(/&lt;/g, '<').rep
   .replace(/&quot;/g, '"').replace(/&#39;/g, "'");
 
 /** New videos on the YouTube channel, from its public feed. */
-async function queueYouTube(channelId: string): Promise<number> {
+export async function queueYouTube(channelId: string): Promise<number> {
   if (!/^UC[\w-]{20,}$/.test(channelId)) return 0;
   const res = await fetch(`https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`, { cache: 'no-store' });
   if (!res.ok) return 0;
@@ -563,34 +563,49 @@ export async function runAgent(opts: { deadline: number; jobId?: number; force?:
   return report;
 }
 
-async function seoPass(changed: string[]): Promise<number> {
-  const base = siteOrigin();
-  const posts = await sql<{ id: number; slug: string; title: string; text: string }[]>`
-    SELECT id, slug, title, COALESCE(NULLIF(excerpt, ''), content) AS text FROM posts
-    WHERE status = 'published' AND COALESCE(meta_description, '') = '' ORDER BY published_at DESC NULLS LAST LIMIT 8`;
-  const techs = await sql<{ id: number; slug: string; title: string; text: string }[]>`
-    SELECT id, slug, title, COALESCE(NULLIF(summary, ''), content) AS text FROM tech_links
-    WHERE status = 'published' AND COALESCE(meta_description, '') = '' ORDER BY published_at DESC NULLS LAST LIMIT 8`;
-  const pages = [
-    ...posts.map((p) => ({ key: `p${p.id}`, title: p.title, text: strip(p.text) })),
-    ...techs.map((t) => ({ key: `t${t.id}`, title: t.title, text: strip(t.text) })),
+export type PageForDescription = { key: string; title: string; text: string };
+
+/** Published pages with no search description yet (p = blog post, t = tech post). */
+export async function pagesNeedingDescriptions(limit = 8): Promise<PageForDescription[]> {
+  const posts = await sql<{ id: number; title: string; text: string }[]>`
+    SELECT id, title, COALESCE(NULLIF(excerpt, ''), content) AS text FROM posts
+    WHERE status = 'published' AND COALESCE(meta_description, '') = '' ORDER BY published_at DESC NULLS LAST LIMIT ${limit}`;
+  const techs = await sql<{ id: number; title: string; text: string }[]>`
+    SELECT id, title, COALESCE(NULLIF(summary, ''), content) AS text FROM tech_links
+    WHERE status = 'published' AND COALESCE(meta_description, '') = '' ORDER BY published_at DESC NULLS LAST LIMIT ${limit}`;
+  return [
+    ...posts.map((p) => ({ key: `p${p.id}`, title: p.title, text: strip(p.text).slice(0, 1500) })),
+    ...techs.map((t) => ({ key: `t${t.id}`, title: t.title, text: strip(t.text).slice(0, 1500) })),
   ];
-  if (pages.length === 0) return 0;
-  const out = await writeDescriptions(pages);
-  let n = 0;
-  for (const [key, text] of out) {
+}
+
+/** Store descriptions, never over one already written. Returns the addresses changed. */
+export async function saveDescriptions(items: Map<string, string>): Promise<string[]> {
+  const base = siteOrigin();
+  const changed: string[] = [];
+  for (const [key, raw] of items) {
+    const text = raw.replace(/\s+/g, ' ').trim().slice(0, 300);
     const id = Number(key.slice(1));
+    if (text.length < 50 || !Number.isInteger(id)) continue;
     if (key.startsWith('p')) {
       const rows = await sql<{ slug: string }[]>`UPDATE posts SET meta_description = ${text}
         WHERE id = ${id} AND COALESCE(meta_description, '') = '' RETURNING slug`;
-      if (rows[0]) { n++; changed.push(`${base}/blog/${rows[0].slug}`); }
+      if (rows[0]) changed.push(`${base}/blog/${rows[0].slug}`);
     } else if (key.startsWith('t')) {
       const rows = await sql<{ slug: string }[]>`UPDATE tech_links SET meta_description = ${text}
         WHERE id = ${id} AND COALESCE(meta_description, '') = '' RETURNING slug`;
-      if (rows[0]) { n++; changed.push(`${base}/tech/${rows[0].slug}`); }
+      if (rows[0]) changed.push(`${base}/tech/${rows[0].slug}`);
     }
   }
-  return n;
+  return changed;
+}
+
+async function seoPass(changed: string[]): Promise<number> {
+  const pages = await pagesNeedingDescriptions();
+  if (pages.length === 0) return 0;
+  const urls = await saveDescriptions(await writeDescriptions(pages));
+  changed.push(...urls);
+  return urls.length;
 }
 
 function errorText(error: unknown): string {
