@@ -135,7 +135,7 @@ export const TECH_DEFAULTS: Record<string, string> = {
 
   st_youtube: 'https://www.youtube.com/@bikeshadh',
   st_instagram: 'https://www.instagram.com/bikesh.adh',
-  st_facebook: 'https://www.facebook.com/bikeshadh',
+  st_facebook: 'https://www.facebook.com/bikesh.adh',
   st_tiktok: 'https://www.tiktok.com/@bikesh.adh',
   st_email: '',
   st_show_subscribe: '1',
@@ -204,7 +204,22 @@ export function customNavLinks(s: SettingsMap, lang: Lang): NavLink[] {
     .filter((l) => l.label && /^(https?:\/\/|\/)/i.test(l.href));
 }
 
-export const getTechSettings = getSettings;
+/**
+ * Settings for the Simplified Tech pages. Also corrects one early default:
+ * the Facebook link first shipped as facebook.com/bikeshadh; the right page is
+ * facebook.com/bikesh.adh. Only that exact old value is replaced, so a link
+ * the owner typed in is never touched.
+ */
+export const getTechSettings = cache(async (): Promise<SettingsMap> => {
+  const s = await getSettings();
+  const old = (s.st_facebook ?? '').trim().replace(/\/+$/, '');
+  if (/^https?:\/\/(www\.)?facebook\.com\/bikeshadh$/i.test(old)) {
+    const fixed = TECH_DEFAULTS.st_facebook;
+    try { await saveSettings({ st_facebook: fixed }, 'tech'); } catch { /* shown corrected either way */ }
+    return { ...s, st_facebook: fixed };
+  }
+  return s;
+});
 
 /* -------------------------------------------------------------------------- */
 /* Language                                                                   */

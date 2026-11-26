@@ -19,7 +19,7 @@ const TECH_SOCIAL_KEYS = ['st_youtube', 'st_instagram', 'st_facebook', 'st_tikto
 const TECH_SOCIAL_DEFAULTS: Record<string, string> = {
   st_youtube: 'https://www.youtube.com/@bikeshadh',
   st_instagram: 'https://www.instagram.com/bikesh.adh',
-  st_facebook: 'https://www.facebook.com/bikeshadh',
+  st_facebook: 'https://www.facebook.com/bikesh.adh',
   st_tiktok: 'https://www.tiktok.com/@bikesh.adh',
 };
 
@@ -28,7 +28,10 @@ export function allProfiles(s: SettingsMap): string[] {
   const urls = [
     ...socialLinks(s).map((l) => l.url),
     ...TECH_SOCIAL_KEYS.map((k) => setting(s, k, TECH_SOCIAL_DEFAULTS[k])),
-  ].map((u) => u.trim()).filter((u) => /^https?:\/\//i.test(u));
+  ].map((u) => u.trim())
+    // The Facebook page is facebook.com/bikesh.adh; an early default said bikeshadh.
+    .map((u) => (/^https?:\/\/(www\.)?facebook\.com\/bikeshadh\/?$/i.test(u) ? TECH_SOCIAL_DEFAULTS.st_facebook : u))
+    .filter((u) => /^https?:\/\//i.test(u));
   const seen = new Set<string>();
   return urls.filter((u) => {
     const key = u.toLowerCase().replace(/\/+$/, '').replace('://www.', '://');
