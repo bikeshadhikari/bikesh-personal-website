@@ -878,3 +878,22 @@ html.st-locked { overflow: hidden; }
 .st-block-text .st-block-desc { margin: 0; }
 .st-block { padding: 1.1rem 0 1.6rem; }
 @media (max-width: 640px) { .st-block-title { font-size: 1.1rem; } .st-block { padding: .9rem 0 1.25rem; } }
+
+/* FAQ, full-article link and the About page */
+.st-faq { margin-top: 2.5rem; border-top: 1px solid var(--st-line); }
+.st-faq-item { border-bottom: 1px solid var(--st-line); padding: 1rem .2rem; }
+.st-faq-item summary { cursor: pointer; font-weight: 600; font-size: 1.08rem; list-style: none; display: flex; justify-content: space-between; gap: 1rem; }
+.st-faq-item summary::-webkit-details-marker { display: none; }
+.st-faq-item summary::after { content: '+'; font-family: var(--st-mono); color: var(--st-accent-ink); }
+.st-faq-item[open] summary::after { content: '–'; }
+.st-faq-item p { margin: .6rem 0 0; color: var(--st-soft); line-height: 1.65; }
+.st-full-article { margin-top: 2rem; }
+.st-full-article .st-btn { white-space: normal; text-align: left; }
+.st-prose-first { margin-top: 1.5rem; border-top: 0; padding-top: 0; }
+.st-about-channels { list-style: none; margin: 0; padding: 0; }
+.st-about-channels li { border-bottom: 1px solid var(--st-line); }
+.st-about-channels .st-block-head { text-decoration: none; }
+
+/* Blog inside Simplified Tech */
+.st-card-media-wide { aspect-ratio: 16 / 10; }
+.st-tags { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 2rem; }

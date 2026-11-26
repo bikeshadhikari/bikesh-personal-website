@@ -81,6 +81,34 @@ no UI framework and no CSS framework, so the markup stays readable and the pages
   Settings, so the tab matches the site. Uploading a favicon replaces it.
 - Apple-touch icon and web app manifest included.
 
+**SEO for search engines and AI assistants**
+- One Person entity (schema.org JSON-LD) shared by every page of both sites,
+  with every Instagram, Facebook, YouTube, TikTok and LinkedIn profile in
+  `sameAs`, so Google and AI search join the website, the handle @bikesh.adh
+  and "Simplified Tech by Bikesh" into one person.
+- `TechArticle` / `BlogPosting`, `BreadcrumbList`, `CollectionPage`,
+  `ProfilePage` and `FAQPage` markup; visible FAQs under articles.
+- `/llms.txt` (a plain-text map for AI assistants), a robots file that names
+  and welcomes the AI search crawlers, `/tech/feed.xml`, English/Nepali
+  `hreflang` in the sitemap, a drawn share picture for every tech post, and an
+  About page at `/tech/about`.
+
+**SEO & blog agent** (`/admin/agent`)
+- Runs daily on Vercel Cron (`vercel.json`, 03:15 UTC = 9:00 in Nepal) or on
+  "Run now". Turns Simplified Tech posts, new YouTube videos and pasted
+  scripts/notes into detailed English articles with `claude-opus-5-5`
+  (web search for fact-checking), publishes them to the blog and/or
+  Simplified Tech cross-linked, fills missing meta descriptions, and pings
+  IndexNow (Bing, ChatGPT search, Copilot).
+- Two ways to run it:
+  - **On the Claude subscription (no API charges):** set `AGENT_TOKEN` in
+    Vercel. A Claude Code scheduled task calls `GET /api/agent/work`, writes
+    the articles itself, and sends them to `POST /api/agent/publish`
+    (`/api/agent/fail` and `/api/agent/descriptions` too), with
+    `Authorization: Bearer <AGENT_TOKEN>`.
+  - **On the Anthropic API:** set `ANTHROPIC_API_KEY` and `CRON_SECRET`; the
+    site writes the articles itself on Vercel Cron, billed per use.
+
 **Dashboard** (`/admin`)
 - **Menus & sections** — one switch per page and per home-page block. Switching
   something off removes it from the navigation, makes its address return the

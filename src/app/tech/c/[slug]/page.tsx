@@ -8,6 +8,9 @@ import {
   tr, ui, withLang,
 } from '@/lib/tech';
 import { techMetadata } from '@/lib/tech-meta';
+import JsonLd from '@/components/JsonLd';
+import { breadcrumbs, graph, personId, techSiteId } from '@/lib/seo';
+import { siteOrigin } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,6 +48,24 @@ export default async function TechCollectionPage({ params, searchParams }: Props
 
   return (
     <TechShell lang={lang} path={page > 1 ? `${base}?page=${page}` : base} current={`c-${collection.slug}`} showNewsletter>
+      <JsonLd data={graph(
+        {
+          '@type': 'CollectionPage',
+          url: `${siteOrigin()}${base}`,
+          name: tr(collection, 'name', lang),
+          description: tr(collection, 'description', lang) || undefined,
+          isPartOf: { '@id': techSiteId() },
+          author: { '@id': personId() },
+          inLanguage: lang,
+          mainEntity: { '@type': 'ItemList', itemListElement: rows.map((l, i) => ({
+            '@type': 'ListItem', position: i + 1, url: `${siteOrigin()}/tech/${l.slug}`, name: tr(l, 'title', lang),
+          })) },
+        },
+        breadcrumbs([
+          { name: stl(s, 'st_name', lang), url: `${siteOrigin()}/tech` },
+          { name: tr(collection, 'name', lang), url: `${siteOrigin()}${base}` },
+        ]),
+      )} />
       <section className="st-frame st-page-head">
         <p className="st-mono st-crumbs">
           <Link href={L('/tech')}>{stl(s, 'st_name', lang)}</Link><span>/</span>

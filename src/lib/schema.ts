@@ -491,9 +491,36 @@ export async function createSchema(): Promise<void> {
     );
 
     ALTER TABLE tech_links ADD COLUMN IF NOT EXISTS short_link VARCHAR(80) NOT NULL DEFAULT '';
+    ALTER TABLE tech_links ADD COLUMN IF NOT EXISTS faq TEXT NOT NULL DEFAULT '';
+    ALTER TABLE tech_links ADD COLUMN IF NOT EXISTS blog_post_id INTEGER;
+    ALTER TABLE posts      ADD COLUMN IF NOT EXISTS faq TEXT NOT NULL DEFAULT '';
+    ALTER TABLE posts      ADD COLUMN IF NOT EXISTS source_tech_id INTEGER;
     CREATE INDEX IF NOT EXISTS idx_tech_links_status ON tech_links (status, published_at DESC);
     CREATE INDEX IF NOT EXISTS idx_tech_links_short  ON tech_links (short_link) WHERE short_link <> '';
     CREATE INDEX IF NOT EXISTS idx_tech_blocks_link  ON tech_blocks (link_id, sort_order);
+
+    -- The SEO & blog agent: one row per piece of content to write up.
+    CREATE TABLE IF NOT EXISTS agent_jobs (
+      id            SERIAL PRIMARY KEY,
+      source        VARCHAR(20)  NOT NULL DEFAULT 'inbox',
+      target        VARCHAR(10)  NOT NULL DEFAULT 'both',
+      title         VARCHAR(300) DEFAULT '',
+      source_text   TEXT DEFAULT '',
+      source_url    VARCHAR(500) DEFAULT '',
+      tech_link_id  INTEGER REFERENCES tech_links(id) ON DELETE SET NULL,
+      collection_id INTEGER REFERENCES tech_collections(id) ON DELETE SET NULL,
+      status        VARCHAR(12)  NOT NULL DEFAULT 'queued',
+      attempts      INTEGER NOT NULL DEFAULT 0,
+      post_id       INTEGER REFERENCES posts(id) ON DELETE SET NULL,
+      result_tech_id INTEGER REFERENCES tech_links(id) ON DELETE SET NULL,
+      error         TEXT DEFAULT '',
+      usage_note    VARCHAR(200) DEFAULT '',
+      started_at    TIMESTAMPTZ,
+      finished_at   TIMESTAMPTZ,
+      created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS idx_agent_jobs_status ON agent_jobs (status, created_at);
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_agent_jobs_url ON agent_jobs (source_url) WHERE source_url <> '';
 
     CREATE TABLE IF NOT EXISTS login_attempts (
       id         SERIAL PRIMARY KEY,

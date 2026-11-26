@@ -117,6 +117,18 @@ const GROUPS: SettingsGroup[] = [
   },
   {
     key: 'tech',
+    title: 'About page (/tech/about)',
+    note: 'Who you are, in plain words. Search engines and AI assistants read this page to answer “who is @bikesh.adh”. Keep it factual.',
+    fields: {
+      st_about_title: { type: 'text', label: 'Heading (English)', full: true, default: d('st_about_title') },
+      st_about_title_ne: { type: 'text', label: 'Heading (नेपाली)', full: true, default: d('st_about_title_ne') },
+      st_about: { type: 'textarea', label: 'About text (English)', rows: 6, full: true, default: d('st_about'),
+                  hint: 'A blank line starts a new paragraph.' },
+      st_about_ne: { type: 'textarea', label: 'About text (नेपाली)', rows: 6, full: true, default: d('st_about_ne') },
+    },
+  },
+  {
+    key: 'tech',
     title: 'Search engines & sharing',
     fields: {
       st_meta_title: { type: 'text', label: 'Page title', full: true, default: d('st_meta_title') },
@@ -125,6 +137,8 @@ const GROUPS: SettingsGroup[] = [
       st_og_image: { type: 'image', label: 'Share picture', folder: 'tech',
                      hint: 'Shown when the /tech link is shared. 1200×630. Each post uses its own cover.' },
       st_index: { type: 'checkbox', label: 'Allow search engines to index these pages', default: true },
+      st_keywords: { type: 'textarea', label: 'Keywords', rows: 2, full: true,
+                     hint: 'Comma separated. Leave empty for: Simplified Tech by Bikesh, Bikesh Adhikari, @bikesh.adh, tech creator in Nepal, Nepali tech explainer, AI prompts…' },
     },
   },
 ];

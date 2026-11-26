@@ -11,6 +11,8 @@ import { getComments, getPost, getRelatedPosts, registerView } from '@/lib/conte
 import ReadTimer from '@/components/site/ReadTimer';
 import { csvList, excerptOf, formatDate, isoDate, sanitizeHtml, siteOrigin } from '@/lib/utils';
 import Icon from '@/components/Icon';
+import JsonLd from '@/components/JsonLd';
+import { breadcrumbs, faqSchema, graph, parseFaq, personId } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
 
@@ -72,12 +74,39 @@ export default async function PostPage({ params }: Props) {
   const commentsOn = settingBool(s, 'comments_enabled', true) && post.allow_comments;
   const siteUrl = siteOrigin();
   const shareUrl = `${siteUrl}/blog/${post.slug}`;
+  const faq = parseFaq(post.faq);
+  const schema = graph(
+    {
+      '@type': 'BlogPosting',
+      '@id': `${shareUrl}#article`,
+      headline: post.title,
+      description: post.meta_description || post.excerpt || excerptOf(post.content, 30),
+      url: shareUrl,
+      mainEntityOfPage: shareUrl,
+      image: post.cover_image || `${shareUrl}/opengraph-image`,
+      datePublished: post.published_at ? new Date(post.published_at).toISOString() : undefined,
+      dateModified: new Date(post.updated_at ?? post.published_at ?? Date.now()).toISOString(),
+      author: { '@id': personId() },
+      publisher: { '@id': personId() },
+      articleSection: post.category_name ?? undefined,
+      keywords: tags.join(', ') || undefined,
+      wordCount: excerptOf(post.content, 100000).split(/\s+/).length,
+      inLanguage: 'en',
+    },
+    breadcrumbs([
+      { name: 'Blog', url: `${siteUrl}/blog` },
+      ...(post.category_slug ? [{ name: post.category_name ?? '', url: `${siteUrl}/blog/category/${post.category_slug}` }] : []),
+      { name: post.title, url: shareUrl },
+    ]),
+    faq.length > 0 && faqSchema(faq),
+  );
 
   return (
     <SiteShell current="blog">
       {/* Counts the time this reader is actually on the page and reports it
           once, when they leave. */}
       <ReadTimer endpoint={`/api/posts/${post.id}/time`} />
+      <JsonLd data={schema} />
       <article className="post-single">
         <header className="post-hero">
           <div className="hero-glow" aria-hidden="true" />
@@ -115,6 +144,18 @@ export default async function PostPage({ params }: Props) {
 
         <div className="container narrow">
           <div className="prose article-body" dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }} />
+
+          {faq.length > 0 && (
+            <section className="prose article-faq" aria-labelledby="faq-head">
+              <h2 id="faq-head">Frequently asked questions</h2>
+              {faq.map((f, i) => (
+                <details key={i} open={i === 0}>
+                  <summary>{f.question}</summary>
+                  <p>{f.answer}</p>
+                </details>
+              ))}
+            </section>
+          )}
 
           {tags.length > 0 && (
             <ul className="tag-cloud post-tags">

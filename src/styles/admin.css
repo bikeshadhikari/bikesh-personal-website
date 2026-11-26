@@ -709,3 +709,8 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .
 .block-tools .btn { min-width: 2.2rem; justify-content: center; }
 .block-fields { padding: .4rem .9rem 1rem; border-top: 1px solid var(--border); }
 @media (max-width: 640px) { .block-bar { flex-wrap: wrap; } .block-tools { width: 100%; justify-content: flex-end; } }
+
+/* SEO & blog agent */
+.agent-run { display: inline-flex; flex-direction: column; gap: .3rem; align-items: flex-start; }
+.agent-run small { max-width: 46ch; }
+.agent-report { white-space: pre-wrap; font-size: .82rem; background: var(--bg-inset, rgba(0,0,0,.04)); padding: .8rem 1rem; border-radius: 10px; margin: .4rem 0 1rem; }

@@ -49,6 +49,7 @@ export type Post = {
   is_featured: boolean; allow_comments: boolean; views: number;
   meta_title: string; meta_description: string;
   published_at: string | null; created_at: string; updated_at: string;
+  faq?: string; source_tech_id?: number | null;
   category_name?: string | null; category_slug?: string | null; category_color?: string | null;
   author_name?: string | null;
 };
