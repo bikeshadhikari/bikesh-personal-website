@@ -33,7 +33,7 @@ export const AGENT_DEFAULTS: Record<string, string> = {
   agent_jobs_per_run: '2',
   agent_from_tech: '1',
   agent_youtube_channel_id: '',
-  agent_blog_category: 'Tech Explainer',
+  agent_blog_category: 'Simplified Tech by Bikesh',
   agent_tech_collection: '',
   agent_seo_pass: '1',
   agent_indexnow: '1',
@@ -84,6 +84,11 @@ Brand
 - Name it exactly "Simplified Tech by Bikesh" when you name it; never "by Bks". The handle is @bikesh.adh.
 - Voice: plain, friendly, practical, confident. Short sentences. Explain jargon the first time it appears. Write for a smart reader who is not technical, often in Nepal or South Asia: mention local context (Nepali banks, NTC/Ncell, eSewa/Khalti, Nepali-language settings) only where it genuinely helps.
 
+Topic rule
+- Only write when the content explains technology: how a device, app, AI tool, website, the internet, security, software or a digital service works, or how to use it.
+- If the content is about anything else (personal life, politics, events, festivals, greetings, travel, food, promotions that are not about a tech tool), do not write an article. Call skip_article with a one-line reason instead.
+- Exception: when the content says "Requested by Bikesh", always write the article, whatever the topic.
+
 Accuracy
 - Never invent numbers, prices, dates, version numbers, quotes or statistics. When the article states a fact about a product, a price, a version or a policy, check it with the web search tool first, and prefer the vendor's own pages. If something cannot be confirmed, say so or leave it out.
 - Free tools first. Say clearly when something costs money.
@@ -96,7 +101,7 @@ What to write
 - End with one short paragraph inviting readers to follow @bikesh.adh for the video version and to find the copy-paste version on Simplified Tech by Bikesh.
 
 Output
-- When the article is finished, call the publish_article tool once with everything filled in. Do not write the article as a normal reply.
+- When the article is finished, call the publish_article tool once with everything filled in. Do not write the article as a normal reply. (Or call skip_article, under the topic rule above.)
 - article_html: HTML only, using <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <em>, <a href>, <blockquote>, <pre>, <code>. No <h1> (the page adds the title), no inline styles, no images, no FAQ section (the FAQ goes in the faq field).
 - slug: short, lower-case, hyphenated, with the primary keyword (e.g. "speed-up-wifi-prompt").
 - meta_title: up to 60 characters. meta_description: 120–155 characters, active, with the keyword. excerpt: 1–2 sentences for listing cards.
@@ -146,6 +151,21 @@ export const publishTool = {
   },
 };
 
+export const skipTool = {
+  name: 'skip_article',
+  description: 'Use instead of publish_article when the content is not a technology explanation (see the topic rule).',
+  strict: true,
+  input_schema: {
+    type: 'object' as const,
+    additionalProperties: false,
+    required: ['reason'],
+    properties: { reason: { type: 'string', description: 'One line: what the content is about instead.' } },
+  },
+};
+
+/** Thrown when the writer decides the content is not a tech explainer. */
+export class SkippedError extends Error {}
+
 function client(): Anthropic {
   // Long writes with web research; one retry is enough inside a cron window.
   return new Anthropic({ maxRetries: 1, timeout: 270_000 });
@@ -174,6 +194,7 @@ async function writeArticle(material: string, extra: string): Promise<{ article:
       tools: [
         { type: 'web_search_20260209', name: 'web_search', max_uses: 5 },
         publishTool,
+        skipTool,
       ],
       tool_choice: { type: 'auto' },
       messages,
@@ -185,6 +206,13 @@ async function writeArticle(material: string, extra: string): Promise<{ article:
 
     if (message.stop_reason === 'refusal') {
       throw new Error(`The model declined to write about this (${message.stop_details?.category ?? 'no category'}).`);
+    }
+
+    const skip = message.content.find(
+      (b): b is Anthropic.Beta.BetaToolUseBlock => b.type === 'tool_use' && b.name === 'skip_article');
+    if (skip) {
+      const reason = String((skip.input as { reason?: unknown }).reason ?? 'Not a technology explainer.');
+      throw new SkippedError(reason.slice(0, 300));
     }
 
     const call = message.content.find(
@@ -250,6 +278,10 @@ export const strip = (html: string) => html.replace(/<[^>]+>/g, ' ').replace(/\s
 
 export async function materialFor(job: AgentJob): Promise<string> {
   const parts: string[] = [];
+  // Anything Bikesh asks for himself is written whatever the topic.
+  if (job.source === 'inbox' || job.source === 'request') {
+    parts.push('Requested by Bikesh: write and publish this article even if it is not about technology.');
+  }
   if (job.tech_link_id) {
     const [link] = await sql<{ title: string; summary: string; content: string; slug: string; video_url: string;
       external_url: string; collection: string | null }[]>`
@@ -296,7 +328,7 @@ async function blogCategoryId(name: string): Promise<number | null> {
   if (found[0]) return found[0].id;
   const [row] = await sql<{ id: number }[]>`
     INSERT INTO categories (name, slug, description, sort_order)
-    VALUES (${clean}, ${await uniqueCategorySlug(clean)}, ${'Detailed write-ups of the Tech Explainer videos by @bikesh.adh.'}, 50)
+    VALUES (${clean}, ${await uniqueCategorySlug(clean)}, ${'Detailed, step-by-step tech explainers from Simplified Tech by Bikesh (@bikesh.adh).'}, 50)
     RETURNING id`;
   return row.id;
 }
@@ -530,6 +562,11 @@ export async function runAgent(opts: { deadline: number; jobId?: number; force?:
       report.wrote++;
       report.lines.push(`Wrote “${article.title}” (${note}).`);
     } catch (error) {
+      if (error instanceof SkippedError) {
+        await sql`UPDATE agent_jobs SET status = 'skipped', finished_at = NOW(), error = ${`Skipped: ${error.message}`} WHERE id = ${job.id}`;
+        report.lines.push(`Skipped “${job.title || `job ${job.id}`}”: ${error.message}`);
+        continue;
+      }
       const message = errorText(error);
       await sql`UPDATE agent_jobs SET status = 'failed', finished_at = NOW(), error = ${message} WHERE id = ${job.id}`;
       report.failed++;

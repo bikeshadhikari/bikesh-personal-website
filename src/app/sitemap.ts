@@ -42,6 +42,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const [{ rows }, collections] = await Promise.all([getTechLinks({ limit: 200 }), getTechCollections()]);
     // Each page in both languages, so Google shows the right one to each reader.
     const langs = (path: string) => ({ languages: { en: `${base}${path}`, ne: `${base}${path}?lang=ne` } });
+    entries.push({ url: `${base}/tech/blog`, lastModified: now, priority: 0.7, alternates: langs('/tech/blog') });
     entries.push({ url: `${base}/tech/about`, lastModified: now, priority: 0.7, alternates: langs('/tech/about') });
     for (const l of rows) {
       entries.push({

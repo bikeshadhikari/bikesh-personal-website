@@ -118,10 +118,27 @@ export async function completeJob(jobId: number, input: unknown) {
   return { ok: true, status: 200, urls, indexed };
 }
 
-export async function failJob(jobId: number, error: string) {
-  await sql`UPDATE agent_jobs SET status = 'failed', finished_at = NOW(), error = ${error.slice(0, 500) || 'Not written.'}
+export async function failJob(jobId: number, error: string, skipped = false) {
+  const text = skipped ? `Skipped: ${error.slice(0, 480) || 'not a technology explainer.'}` : (error.slice(0, 500) || 'Not written.');
+  await sql`UPDATE agent_jobs SET status = ${skipped ? 'skipped' : 'failed'}, finished_at = NOW(), error = ${text}
     WHERE id = ${jobId} AND status = 'running'`;
-  await note(`Job ${jobId} not written: ${error.slice(0, 200)}`);
+  await note(`Job ${jobId} ${skipped ? 'skipped (not a tech explainer)' : 'not written'}: ${error.slice(0, 200)}`);
+}
+
+/**
+ * An article Bikesh asked for himself (through the scheduled task or a chat
+ * with Claude). Queued at the front, and written whatever the topic.
+ */
+export async function requestArticle(input: { title: string; text: string; url: string; target: string }) {
+  await ensureSchema();
+  const target = ['both', 'blog', 'tech'].includes(input.target) ? input.target : 'both';
+  const rows = await sql<{ id: number }[]>`
+    INSERT INTO agent_jobs (source, target, title, source_text, source_url, created_at)
+    VALUES ('request', ${target}, ${input.title.slice(0, 300)}, ${input.text.slice(0, 40000)}, ${input.url.slice(0, 500)},
+            NOW() - INTERVAL '30 days')
+    ON CONFLICT DO NOTHING RETURNING id`;
+  if (rows[0]) await note(`Requested article queued: ${input.title || input.url}`);
+  return rows[0]?.id ?? null;
 }
 
 export async function storeDescriptions(items: { key: string; meta_description: string }[]) {

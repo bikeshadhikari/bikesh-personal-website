@@ -133,13 +133,13 @@ export default async function AgentPage() {
                     <strong>{j.title || j.source_url || `Job ${j.id}`}</strong>
                     <br />
                     <small className="muted">
-                      {j.source === 'tech' ? 'Simplified Tech post' : j.source === 'youtube' ? 'YouTube video' : 'Your notes'}
+                      {j.source === 'tech' ? 'Simplified Tech post' : j.source === 'youtube' ? 'YouTube video' : j.source === 'request' ? 'Your request' : 'Your notes'}
                       {' → '}{j.target === 'both' ? 'blog + Simplified Tech' : j.target === 'blog' ? 'blog' : 'Simplified Tech'}
                       {j.usage_note && <> · {j.usage_note}</>}
                     </small>
                     {j.error && <><br /><small className="field-error">{j.error}</small></>}
                   </td>
-                  <td><span className={`status status-${j.status === 'done' ? 'published' : j.status === 'failed' ? 'draft' : 'pending'}`}>{j.status}</span></td>
+                  <td><span className={`status status-${j.status === 'done' ? 'published' : j.status === 'failed' || j.status === 'skipped' ? 'draft' : 'pending'}`}>{j.status}</span></td>
                   <td className="num nowrap">
                     {j.post_slug && <a href={`/blog/${j.post_slug}`} target="_blank" rel="noopener noreferrer">Blog</a>}
                     {j.post_slug && j.tech_slug && ' · '}

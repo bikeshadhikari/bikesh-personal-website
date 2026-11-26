@@ -191,7 +191,7 @@ export default async function TechLinkPage({ params, searchParams }: Props) {
 
           {article && (
             <p className="st-full-article">
-              <Link href={`/blog/${article.slug}`} className="st-btn st-btn-ghost st-hl" data-hl={t.readFull}>
+              <Link href={L(`/tech/blog/${article.slug}`)} className="st-btn st-btn-ghost st-hl" data-hl={t.readFull}>
                 {t.readFull}: {article.title} <TechIcon name="arrow-right" />
               </Link>
             </p>

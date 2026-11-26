@@ -63,6 +63,7 @@ export default async function TechShell({
     ...collections.filter((c) => c.in_nav).slice(0, 6)
       .map((c) => ({ label: tr(c, 'name', lang), href: L(`/tech/c/${c.slug}`), key: `c-${c.slug}` })),
     ...customNavLinks(s, lang).map((l, i) => ({ ...l, href: L(l.href), key: `x-${i}` })),
+    { label: t.blog, href: L('/tech/blog'), key: 'blog' },
     { label: t.about, href: L('/tech/about'), key: 'about' },
   ];
 
@@ -210,6 +211,7 @@ export default async function TechShell({
             <p className="st-mono st-footer-head">{t.explore}</p>
             <ul>
               <li><Link className="st-hl st-hl-tight" data-hl={t.open} href={L('/tech/search')}>{t.search}</Link></li>
+              <li><Link className="st-hl st-hl-tight" data-hl={t.open} href={L('/tech/blog')}>{t.blog}</Link></li>
               <li><Link className="st-hl st-hl-tight" data-hl={t.open} href={L('/tech/about')}>{t.aboutMe}</Link></li>
               {customNavLinks(s, lang).map((l, i) => <li key={i}><Link className="st-hl st-hl-tight" data-hl={t.open} href={L(l.href)}>{l.label}</Link></li>)}
               {stBool(s, 'st_show_main_site_link') && <li><Link className="st-hl st-hl-tight" data-hl={t.open} href="/">{t.mainSite}</Link></li>}

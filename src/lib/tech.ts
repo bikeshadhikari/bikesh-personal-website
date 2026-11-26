@@ -282,6 +282,8 @@ const UI = {
     watch: 'Watch the video', visit: 'Open the link', learn: 'Learn', use: 'Use', about: 'About',
     prev: 'Newer', next: 'Older', explore: 'Explore', page: 'Page',
     faq: 'Frequently asked questions', aboutMe: 'About Bikesh', readFull: 'Read the full article',
+    blog: 'Blog', allArticles: 'All articles', articles: (n: number) => `${n} ${n === 1 ? 'article' : 'articles'}`,
+    minRead: (n: number) => `${n} min read`, copyVersion: 'Copy-paste version', blogIntro: 'Detailed, step-by-step articles from the Tech Explainer videos.',
   },
   ne: {
     home: 'गृहपृष्ठ', collections: 'सङ्ग्रहहरू', allLinks: 'सबै लिङ्क', latest: 'पछिल्लो',
@@ -298,6 +300,8 @@ const UI = {
     watch: 'भिडियो हेर्नुहोस्', visit: 'लिङ्क खोल्नुहोस्', learn: 'सिक्नुहोस्', use: 'प्रयोग', about: 'बारेमा',
     prev: 'नयाँ', next: 'पुराना', explore: 'अन्वेषण', page: 'पृष्ठ',
     faq: 'प्रायः सोधिने प्रश्न', aboutMe: 'बिकेशको बारेमा', readFull: 'पूरा लेख पढ्नुहोस्',
+    blog: 'ब्लग', allArticles: 'सबै लेख', articles: (n: number) => `${num(n, 'ne')} लेख`,
+    minRead: (n: number) => `${num(n, 'ne')} मिनेट पढाइ`, copyVersion: 'कपी-पेस्ट संस्करण', blogIntro: 'Tech Explainer भिडियोहरूका विस्तृत, चरणबद्ध लेखहरू (अङ्ग्रेजीमा)।',
   },
 };
 

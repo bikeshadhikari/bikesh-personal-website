@@ -38,7 +38,7 @@ export async function GET() {
     `- [Simplified Tech by Bikesh](${base}/tech): free AI prompts, tools and step-by-step tech guides`,
     `- [About Bikesh](${base}/tech/about): who he is and where to follow him`,
     `- [Personal website](${base}/): profile, experience, services and contact`,
-    `- [Blog](${base}/blog): detailed English articles from the Tech Explainer series`,
+    `- [Blog](${base}/blog): detailed English articles from the Tech Explainer series (also at ${base}/tech/blog)`,
     ...collections.map((c) => `- [${c.name}](${base}/tech/c/${c.slug})${c.description ? `: ${c.description}` : ''}`),
     '',
     '## Simplified Tech posts',

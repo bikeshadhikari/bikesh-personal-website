@@ -893,3 +893,7 @@ html.st-locked { overflow: hidden; }
 .st-about-channels { list-style: none; margin: 0; padding: 0; }
 .st-about-channels li { border-bottom: 1px solid var(--st-line); }
 .st-about-channels .st-block-head { text-decoration: none; }
+
+/* Blog inside Simplified Tech */
+.st-card-media-wide { aspect-ratio: 16 / 10; }
+.st-tags { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 2rem; }
